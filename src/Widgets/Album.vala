@@ -27,5 +27,17 @@
 
 namespace ShowMyPictures.Widgets {
     public class Album : Gtk.FlowBoxChild {
+
+        public Objects.Album album { get; private set; }
+
+        public Album (Objects.Album album) {
+            this.album = album;
+
+            build_ui ();
+        }
+
+        private void build_ui () {
+
+        }
     }
 }

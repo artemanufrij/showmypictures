@@ -86,18 +86,24 @@ namespace ShowMyPictures.Services {
             int year = 0;
             int month = 0;
             int day = 0;
+            string mime_type = "";
 
             var file = File.new_for_path (path);
-            FileInfo info = file.query_info ("standard::*,time::*", 0);
-            var attributes = info.list_attributes (null);
-            if (attributes != null) {
-                uint64 modified = info.get_attribute_uint64 ("time::modified");
-                if (modified > 0) {
-                    var date_time = new DateTime.from_unix_local ((int64)modified);
-                    year = date_time.get_year ();
-                    month = date_time.get_month ();
-                    day = date_time.get_day_of_month ();
+            try {
+                FileInfo info = file.query_info ("standard::*,time::*", 0);
+                var attributes = info.list_attributes (null);
+                if (attributes != null) {
+                    uint64 modified = info.get_attribute_uint64 ("time::modified");
+                    if (modified > 0) {
+                        var date_time = new DateTime.from_unix_local ((int64)modified);
+                        year = date_time.get_year ();
+                        month = date_time.get_month ();
+                        day = date_time.get_day_of_month ();
+                    }
                 }
+                mime_type = info.get_content_type ();
+            } catch (Error err) {
+                warning (err.message);
             }
 
             var album = new Objects.Album (Utils.get_default_album_title (year, month, day));
@@ -111,7 +117,7 @@ namespace ShowMyPictures.Services {
             picture.year = year;
             picture.month = month;
             picture.day = day;
-            picture.mime_type = info.get_content_type ();
+            picture.mime_type = mime_type;
 
             album.add_picture_if_not_exists (picture);
         }

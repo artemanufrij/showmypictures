@@ -27,5 +27,17 @@
 
 namespace ShowMyPictures.Widgets {
     public class Picture : Gtk.FlowBoxChild {
+
+        public Objects.Picture picture { get; private set; }
+
+        public Picture (Objects.Picture picture) {
+            this.picture = picture;
+
+            build_ui ();
+        }
+
+        private void build_ui () {
+
+        }
     }
 }
