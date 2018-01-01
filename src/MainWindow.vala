@@ -28,12 +28,23 @@
 namespace ShowMyPictures {
     public class MainWindow : Gtk.Window {
         ShowMyPictures.Services.LibraryManager library_manager;
-
         ShowMyPictures.Settings settings;
+
+        Gtk.Stack content;
+        Widgets.Views.AlbumsView albums_view;
+        Widgets.Views.Welcome welcome;
 
         construct {
             settings = ShowMyPictures.Settings.get_default ();
             library_manager = ShowMyPictures.Services.LibraryManager.instance;
+            library_manager.added_new_album.connect ((album) => {
+                Idle.add (() => {
+                    if (content.visible_child_name == "welcome") {
+                        content.visible_child_name = "albums";
+                    }
+                    return false;
+                });
+            });
         }
 
         public MainWindow () {
@@ -53,7 +64,16 @@ namespace ShowMyPictures {
         }
 
         private void build_ui () {
+            content = new Gtk.Stack ();
+            content.transition_type = Gtk.StackTransitionType.SLIDE_LEFT_RIGHT;
 
+            welcome = new Widgets.Views.Welcome ();
+            albums_view = new Widgets.Views.AlbumsView ();
+
+            content.add_named (welcome, "welcome");
+            content.add_named (albums_view, "albums");
+            this.add (content);
+            this.show_all ();
         }
 
         private void load_settings () {
@@ -74,7 +94,8 @@ namespace ShowMyPictures {
 
         private async void load_content_from_database () {
             foreach (var album in library_manager.albums) {
-
+                albums_view.add_album (album);
+                content.visible_child_name = "albums";
             }
         }
     }

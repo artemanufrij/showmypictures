@@ -57,6 +57,7 @@ namespace ShowMyPictures.Services {
             lf_manager.found_image_file.connect (found_local_image_file);
 
             db_manager = Services.DataBaseManager.instance;
+            db_manager.added_new_album.connect ((album) => { added_new_album (album); });
         }
 
         private LibraryManager () { }

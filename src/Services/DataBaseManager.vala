@@ -202,8 +202,6 @@ namespace ShowMyPictures.Services {
                 INSERT OR IGNORE INTO pictures (album_id, path, year, month, day, mime_type) VALUES ($ALBUM_ID, $PATH, $YEAR, $MONTH, $DAY, $MIME_TYPE);
             """;
 
-            stdout.printf ("Album ID %d\n", picture.album.ID);
-
             db.prepare_v2 (sql, sql.length, out stmt);
             set_parameter_int (stmt, sql, "$ALBUM_ID", picture.album.ID);
             set_parameter_str (stmt, sql, "$PATH", picture.path);

@@ -25,26 +25,7 @@
  * Authored by: Artem Anufrij <artem.anufrij@live.de>
  */
 
-namespace ShowMyPictures.Widgets {
-    public class Album : Gtk.FlowBoxChild {
-
-        public Objects.Album album { get; private set; }
-
-        public Album (Objects.Album album) {
-            this.album = album;
-
-            build_ui ();
-        }
-
-        private void build_ui () {
-            var content = new Gtk.Grid ();
-
-
-            var title = new Gtk.Label (album.title);
-            content.attach (title, 0, 1);
-            this.add (content);
-
-            this.show_all ();
-        }
+namespace ShowMyPictures.Widgets.Views {
+    public class AlbumView : Gtk.Grid {
     }
 }

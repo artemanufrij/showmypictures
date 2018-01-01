@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2018-2018 Artem Anufrij <artem.anufrij@live.de>
+ * Copyright (c) 2017-2017 Artem Anufrij <artem.anufrij@live.de>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -25,26 +25,43 @@
  * Authored by: Artem Anufrij <artem.anufrij@live.de>
  */
 
-namespace ShowMyPictures.Widgets {
-    public class Album : Gtk.FlowBoxChild {
+namespace ShowMyPictures.Widgets.Views {
+    public class AlbumsView : Gtk.Grid {
+        ShowMyPictures.Services.LibraryManager library_manager;
 
-        public Objects.Album album { get; private set; }
+        Gtk.FlowBox albums;
 
-        public Album (Objects.Album album) {
-            this.album = album;
+        construct {
+            library_manager = ShowMyPictures.Services.LibraryManager.instance;
+            library_manager.added_new_album.connect ((album) => {
+                Idle.add (() => {
+                    add_album (album);
+                    return false;
+                });
+            });
+        }
 
+        public AlbumsView () {
             build_ui ();
         }
 
         private void build_ui () {
-            var content = new Gtk.Grid ();
+            albums = new Gtk.FlowBox ();
+
+            var scroll = new Gtk.ScrolledWindow (null, null);
+            scroll.expand = true;
+
+            scroll.add (albums);
 
 
-            var title = new Gtk.Label (album.title);
-            content.attach (title, 0, 1);
-            this.add (content);
+            this.add (scroll);
+        }
 
-            this.show_all ();
+        public void add_album (Objects.Album album) {
+            lock (albums) {
+                var a = new Widgets.Album (album);
+                albums.add (a);
+            }
         }
     }
 }
