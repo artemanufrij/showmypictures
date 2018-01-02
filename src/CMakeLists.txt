@@ -14,6 +14,7 @@ vala_precompile (VALA_C ${CMAKE_PROJECT_NAME}
     Services/LibraryManager.vala
     Utils/Utils.vala
     Utils/Pixbuf.vala
+    Dialogs/Preferences.vala
     Settings.vala
     MainWindow.vala
     Application.vala
