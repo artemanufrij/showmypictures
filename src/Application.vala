@@ -48,6 +48,15 @@ namespace ShowMyPictures {
             this.application_id = "com.github.artemanufrij.showmypictures";
             settings = ShowMyPictures.Settings.get_default ();
 
+            var action_back = new SimpleAction ("back-action", null);
+            add_action (action_back);
+            add_accelerator ("<Alt>Left", "app.back-action", null);
+            action_back.activate.connect (() => {
+                if (mainwindow != null) {
+                    mainwindow.back_action ();
+                }
+            });
+
             create_cache_folders ();
         }
 

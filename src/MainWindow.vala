@@ -130,8 +130,7 @@ namespace ShowMyPictures {
             navigation_button.can_focus = false;
             navigation_button.get_style_context ().add_class ("back-button");
             navigation_button.clicked.connect (() => {
-                content.visible_child_name = "albums";
-                navigation_button.hide ();
+                back_action ();
             });
 
             headerbar.pack_start (navigation_button);
@@ -169,6 +168,15 @@ namespace ShowMyPictures {
 
         private void save_settings () {
             settings.window_maximized = this.is_maximized;
+        }
+
+        public void back_action () {
+            if (content.visible_child_name == "picture") {
+                content.visible_child_name = "album";
+            } else if (content.visible_child_name == "album") {
+                content.visible_child_name = "albums";
+                navigation_button.hide ();
+            }
         }
 
         private async void load_content_from_database () {
