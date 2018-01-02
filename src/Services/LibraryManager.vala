@@ -71,12 +71,12 @@ namespace ShowMyPictures.Services {
         }
 
         public void found_local_image_file (string path) {
-            new Thread<void*> (null, () => {
+            //new Thread<void*> (null, () => {
                 if (!db_manager.picture_file_exists (path)) {
                     insert_picture_file (path);
                 }
-                return null;
-            });
+            //    return null;
+            //});
         }
 
         public void scan_local_library_for_new_files (string path) {
@@ -84,46 +84,23 @@ namespace ShowMyPictures.Services {
         }
 
         private void insert_picture_file (string path) {
-            int year = 0;
-            int month = 0;
-            int day = 0;
             string mime_type = "";
-
-            var file = File.new_for_path (path);
-            try {
-                FileInfo info = file.query_info ("standard::*,time::*", 0);
-                file.dispose ();
-                var attributes = info.list_attributes (null);
-                if (attributes != null) {
-                    uint64 modified = info.get_attribute_uint64 ("time::created");
-                    if (modified > 0) {
-                        var date_time = new DateTime.from_unix_local ((int64)modified);
-                        year = date_time.get_year ();
-                        month = date_time.get_month ();
-                        day = date_time.get_day_of_month ();
-                    }
-                }
-                mime_type = info.get_content_type ();
-                info.dispose ();
-            } catch (Error err) {
-                warning (err.message);
-            }
-
-            var album = new Objects.Album ("");
-            album.year = year;
-            album.month = month;
-            album.day = day;
-
-            album = db_manager.insert_album_if_not_exists (album);
 
             var picture = new Objects.Picture ();
             picture.path = path;
-            picture.year = year;
-            picture.month = month;
-            picture.day = day;
             picture.mime_type = mime_type;
 
+            var album = new Objects.Album ("");
+            album.year = picture.year;
+            album.month = picture.month;
+            album.day = picture.day;
+            album.title = Utils.get_default_album_title (album.year, album.month, album.day);
+
+            album = db_manager.insert_album_if_not_exists (album);
+
             album.add_picture_if_not_exists (picture);
+
+            picture.create_preview ();
         }
     }
 }

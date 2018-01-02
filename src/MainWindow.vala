@@ -59,6 +59,17 @@ namespace ShowMyPictures {
             load_settings ();
             build_ui ();
 
+            Granite.Widgets.Utils.set_theming_for_screen (
+                this.get_screen (),
+                """
+                    .album {
+                        background: @base_color;
+                        border-radius: 3px;
+                    }
+                """,
+                Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
+            );
+
             load_content_from_database.begin ((obj, res) => {
                 library_manager.sync_library_content.begin ();
             });

@@ -29,7 +29,6 @@ namespace ShowMyPictures.Widgets.Views {
     public class AlbumView : Gtk.Grid {
         public Objects.Album current_album { get; private set; }
 
-
         Gtk.FlowBox pictures;
 
         public AlbumView () {
@@ -38,7 +37,11 @@ namespace ShowMyPictures.Widgets.Views {
 
         private void build_ui () {
             pictures = new Gtk.FlowBox ();
+            pictures.homogeneous = false;
+            pictures.set_sort_func (pictures_sort_func);
             pictures.margin = 24;
+            pictures.row_spacing = 12;
+            pictures.column_spacing = 12;
             pictures.valign = Gtk.Align.START;
             var scroll = new Gtk.ScrolledWindow (null, null);
             scroll.add (pictures);
@@ -53,7 +56,7 @@ namespace ShowMyPictures.Widgets.Views {
             }
 
             if (current_album != null) {
-
+                current_album.picture_added.disconnect (add_picture);
             }
             current_album = album;
             reset ();
@@ -61,6 +64,8 @@ namespace ShowMyPictures.Widgets.Views {
             foreach (var picture in current_album.pictures) {
                 add_picture (picture);
             }
+
+            current_album.picture_added.connect (add_picture);
         }
 
         private void reset () {
@@ -76,6 +81,12 @@ namespace ShowMyPictures.Widgets.Views {
                 item.show_all ();
                 return false;
             });
+        }
+
+        private int pictures_sort_func (Gtk.FlowBoxChild child1, Gtk.FlowBoxChild child2) {
+            var item1 = (Widgets.Picture)child1;
+            var item2 = (Widgets.Picture)child2;
+            return item1.picture.path.collate (item2.picture.path);
         }
     }
 }

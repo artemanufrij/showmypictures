@@ -42,11 +42,24 @@ namespace ShowMyPictures.Objects {
         }
 
         public string preview_path { get; private set; }
-        public string path { get; set; default = ""; }
+
+        string _path = "";
+        public string path {
+            get {
+                return _path;
+            } set {
+                _path = value;
+                if (ID == 0) {
+                    exclude_exif ();
+                }
+            }
+        }
+
         public string mime_type { get; set; default = ""; }
         public int year { get; set; default = 0; }
         public int month { get; set;  default = 0; }
         public int day { get; set;  default = 0; }
+        public int rotation { get; private set; default = 1; }
 
         public Album? album { get; set; default = null; }
 
@@ -75,11 +88,30 @@ namespace ShowMyPictures.Objects {
             return Utils.get_default_album_title (year, month, day);
         }
 
+        public void exclude_exif () {
+            var exif_data = Exif.Data.new_from_file (path);
+            exif_data.foreach_content ((content, user) => {
+                content.foreach_entry ((entry, user) => {
+                    var tag = entry.tag;
+                    var tag_string  = entry.get_string ();
+                    if (tag == Exif.Tag.DATE_TIME_ORIGINAL) {
+                        var date_string = tag_string.split (" ")[0];
+                        Date date = {};
+                        date.set_parse (date_string);
+                        (user as Objects.Picture).year = date.get_year ();
+                        (user as Objects.Picture).month = date.get_month ();
+                        (user as Objects.Picture).day = date.get_day ();
+                    } else if (entry.tag == Exif.Tag.ORIENTATION) {
+                        (user as Objects.Picture).rotation = Exif.Convert.get_short (entry.data, Exif.ByteOrder.INTEL);
+                    }
+                }, user);
+            }, this);
+        }
+
         public async void create_preview () {
             if (preview_creating) {
                 return;
             }
-
             new Thread<void*> (null, () => {
                 preview_creating = true;
                 if (GLib.FileUtils.test (preview_path, GLib.FileTest.EXISTS)) {
@@ -95,8 +127,15 @@ namespace ShowMyPictures.Objects {
                 }
                 try {
                     var pixbuf = new Gdk.Pixbuf.from_file (path);
+                    if (rotation == 3) {
+                        pixbuf = pixbuf.rotate_simple (Gdk.PixbufRotation.UPSIDEDOWN);
+                    } else if (rotation == 6) {
+                        pixbuf = pixbuf.rotate_simple (Gdk.PixbufRotation.CLOCKWISE);
+                    } else if (rotation == 8) {
+                        pixbuf = pixbuf.rotate_simple (Gdk.PixbufRotation.COUNTERCLOCKWISE);
+                    }
                     pixbuf = Utils.align_and_scale_pixbuf_for_preview (pixbuf);
-                    pixbuf.save (preview_path, "jpeg", "quality", "100");
+                    pixbuf.save (preview_path, "png", "quality", "100");
                     preview = pixbuf;
                     pixbuf.dispose ();
                 } catch (Error err) {

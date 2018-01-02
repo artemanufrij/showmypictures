@@ -29,15 +29,29 @@ namespace ShowMyPictures.Utils {
     public static Gdk.Pixbuf? align_and_scale_pixbuf_for_preview (Gdk.Pixbuf p) {
         Gdk.Pixbuf? pixbuf = p;
 
-        int dest_height = 192;
+        int dest_height = 256;
         int dest_width = 0;
 
         int height = pixbuf.height;
         int width = pixbuf.width;
 
         dest_width = (int)(width * ((double)dest_height / height));
-
         pixbuf = pixbuf.scale_simple (dest_width, dest_height, Gdk.InterpType.BILINEAR);
+        return pixbuf;
+    }
+
+    public Gdk.Pixbuf? align_and_scale_pixbuf_for_cover (Gdk.Pixbuf p) {
+        Gdk.Pixbuf? pixbuf = p;
+        if (pixbuf.width != pixbuf.height) {
+            if (pixbuf.width > pixbuf.height) {
+                int dif = (pixbuf.width - pixbuf.height) / 2;
+                pixbuf = new Gdk.Pixbuf.subpixbuf (pixbuf, dif, 0, pixbuf.height, pixbuf.height);
+            } else {
+                int dif = (pixbuf.height - pixbuf.width) / 2;
+                pixbuf = new Gdk.Pixbuf.subpixbuf (pixbuf, 0, dif, pixbuf.width, pixbuf.width);
+            }
+        }
+        pixbuf = pixbuf.scale_simple (192, 192, Gdk.InterpType.BILINEAR);
         return pixbuf;
     }
 }

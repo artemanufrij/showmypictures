@@ -49,7 +49,12 @@ namespace ShowMyPictures.Widgets.Views {
 
         private void build_ui () {
             albums = new Gtk.FlowBox ();
+            albums.margin = 24;
             albums.valign = Gtk.Align.START;
+            albums.max_children_per_line = 99;
+            albums.set_sort_func (albums_sort_func);
+            albums.row_spacing = 24;
+            albums.column_spacing = 24;
             albums.child_activated.connect ((child) => {
                 album_selected ((child as Widgets.Album).album);
             });
@@ -67,6 +72,21 @@ namespace ShowMyPictures.Widgets.Views {
                 var a = new Widgets.Album (album);
                 albums.add (a);
             }
+        }
+
+        private int albums_sort_func (Gtk.FlowBoxChild child1, Gtk.FlowBoxChild child2) {
+            var item1 = (Widgets.Album)child1;
+            var item2 = (Widgets.Album)child2;
+            if (item1.year != item2.year) {
+                return item2.year - item1.year;
+            }
+            if (item1.month != item2.month) {
+                return item2.month - item1.month;
+            }
+            if (item1.day != item2.day) {
+                return item2.day - item1.day;
+            }
+            return 0;
         }
     }
 }

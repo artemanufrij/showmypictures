@@ -35,8 +35,10 @@ namespace ShowMyPictures.Widgets {
         public Picture (Objects.Picture picture) {
             this.picture = picture;
             this.picture.preview_created.connect (() => {
-                preview.pixbuf = this.picture.preview;
-                preview.show_all ();
+                Idle.add (() => {
+                    preview.pixbuf = this.picture.preview;
+                    return false;
+                });
             });
             build_ui ();
         }

@@ -30,9 +30,22 @@ namespace ShowMyPictures.Objects {
         ShowMyPictures.Services.DataBaseManager db_manager;
 
         public signal void picture_added (Picture picture);
+        public signal void cover_created ();
 
-        public int ID { get; set; }
-        public string title { get; set; }
+        int _ID = 0;
+        public int ID {
+            get {
+                return _ID;
+            } set {
+                _ID = value;
+                if (value > 0) {
+                    cover_path = GLib.Path.build_filename (ShowMyPicturesApp.instance.PREVIEW_FOLDER, ("album_%d.jpg").printf (this.ID));
+                }
+            }
+        }
+
+        public string cover_path { get; private set; }
+        public string title { get; set; default="";}
         public int year { get; set; }
         public int month { get; set; }
         public int day { get; set; }
@@ -48,6 +61,23 @@ namespace ShowMyPictures.Objects {
                 return _pictures;
             }
         }
+
+        Gdk.Pixbuf? _cover = null;
+        public Gdk.Pixbuf? cover {
+            get {
+                if (_cover == null) {
+                    create_cover.begin ();
+                }
+                return _cover;
+            } private set {
+                if (_cover != value) {
+                    _cover = value;
+                    cover_created ();
+                }
+            }
+        }
+
+        bool cover_creating = false;
 
         construct {
             db_manager = ShowMyPictures.Services.DataBaseManager.instance;
@@ -68,7 +98,48 @@ namespace ShowMyPictures.Objects {
                 db_manager.insert_picture (new_picture);
                 this._pictures.append (new_picture);
                 picture_added (new_picture);
+                create_cover.begin ();
             }
+        }
+
+        public async void create_cover () {
+            if (cover_creating || _cover != null) {
+                return;
+            }
+
+            new Thread<void*> (null, () => {
+                cover_creating = true;
+                if (GLib.FileUtils.test (cover_path, GLib.FileTest.EXISTS)) {
+                    try {
+                        cover = new Gdk.Pixbuf.from_file (cover_path);
+                    } catch (Error err) {
+                        warning (err.message);
+                    }
+                }
+                if (cover != null) {
+                    cover_creating = false;
+                    return null;
+                }
+
+                string path = "";
+                if (pictures.length () == 0) {
+                    cover_creating = false;
+                    return null;
+                }
+
+                path = pictures.first ().data.path;
+                try {
+                    var pixbuf = new Gdk.Pixbuf.from_file (path);
+                    pixbuf = Utils.align_and_scale_pixbuf_for_cover (pixbuf);
+                    pixbuf.save (cover_path, "jpeg", "quality", "100");
+                    cover = pixbuf;
+                    pixbuf.dispose ();
+                } catch (Error err) {
+                    warning (err.message);
+                }
+                cover_creating = false;
+                return null;
+            });
         }
     }
 }

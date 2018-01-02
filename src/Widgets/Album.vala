@@ -30,19 +30,52 @@ namespace ShowMyPictures.Widgets {
 
         public Objects.Album album { get; private set; }
 
+        Gtk.Image cover;
+        Gtk.Label counter;
+
+        public int year { get { return album.year; } }
+        public int month { get { return album.month; } }
+        public int day { get { return album.day; } }
+
         public Album (Objects.Album album) {
             this.album = album;
-
             build_ui ();
         }
 
         private void build_ui () {
             var content = new Gtk.Grid ();
+            content.halign = Gtk.Align.CENTER;
+            content.row_spacing = 6;
+            content.margin = 12;
+            content.get_style_context ().add_class ("album");
+            content.get_style_context ().add_class ("card");
+
+            cover = new Gtk.Image ();
+            this.album.cover_created.connect (() => {
+                Idle.add (() => {
+                    cover.pixbuf = this.album.cover;
+                    return false;
+                });
+            });
+            cover.pixbuf = album.cover;
+            cover.margin = 6;
 
             var title = new Gtk.Label (album.title);
-            content.attach (title, 0, 1);
-            this.add (content);
+            title.get_style_context ().add_class ("h3");
+            counter = new Gtk.Label (_("%u Pictures").printf (album.pictures.length ()));
+            this.album.picture_added.connect ((picture) => {
+                Idle.add (() => {
+                    counter.label = _("%u Pictures").printf (album.pictures.length ());
+                    return false;
+                });
+            });
+            counter.margin_bottom = 6;
 
+            content.attach (cover, 0, 0);
+            content.attach (title, 0, 1);
+            content.attach (counter, 0, 2);
+
+            this.add (content);
             this.show_all ();
         }
     }

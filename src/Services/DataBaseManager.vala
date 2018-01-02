@@ -65,11 +65,12 @@ namespace ShowMyPictures.Services {
             string q;
 
             q = """CREATE TABLE IF NOT EXISTS albums (
-                ID          INTEGER     PRIMARY KEY AUTOINCREMENT,
-                title       TEXT        NOT NULL,
-                year        INT         NOT NULL,
-                month       INT         NOT NULL,
-                day         INT         NOT NULL,
+                ID                  INTEGER     PRIMARY KEY AUTOINCREMENT,
+                title               TEXT        NOT NULL,
+                year                INT         NOT NULL,
+                month               INT         NOT NULL,
+                day                 INT         NOT NULL,
+                title_picture_id    INT         NOT NULL,
                 CONSTRAINT unique_box UNIQUE (title, year, month)
                 );""";
             if (db.exec (q, null, out errormsg) != Sqlite.OK) {
@@ -181,7 +182,7 @@ namespace ShowMyPictures.Services {
             Objects.Album? return_value = null;
             lock (_albums) {
                 foreach (var album in albums) {
-                    if (album.year == new_album.year && album.month == new_album.month && album.title == new_album.title) {
+                    if ((album.year == 0 && album.title == new_album.title) || (album.year == new_album.year && album.month == new_album.month && album.day == new_album.day)) {
                         return_value = album;
                         break;
                     }
