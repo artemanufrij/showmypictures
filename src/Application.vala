@@ -29,6 +29,7 @@ namespace ShowMyPictures {
     public class ShowMyPicturesApp : Gtk.Application {
         public string DB_PATH { get; private set; }
         public string CACHE_FOLDER { get; private set; }
+        public string PREVIEW_FOLDER { get; private set; }
 
         ShowMyPictures.Settings settings;
 
@@ -65,6 +66,16 @@ namespace ShowMyPictures {
                 warning (e.message);
             }
             DB_PATH = GLib.Path.build_filename (CACHE_FOLDER, "database.db");
+
+            PREVIEW_FOLDER = GLib.Path.build_filename (CACHE_FOLDER, "preview");
+            try {
+                File file = File.new_for_path (PREVIEW_FOLDER);
+                if (!file.query_exists ()) {
+                    file.make_directory ();
+                }
+            } catch (Error e) {
+                warning (e.message);
+            }
         }
 
         private ShowMyPicturesApp () { }

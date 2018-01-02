@@ -30,9 +30,14 @@ namespace ShowMyPictures {
         ShowMyPictures.Services.LibraryManager library_manager;
         ShowMyPictures.Settings settings;
 
+        Gtk.HeaderBar headerbar;
+        Gtk.MenuButton app_menu;
         Gtk.Stack content;
-        Widgets.Views.AlbumsView albums_view;
+        Gtk.Button navigation_button;
+
         Widgets.Views.Welcome welcome;
+        Widgets.Views.AlbumsView albums_view;
+        Widgets.Views.AlbumView album_view;
 
         construct {
             settings = ShowMyPictures.Settings.get_default ();
@@ -58,22 +63,64 @@ namespace ShowMyPictures {
                 library_manager.sync_library_content.begin ();
             });
 
+            this.configure_event.connect ((event) => {
+                settings.window_width = event.width;
+                settings.window_height = event.height;
+
+                return false;
+            });
+
             this.destroy.connect (() => {
                 save_settings ();
             });
         }
 
         private void build_ui () {
+            headerbar = new Gtk.HeaderBar ();
+            headerbar.show_close_button = true;
+            headerbar.title = _("Show My Pictures");
+            this.set_titlebar (headerbar);
+
+            app_menu = new Gtk.MenuButton ();
+            if (settings.use_dark_theme) {
+                app_menu.set_image (new Gtk.Image.from_icon_name ("open-menu-symbolic", Gtk.IconSize.LARGE_TOOLBAR));
+            } else {
+                app_menu.set_image (new Gtk.Image.from_icon_name ("open-menu", Gtk.IconSize.LARGE_TOOLBAR));
+            }
+            headerbar.pack_end (app_menu);
+
             content = new Gtk.Stack ();
             content.transition_type = Gtk.StackTransitionType.SLIDE_LEFT_RIGHT;
 
+            navigation_button = new Gtk.Button ();
+            navigation_button.label = _("Back");
+            navigation_button.valign = Gtk.Align.CENTER;
+            navigation_button.can_focus = false;
+            navigation_button.get_style_context ().add_class ("back-button");
+            navigation_button.clicked.connect (() => {
+                content.visible_child_name = "albums";
+                navigation_button.hide ();
+            });
+
+            headerbar.pack_start (navigation_button);
+
             welcome = new Widgets.Views.Welcome ();
             albums_view = new Widgets.Views.AlbumsView ();
+            albums_view.album_selected.connect ((album) => {
+                content.visible_child_name = "album";
+                album_view.show_album (album);
+                navigation_button.show ();
+            });
+            album_view = new Widgets.Views.AlbumView ();
 
             content.add_named (welcome, "welcome");
             content.add_named (albums_view, "albums");
+            content.add_named (album_view, "album");
+
             this.add (content);
             this.show_all ();
+
+            navigation_button.hide ();
         }
 
         private void load_settings () {

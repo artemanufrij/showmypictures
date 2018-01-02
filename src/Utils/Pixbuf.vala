@@ -25,25 +25,19 @@
  * Authored by: Artem Anufrij <artem.anufrij@live.de>
  */
 
-namespace ShowMyPictures.Widgets {
-    public class Album : Gtk.FlowBoxChild {
+namespace ShowMyPictures.Utils {
+    public static Gdk.Pixbuf? align_and_scale_pixbuf_for_preview (Gdk.Pixbuf p) {
+        Gdk.Pixbuf? pixbuf = p;
 
-        public Objects.Album album { get; private set; }
+        int dest_height = 192;
+        int dest_width = 0;
 
-        public Album (Objects.Album album) {
-            this.album = album;
+        int height = pixbuf.height;
+        int width = pixbuf.width;
 
-            build_ui ();
-        }
+        dest_width = (int)(width * ((double)dest_height / height));
 
-        private void build_ui () {
-            var content = new Gtk.Grid ();
-
-            var title = new Gtk.Label (album.title);
-            content.attach (title, 0, 1);
-            this.add (content);
-
-            this.show_all ();
-        }
+        pixbuf = pixbuf.scale_simple (dest_width, dest_height, Gdk.InterpType.BILINEAR);
+        return pixbuf;
     }
 }

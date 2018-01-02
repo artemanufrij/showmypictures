@@ -20,6 +20,7 @@ pkg_check_modules (DEPS REQUIRED
     gtk+-3.0>=3.11.6
     granite
     sqlite3
+    libexif
 )
 
 # Comment this out to enable C compiler warnings

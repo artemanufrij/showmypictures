@@ -30,14 +30,25 @@ namespace ShowMyPictures.Widgets {
 
         public Objects.Picture picture { get; private set; }
 
+        Gtk.Image preview;
+
         public Picture (Objects.Picture picture) {
             this.picture = picture;
-
+            this.picture.preview_created.connect (() => {
+                preview.pixbuf = this.picture.preview;
+                preview.show_all ();
+            });
             build_ui ();
         }
 
         private void build_ui () {
+            preview = new Gtk.Image ();
+            preview.halign = Gtk.Align.CENTER;
+            preview.get_style_context ().add_class ("card");
+            preview.margin = 12;
+            preview.pixbuf = picture.preview;
 
+            this.add (preview);
         }
     }
 }

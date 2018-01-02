@@ -69,7 +69,7 @@ namespace ShowMyPictures.Services {
                             scan_local_files (GLib.Path.build_filename (path, file_info.get_name ()));
                         } else {
                             string mime_type = file_info.get_content_type ();
-                            bool valid_file = !file_info.get_is_hidden () && mime_type.has_prefix ("image/");
+                            bool valid_file = !file_info.get_is_hidden () && (mime_type.has_prefix ("image/png") || mime_type.has_prefix ("image/jpeg"));
                             if (valid_file) {
                                 string found_path = GLib.Path.build_filename (path, file_info.get_name ());
                                 found_image_file (found_path);

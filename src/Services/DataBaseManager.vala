@@ -115,7 +115,7 @@ namespace ShowMyPictures.Services {
             Sqlite.Statement stmt;
 
             string sql = """
-                SELECT id, title, year, month, day FROM albums ORDER BY title;
+                SELECT id, title, year, month, day FROM albums ORDER BY year DESC, month DESC, day DESC, title;
             """;
 
             db.prepare_v2 (sql, sql.length, out stmt);
@@ -195,6 +195,37 @@ namespace ShowMyPictures.Services {
         }
 
 // PICTURE REGION
+        public GLib.List<Objects.Picture> get_picture_collection (Objects.Album album) {
+            GLib.List<Objects.Picture> return_value = new GLib.List<Objects.Picture> ();
+
+            Sqlite.Statement stmt;
+
+            string sql = """
+                SELECT id, path, year, month, day FROM pictures WHERE album_id=$ALBUM_ID ORDER BY year DESC, month DESC, day DESC, path DESC;
+            """;
+
+            db.prepare_v2 (sql, sql.length, out stmt);
+            set_parameter_int (stmt, sql, "$ALBUM_ID", album.ID);
+
+            while (stmt.step () == Sqlite.ROW) {
+                var picture = _fill_picture (stmt, album);
+                return_value.append (picture);
+            }
+            stmt.reset ();
+
+            return return_value;
+        }
+
+        public Objects.Picture _fill_picture (Sqlite.Statement stmt, Objects.Album album) {
+            Objects.Picture return_value = new Objects.Picture (album);
+            return_value.ID = stmt.column_int (0);
+            return_value.path = stmt.column_text (1);
+            return_value.year = stmt.column_int (2);
+            return_value.month = stmt.column_int (3);
+            return_value.day = stmt.column_int (4);
+            return return_value;
+        }
+
         public void insert_picture (Objects.Picture picture) {
             Sqlite.Statement stmt;
 

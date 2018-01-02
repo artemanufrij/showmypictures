@@ -37,9 +37,14 @@ namespace ShowMyPictures.Objects {
         public int month { get; set; }
         public int day { get; set; }
 
+        public int title_id { get; set; default = 0; }
+
         GLib.List<Picture> _pictures = null;
         public GLib.List<Picture> pictures {
             get {
+                if (_pictures == null) {
+                    _pictures = db_manager.get_picture_collection (this);
+                }
                 return _pictures;
             }
         }

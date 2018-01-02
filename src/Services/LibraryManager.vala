@@ -92,9 +92,10 @@ namespace ShowMyPictures.Services {
             var file = File.new_for_path (path);
             try {
                 FileInfo info = file.query_info ("standard::*,time::*", 0);
+                file.dispose ();
                 var attributes = info.list_attributes (null);
                 if (attributes != null) {
-                    uint64 modified = info.get_attribute_uint64 ("time::modified");
+                    uint64 modified = info.get_attribute_uint64 ("time::created");
                     if (modified > 0) {
                         var date_time = new DateTime.from_unix_local ((int64)modified);
                         year = date_time.get_year ();
@@ -103,16 +104,18 @@ namespace ShowMyPictures.Services {
                     }
                 }
                 mime_type = info.get_content_type ();
+                info.dispose ();
             } catch (Error err) {
                 warning (err.message);
             }
 
-            var album = new Objects.Album (Utils.get_default_album_title (year, month, day));
+            var album = new Objects.Album ("");
             album.year = year;
             album.month = month;
             album.day = day;
 
             album = db_manager.insert_album_if_not_exists (album);
+
             var picture = new Objects.Picture ();
             picture.path = path;
             picture.year = year;

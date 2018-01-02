@@ -29,6 +29,8 @@ namespace ShowMyPictures.Widgets.Views {
     public class AlbumsView : Gtk.Grid {
         ShowMyPictures.Services.LibraryManager library_manager;
 
+        public signal void album_selected (Objects.Album album);
+
         Gtk.FlowBox albums;
 
         construct {
@@ -47,12 +49,15 @@ namespace ShowMyPictures.Widgets.Views {
 
         private void build_ui () {
             albums = new Gtk.FlowBox ();
+            albums.valign = Gtk.Align.START;
+            albums.child_activated.connect ((child) => {
+                album_selected ((child as Widgets.Album).album);
+            });
 
             var scroll = new Gtk.ScrolledWindow (null, null);
             scroll.expand = true;
 
             scroll.add (albums);
-
 
             this.add (scroll);
         }

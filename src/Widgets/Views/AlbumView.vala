@@ -27,5 +27,55 @@
 
 namespace ShowMyPictures.Widgets.Views {
     public class AlbumView : Gtk.Grid {
+        public Objects.Album current_album { get; private set; }
+
+
+        Gtk.FlowBox pictures;
+
+        public AlbumView () {
+            build_ui ();
+        }
+
+        private void build_ui () {
+            pictures = new Gtk.FlowBox ();
+            pictures.margin = 24;
+            pictures.valign = Gtk.Align.START;
+            var scroll = new Gtk.ScrolledWindow (null, null);
+            scroll.add (pictures);
+            scroll.expand = true;
+
+            this.add (scroll);
+        }
+
+        public void show_album (Objects.Album album) {
+            if (current_album == album) {
+                return;
+            }
+
+            if (current_album != null) {
+
+            }
+            current_album = album;
+            reset ();
+
+            foreach (var picture in current_album.pictures) {
+                add_picture (picture);
+            }
+        }
+
+        private void reset () {
+            foreach (var child in pictures.get_children ()) {
+                child.destroy ();
+            }
+        }
+
+        private void add_picture (Objects.Picture picture) {
+            Idle.add (() => {
+                var item = new Widgets.Picture (picture);
+                this.pictures.add (item);
+                item.show_all ();
+                return false;
+            });
+        }
     }
 }
