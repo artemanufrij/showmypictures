@@ -38,7 +38,6 @@ namespace ShowMyPictures {
         Widgets.Views.Welcome welcome;
         Widgets.Views.AlbumsView albums_view;
         Widgets.Views.AlbumView album_view;
-        Widgets.Views.PictureView picture_view;
 
         construct {
             settings = ShowMyPictures.Settings.get_default ();
@@ -136,28 +135,6 @@ namespace ShowMyPictures {
 
             headerbar.pack_start (navigation_button);
 
-            var menu_zoom_in = new Gtk.Button.from_icon_name ("zoom-in-symbolic", Gtk.IconSize.LARGE_TOOLBAR);
-            menu_zoom_in.clicked.connect (() => {
-                picture_view.zoom_in ();
-            });
-            var menu_zoom_out = new Gtk.Button.from_icon_name ("zoom-out-symbolic", Gtk.IconSize.LARGE_TOOLBAR);
-            menu_zoom_out.clicked.connect (() => {
-                picture_view.zoom_out ();
-            });
-            var rotate_left = new Gtk.Button.from_icon_name ("object-rotate-left-symbolic", Gtk.IconSize.LARGE_TOOLBAR);
-            rotate_left.clicked.connect (() => {
-
-            });
-            var rotate_right = new Gtk.Button.from_icon_name ("object-rotate-right-symbolic", Gtk.IconSize.LARGE_TOOLBAR);
-            rotate_right.clicked.connect (() => {
-
-            });
-
-            headerbar.pack_start (menu_zoom_in);
-            headerbar.pack_start (menu_zoom_out);
-            headerbar.pack_start (rotate_left);
-            headerbar.pack_start (rotate_right);
-
             welcome = new Widgets.Views.Welcome ();
             albums_view = new Widgets.Views.AlbumsView ();
             albums_view.album_selected.connect ((album) => {
@@ -166,18 +143,10 @@ namespace ShowMyPictures {
                 navigation_button.show ();
             });
             album_view = new Widgets.Views.AlbumView ();
-            album_view.picture_selected.connect ((picture) => {
-                content.visible_child_name = "picture";
-                picture_view.show_picture (picture);
-                navigation_button.show ();
-            });
-
-            picture_view = new Widgets.Views.PictureView ();
 
             content.add_named (welcome, "welcome");
             content.add_named (albums_view, "albums");
             content.add_named (album_view, "album");
-            content.add_named (picture_view, "picture");
 
             this.add (content);
             this.show_all ();

@@ -36,7 +36,7 @@ namespace ShowMyPictures.Objects {
             } set {
                 _ID = value;
                 if (value > 0) {
-                    preview_path = GLib.Path.build_filename (ShowMyPicturesApp.instance.PREVIEW_FOLDER, ("picture_%d.png").printf (this.ID));
+                    preview_path = GLib.Path.build_filename (ShowMyPicturesApp.instance.PREVIEW_FOLDER, ("picture_%d.jpg").printf (this.ID));
                 }
             }
         }
@@ -135,7 +135,7 @@ namespace ShowMyPictures.Objects {
                         pixbuf = pixbuf.rotate_simple (Gdk.PixbufRotation.COUNTERCLOCKWISE);
                     }
                     pixbuf = Utils.align_and_scale_pixbuf_for_preview (pixbuf);
-                    pixbuf.save (preview_path, "png");
+                    pixbuf.save (preview_path, "png", "quality", "100");
                     preview = pixbuf;
                     pixbuf.dispose ();
                 } catch (Error err) {
