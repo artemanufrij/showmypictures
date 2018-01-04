@@ -34,6 +34,8 @@ namespace ShowMyPictures {
         Gtk.MenuButton app_menu;
         Gtk.Stack content;
         Gtk.Button navigation_button;
+        Gtk.Button rotate_left;
+        Gtk.Button rotate_right;
 
         Widgets.Views.Welcome welcome;
         Widgets.Views.AlbumsView albums_view;
@@ -87,7 +89,9 @@ namespace ShowMyPictures {
             this.configure_event.connect ((event) => {
                 settings.window_width = event.width;
                 settings.window_height = event.height;
-
+                if (content.visible_child_name == "picture") {
+                    picture_view.set_optimal_zoom ();
+                }
                 return false;
             });
 
@@ -136,43 +140,35 @@ namespace ShowMyPictures {
 
             headerbar.pack_start (navigation_button);
 
-            var menu_zoom_in = new Gtk.Button.from_icon_name ("zoom-in-symbolic", Gtk.IconSize.LARGE_TOOLBAR);
-            menu_zoom_in.clicked.connect (() => {
-                picture_view.zoom_in ();
-            });
-            var menu_zoom_out = new Gtk.Button.from_icon_name ("zoom-out-symbolic", Gtk.IconSize.LARGE_TOOLBAR);
-            menu_zoom_out.clicked.connect (() => {
-                picture_view.zoom_out ();
-            });
-            var rotate_left = new Gtk.Button.from_icon_name ("object-rotate-left-symbolic", Gtk.IconSize.LARGE_TOOLBAR);
+            rotate_left = new Gtk.Button.from_icon_name ("object-rotate-left-symbolic", Gtk.IconSize.LARGE_TOOLBAR);
             rotate_left.clicked.connect (() => {
 
             });
-            var rotate_right = new Gtk.Button.from_icon_name ("object-rotate-right-symbolic", Gtk.IconSize.LARGE_TOOLBAR);
+            rotate_right = new Gtk.Button.from_icon_name ("object-rotate-right-symbolic", Gtk.IconSize.LARGE_TOOLBAR);
             rotate_right.clicked.connect (() => {
 
             });
 
-            headerbar.pack_start (menu_zoom_in);
-            headerbar.pack_start (menu_zoom_out);
             headerbar.pack_start (rotate_left);
             headerbar.pack_start (rotate_right);
 
             welcome = new Widgets.Views.Welcome ();
             albums_view = new Widgets.Views.AlbumsView ();
             albums_view.album_selected.connect ((album) => {
-                content.visible_child_name = "album";
+                headerbar.title = album.title;
                 album_view.show_album (album);
-                navigation_button.show ();
+                show_album ();
             });
             album_view = new Widgets.Views.AlbumView ();
             album_view.picture_selected.connect ((picture) => {
-                content.visible_child_name = "picture";
                 picture_view.show_picture (picture);
-                navigation_button.show ();
+                show_picture ();
             });
 
             picture_view = new Widgets.Views.PictureView ();
+            picture_view.picture_loaded.connect ((picture) => {
+                headerbar.title = Path.get_basename (picture.path);
+            });
 
             content.add_named (welcome, "welcome");
             content.add_named (albums_view, "albums");
@@ -183,6 +179,29 @@ namespace ShowMyPictures {
             this.show_all ();
 
             navigation_button.hide ();
+            rotate_left.hide ();
+            rotate_right.hide ();
+        }
+
+        private void show_albums () {
+            content.visible_child_name = "albums";
+            navigation_button.hide ();
+            rotate_left.hide ();
+            rotate_right.hide ();
+        }
+
+        private void show_album () {
+            content.visible_child_name = "album";
+            navigation_button.show ();
+            rotate_left.hide ();
+            rotate_right.hide ();
+        }
+
+        private void show_picture () {
+            content.visible_child_name = "picture";
+            navigation_button.show ();
+            rotate_left.show ();
+            rotate_right.show ();
         }
 
         private void load_settings () {
@@ -203,17 +222,18 @@ namespace ShowMyPictures {
 
         public void back_action () {
             if (content.visible_child_name == "picture") {
-                content.visible_child_name = "album";
+                show_album ();
             } else if (content.visible_child_name == "album") {
-                content.visible_child_name = "albums";
-                navigation_button.hide ();
+                show_albums ();
             }
         }
 
         private async void load_content_from_database () {
+            if (library_manager.albums.length () > 0) {
+                show_albums ();
+            }
             foreach (var album in library_manager.albums) {
                 albums_view.add_album (album);
-                content.visible_child_name = "albums";
             }
         }
     }

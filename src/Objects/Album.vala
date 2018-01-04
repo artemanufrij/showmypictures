@@ -102,6 +102,22 @@ namespace ShowMyPictures.Objects {
             }
         }
 
+        public Picture? get_next_picture (Picture current) {
+            int i = _pictures.index (current) + 1;
+            if (i < _pictures.length ()) {
+                return _pictures.nth_data (i);
+            }
+            return null;
+        }
+
+        public Picture? get_prev_picture (Picture current) {
+            int i = _pictures.index (current) - 1;
+            if (i > - 1) {
+                return _pictures.nth_data (i);
+            }
+            return null;
+        }
+
         public async void create_cover () {
             if (cover_creating || _cover != null) {
                 return;

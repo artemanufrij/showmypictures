@@ -27,8 +27,10 @@
 
 namespace ShowMyPictures.Widgets.Views {
     public class PictureView : Gtk.Grid {
+        public Objects.Picture current_picture { get; private set; default = null; }
 
-        Objects.Picture current_picture;
+        public signal void picture_loaded (Objects.Picture picture);
+
         Gdk.Pixbuf current_pixbuf = null;
 
         Gtk.Image image;
@@ -36,13 +38,51 @@ namespace ShowMyPictures.Widgets.Views {
 
         double zoom = 1;
 
+        int current_width = 1;
+        int current_height = 1;
+
+        uint zoom_timer = 0;
+
         public PictureView () {
             build_ui ();
+            this.draw.connect (first_draw);
+            this.key_press_event.connect ((key) => {
+                if (!(Gdk.ModifierType.MOD1_MASK in key.state) && current_picture != null) {
+                    Objects.Picture next = null;
+                    if (key.keyval == Gdk.Key.Left) {
+                        next = current_picture.album.get_prev_picture (current_picture);
+                    } else if (key.keyval == Gdk.Key.Right) {
+                        next = current_picture.album.get_next_picture (current_picture);
+                    }
+                    if (next != null) {
+                        show_picture (next);
+                        return true;
+                    }
+                }
+                return false;
+            });
+        }
+
+        private bool first_draw () {
+            this.draw.disconnect (first_draw);
+            set_optimal_zoom ();
+            return false;
         }
 
         private void build_ui () {
             scroll = new Gtk.ScrolledWindow (null, null);
             scroll.expand = true;
+            scroll.scroll_event.connect ((key_event) => {
+                if (Gdk.ModifierType.CONTROL_MASK in key_event.state) {
+                    if (key_event.delta_y < 0) {
+                        zoom_in ();
+                    } else {
+                        zoom_out ();
+                    }
+                    return true;
+                }
+                return false;
+            });
 
             image = new Gtk.Image ();
             image.get_style_context ().add_class ("card");
@@ -56,26 +96,69 @@ namespace ShowMyPictures.Widgets.Views {
                 return;
             }
             current_picture = picture;
+            current_picture.exclude_exif ();
             try {
                 current_pixbuf = new Gdk.Pixbuf.from_file (current_picture.path);
+                current_pixbuf = current_pixbuf.rotate_simple (Utils.get_rotation (current_picture));
             } catch (Error err) {
                 warning (err.message);
             }
-            image.pixbuf = current_pixbuf;
+            set_optimal_zoom ();
+
+            picture_loaded (current_picture);
+        }
+
+        public void set_optimal_zoom () {
+            current_width = this.get_allocated_width ();
+            current_height = this.get_allocated_height ();
+
+            if (current_width == 1 && current_height == 1) {
+                return;
+            }
+
+            var rel_scroll = (double)current_height / (double)current_width;
+            var rel_picture = (double)current_pixbuf.height / (double)current_pixbuf.width;
+
+            if (rel_scroll > rel_picture) {
+                zoom = (double)current_width / (double)current_pixbuf.width;
+            } else {
+                zoom = (double)current_height / (double)current_pixbuf.height;
+            }
+
+            if (zoom > 1) {
+                zoom = 1;
+            } else if (zoom < 0.1) {
+                zoom = 0.1;
+            }
+            do_zoom ();
         }
 
         public void zoom_in () {
             if (zoom < 1) {
                 zoom += 0.1;
-                image.pixbuf = current_pixbuf.scale_simple ((int)(current_pixbuf.width * zoom), (int)(current_pixbuf.height * zoom), Gdk.InterpType.BILINEAR);
+                do_zoom ();
             }
         }
 
         public void zoom_out () {
             if (zoom >= 0.2) {
                 zoom -= 0.1;
-                image.pixbuf = current_pixbuf.scale_simple ((int)(current_pixbuf.width * zoom), (int)(current_pixbuf.height * zoom), Gdk.InterpType.BILINEAR);
+                do_zoom ();
             }
+        }
+
+        private void do_zoom () {
+            if (zoom_timer != 0) {
+                Source.remove (zoom_timer);
+                zoom_timer = 0;
+            }
+
+            zoom_timer = Timeout.add (100, () => {
+                image.pixbuf = current_pixbuf.scale_simple ((int)(current_pixbuf.width * zoom), (int)(current_pixbuf.height * zoom), Gdk.InterpType.BILINEAR);
+                Source.remove (zoom_timer);
+                zoom_timer = 0;
+                return false;
+            });
         }
     }
 }

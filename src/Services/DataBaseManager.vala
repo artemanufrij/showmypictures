@@ -202,7 +202,7 @@ namespace ShowMyPictures.Services {
             Sqlite.Statement stmt;
 
             string sql = """
-                SELECT id, path, year, month, day FROM pictures WHERE album_id=$ALBUM_ID ORDER BY year DESC, month DESC, day DESC, path DESC;
+                SELECT id, path, year, month, day FROM pictures WHERE album_id=$ALBUM_ID ORDER BY year, month, day, path;
             """;
 
             db.prepare_v2 (sql, sql.length, out stmt);
