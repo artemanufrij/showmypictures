@@ -115,11 +115,32 @@ namespace ShowMyPictures {
 
             var settings_menu = new Gtk.Menu ();
 
+            var menu_item_library = new Gtk.MenuItem.with_label(_("Change Video Folder…"));
+            menu_item_library.activate.connect (() => {
+                var folder = library_manager.choose_folder ();
+                if(folder != null) {
+                    settings.library_location = folder;
+                    library_manager.scan_local_library_for_new_files (folder);
+                }
+            });
+
+            var menu_item_import = new Gtk.MenuItem.with_label (_("Import Videos…"));
+            menu_item_import.activate.connect (() => {
+                var folder = library_manager.choose_folder ();
+                if(folder != null) {
+                    library_manager.scan_local_library_for_new_files (folder);
+                }
+            });
+
             var menu_item_preferences = new Gtk.MenuItem.with_label (_("Preferences"));
             menu_item_preferences.activate.connect (() => {
                 var preferences = new Dialogs.Preferences (this);
                 preferences.run ();
             });
+
+            settings_menu.append (menu_item_library);
+            settings_menu.append (menu_item_import);
+            settings_menu.append (new Gtk.SeparatorMenuItem ());
             settings_menu.append (menu_item_preferences);
             settings_menu.show_all ();
 

@@ -46,17 +46,17 @@ namespace ShowMyPictures.Widgets.Views {
             welcome.activated.connect ((index) => {
                 switch (index) {
                     case 0:
-                        /*var folder = library_manager.choose_folder ();
+                        var folder = library_manager.choose_folder ();
                         if(folder != null) {
                             settings.library_location = folder;
                             library_manager.scan_local_library_for_new_files (folder);
-                        }*/
+                        }
                         break;
                     case 1:
-                        /*var folder = library_manager.choose_folder ();
+                        var folder = library_manager.choose_folder ();
                         if(folder != null) {
                             library_manager.scan_local_library_for_new_files (folder);
-                        }*/
+                        }
                         break;
                 }
             });
