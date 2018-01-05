@@ -79,6 +79,7 @@ namespace ShowMyPictures.Objects {
         }
 
         bool preview_creating = false;
+        bool exif_excluded = false;
 
         public Picture (Album? album = null) {
             this.album = album;
@@ -86,26 +87,6 @@ namespace ShowMyPictures.Objects {
 
         public string get_default_album_title () {
             return Utils.get_default_album_title (year, month, day);
-        }
-
-        public void exclude_exif () {
-            var exif_data = Exif.Data.new_from_file (path);
-            exif_data.foreach_content ((content, user) => {
-                content.foreach_entry ((entry, user) => {
-                    var tag = entry.tag;
-                    var tag_string  = entry.get_string ();
-                    if (tag == Exif.Tag.DATE_TIME_ORIGINAL) {
-                        var date_string = tag_string.split (" ")[0];
-                        Date date = {};
-                        date.set_parse (date_string);
-                        (user as Objects.Picture).year = date.get_year ();
-                        (user as Objects.Picture).month = date.get_month ();
-                        (user as Objects.Picture).day = date.get_day ();
-                    } else if (entry.tag == Exif.Tag.ORIENTATION) {
-                        (user as Objects.Picture).rotation = Exif.Convert.get_short (entry.data, Exif.ByteOrder.INTEL);
-                    }
-                }, user);
-            }, this);
         }
 
         public async void create_preview () {
@@ -127,13 +108,7 @@ namespace ShowMyPictures.Objects {
                 }
                 try {
                     var pixbuf = new Gdk.Pixbuf.from_file (path);
-                    if (rotation == 3) {
-                        pixbuf = pixbuf.rotate_simple (Gdk.PixbufRotation.UPSIDEDOWN);
-                    } else if (rotation == 6) {
-                        pixbuf = pixbuf.rotate_simple (Gdk.PixbufRotation.CLOCKWISE);
-                    } else if (rotation == 8) {
-                        pixbuf = pixbuf.rotate_simple (Gdk.PixbufRotation.COUNTERCLOCKWISE);
-                    }
+                    pixbuf = pixbuf.rotate_simple (Utils.get_rotation (this));
                     pixbuf = Utils.align_and_scale_pixbuf_for_preview (pixbuf);
                     pixbuf.save (preview_path, "png");
                     preview = pixbuf;
@@ -144,6 +119,29 @@ namespace ShowMyPictures.Objects {
                 preview_creating = false;
                 return null;
             });
+        }
+
+        public void exclude_exif () {
+            if (exif_excluded) {
+                return;
+            }
+            var exif_data = Exif.Data.new_from_file (path);
+            exif_data.foreach_content ((content, user) => {
+                content.foreach_entry ((entry, user) => {
+                    var tag = entry.tag;
+                    var tag_string  = entry.get_string ();
+                    if (tag == Exif.Tag.DATE_TIME_ORIGINAL) {
+                        var date_string = tag_string.split (" ")[0];
+                        Date date = {};
+                        date.set_parse (date_string);
+                        (user as Objects.Picture).year = date.get_year ();
+                        (user as Objects.Picture).month = date.get_month ();
+                        (user as Objects.Picture).day = date.get_day ();
+                    } else if (entry.tag == Exif.Tag.ORIENTATION) {
+                        (user as Objects.Picture).rotation = Exif.Convert.get_short (entry.data, Exif.ByteOrder.INTEL);
+                    }
+                }, user);
+            }, this);
         }
     }
 }

@@ -46,9 +46,9 @@ namespace ShowMyPictures.Objects {
 
         public string cover_path { get; private set; }
         public string title { get; set; default="";}
-        public int year { get; set; }
-        public int month { get; set; }
-        public int day { get; set; }
+        public int year { get; set; default = 0; }
+        public int month { get; set; default = 0; }
+        public int day { get; set; default = 0; }
 
         public int title_id { get; set; default = 0; }
 
@@ -100,6 +100,22 @@ namespace ShowMyPictures.Objects {
                 picture_added (new_picture);
                 create_cover.begin ();
             }
+        }
+
+        public Picture? get_next_picture (Picture current) {
+            int i = _pictures.index (current) + 1;
+            if (i < _pictures.length ()) {
+                return _pictures.nth_data (i);
+            }
+            return null;
+        }
+
+        public Picture? get_prev_picture (Picture current) {
+            int i = _pictures.index (current) - 1;
+            if (i > - 1) {
+                return _pictures.nth_data (i);
+            }
+            return null;
         }
 
         public async void create_cover () {

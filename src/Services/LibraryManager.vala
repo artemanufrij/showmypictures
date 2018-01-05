@@ -98,9 +98,12 @@ namespace ShowMyPictures.Services {
 
             album = db_manager.insert_album_if_not_exists (album);
 
-            album.add_picture_if_not_exists (picture);
-
-            picture.create_preview ();
+            if (album.ID > 0) {
+                album.add_picture_if_not_exists (picture);
+                if (picture.ID > 0) {
+                    picture.create_preview.begin ();
+                }
+            }
         }
     }
 }

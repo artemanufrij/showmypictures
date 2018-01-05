@@ -65,11 +65,11 @@ namespace ShowMyPictures.Services {
             string q;
 
             q = """CREATE TABLE IF NOT EXISTS albums (
-                ID                  INTEGER     PRIMARY KEY AUTOINCREMENT,
-                title               TEXT        NOT NULL,
-                year                INT         NOT NULL,
-                month               INT         NOT NULL,
-                day                 INT         NOT NULL,
+                ID          INTEGER     PRIMARY KEY AUTOINCREMENT,
+                title       TEXT        NOT NULL,
+                year        INT         NOT NULL,
+                month       INT         NOT NULL,
+                day         INT         NOT NULL,
                 title_id    INT         NOT NULL,
                 CONSTRAINT unique_box UNIQUE (title, year, month)
                 );""";
@@ -159,14 +159,13 @@ namespace ShowMyPictures.Services {
             stmt.reset ();
 
             sql = """
-                SELECT id FROM albums WHERE year=$YEAR AND month=$MONTH AND day=$DAY AND title=$TITLE;
+                SELECT id FROM albums WHERE year=$YEAR AND month=$MONTH AND day=$DAY;
             """;
 
             db.prepare_v2 (sql, sql.length, out stmt);
             set_parameter_int (stmt, sql, "$YEAR", album.year);
             set_parameter_int (stmt, sql, "$MONTH", album.month);
             set_parameter_int (stmt, sql, "$DAY", album.day);
-            set_parameter_str (stmt, sql, "$TITLE", album.title);
 
             if (stmt.step () == Sqlite.ROW) {
                 album.ID = stmt.column_int (0);
@@ -203,7 +202,7 @@ namespace ShowMyPictures.Services {
             Sqlite.Statement stmt;
 
             string sql = """
-                SELECT id, path, year, month, day FROM pictures WHERE album_id=$ALBUM_ID ORDER BY year DESC, month DESC, day DESC, path DESC;
+                SELECT id, path, year, month, day FROM pictures WHERE album_id=$ALBUM_ID ORDER BY year, month, day, path;
             """;
 
             db.prepare_v2 (sql, sql.length, out stmt);

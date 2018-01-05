@@ -27,6 +27,8 @@
 
 namespace ShowMyPictures.Widgets.Views {
     public class AlbumView : Gtk.Grid {
+        public signal void picture_selected (Objects.Picture picture);
+
         public Objects.Album current_album { get; private set; }
 
         Gtk.FlowBox pictures;
@@ -43,6 +45,9 @@ namespace ShowMyPictures.Widgets.Views {
             pictures.row_spacing = 12;
             pictures.column_spacing = 12;
             pictures.valign = Gtk.Align.START;
+            pictures.child_activated.connect ((child) => {
+                picture_selected ((child as Widgets.Picture).picture);
+            });
             var scroll = new Gtk.ScrolledWindow (null, null);
             scroll.add (pictures);
             scroll.expand = true;

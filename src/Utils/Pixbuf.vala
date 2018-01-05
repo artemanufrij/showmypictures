@@ -54,4 +54,17 @@ namespace ShowMyPictures.Utils {
         pixbuf = pixbuf.scale_simple (192, 192, Gdk.InterpType.BILINEAR);
         return pixbuf;
     }
+
+    public static Gdk.PixbufRotation get_rotation (Objects.Picture picture) {
+        switch (picture.rotation) {
+            case 3:
+                return Gdk.PixbufRotation.UPSIDEDOWN;
+            case 6:
+                return Gdk.PixbufRotation.CLOCKWISE;
+            case 8:
+                return Gdk.PixbufRotation.COUNTERCLOCKWISE;
+            default:
+                return Gdk.PixbufRotation.NONE;
+        }
+    }
 }
