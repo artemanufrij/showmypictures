@@ -78,6 +78,8 @@ namespace ShowMyPictures.Objects {
             }
         }
 
+        public Exif.Data exif_data { get; private set; default = null; }
+
         bool preview_creating = false;
         bool exif_excluded = false;
 
@@ -125,12 +127,13 @@ namespace ShowMyPictures.Objects {
             if (exif_excluded) {
                 return;
             }
-            var exif_data = Exif.Data.new_from_file (path);
+            if (exif_data == null) {
+                exif_data = Exif.Data.new_from_file (path);
+            }
             exif_data.foreach_content ((content, user) => {
                 content.foreach_entry ((entry, user) => {
-                    var tag = entry.tag;
                     var tag_string  = entry.get_string ();
-                    if (tag == Exif.Tag.DATE_TIME_ORIGINAL) {
+                    if (entry.tag == Exif.Tag.DATE_TIME_ORIGINAL) {
                         var date_string = tag_string.split (" ")[0];
                         Date date = {};
                         date.set_parse (date_string);
@@ -142,6 +145,39 @@ namespace ShowMyPictures.Objects {
                     }
                 }, user);
             }, this);
+        }
+
+        public bool rotate_left_exif () {
+            if (exif_data == null) {
+                exif_data = Exif.Data.new_from_file (path);
+            }
+            exif_data.foreach_content ((content, user) => {
+                content.foreach_entry ((entry, user) => {
+                    if (entry.tag == Exif.Tag.ORIENTATION) {
+                    stdout.printf ("%d\n", (user as Objects.Picture).rotation);
+                        switch ((user as Objects.Picture).rotation) {
+                            case 1:
+                                Exif.Convert.set_short (entry.data, Exif.ByteOrder.INTEL, 6);
+                                (user as Objects.Picture).exif_data.save_data (&entry.data, &entry.size);
+                                break;
+                            case 6:
+                                Exif.Convert.set_short (entry.data, Exif.ByteOrder.INTEL, 3);
+                                (user as Objects.Picture).exif_data.save_data (&entry.data, &entry.size);
+                                break;
+                            case 3:
+                                Exif.Convert.set_short (entry.data, Exif.ByteOrder.INTEL, 8);
+                                (user as Objects.Picture).exif_data.save_data (&entry.data, &entry.size);
+                                break;
+                            case 8:
+                                Exif.Convert.set_short (entry.data, Exif.ByteOrder.INTEL, 1);
+                                (user as Objects.Picture).exif_data.save_data (&entry.data, &entry.size);
+                                break;
+                        }
+                    }
+                }, user);
+            }, this);
+
+            return false;
         }
     }
 }

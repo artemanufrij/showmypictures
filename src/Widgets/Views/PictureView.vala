@@ -29,6 +29,7 @@ namespace ShowMyPictures.Widgets.Views {
     public class PictureView : Gtk.Grid {
         public Objects.Picture current_picture { get; private set; default = null; }
 
+        public signal void picture_loading ();
         public signal void picture_loaded (Objects.Picture picture);
 
         Gdk.Pixbuf current_pixbuf = null;
@@ -95,6 +96,8 @@ namespace ShowMyPictures.Widgets.Views {
             if (current_picture == picture) {
                 return;
             }
+            picture_loading ();
+
             current_picture = picture;
             current_picture.exclude_exif ();
             try {
@@ -103,8 +106,8 @@ namespace ShowMyPictures.Widgets.Views {
             } catch (Error err) {
                 warning (err.message);
             }
-            set_optimal_zoom ();
 
+            set_optimal_zoom ();
             picture_loaded (current_picture);
         }
 

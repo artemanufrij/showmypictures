@@ -57,11 +57,11 @@ namespace ShowMyPictures.Utils {
 
     public static Gdk.PixbufRotation get_rotation (Objects.Picture picture) {
         switch (picture.rotation) {
-            case 3:
+            case 3: //180
                 return Gdk.PixbufRotation.UPSIDEDOWN;
-            case 6:
+            case 6: //270
                 return Gdk.PixbufRotation.CLOCKWISE;
-            case 8:
+            case 8: //90
                 return Gdk.PixbufRotation.COUNTERCLOCKWISE;
             default:
                 return Gdk.PixbufRotation.NONE;

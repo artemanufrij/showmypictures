@@ -36,6 +36,7 @@ namespace ShowMyPictures {
         Gtk.Button navigation_button;
         Gtk.Button rotate_left;
         Gtk.Button rotate_right;
+        Gtk.Spinner spinner;
 
         Widgets.Views.Welcome welcome;
         Widgets.Views.AlbumsView albums_view;
@@ -147,6 +148,9 @@ namespace ShowMyPictures {
             app_menu.popup = settings_menu;
             headerbar.pack_end (app_menu);
 
+            spinner = new Gtk.Spinner ();
+            headerbar.pack_end (spinner);
+
             content = new Gtk.Stack ();
             content.transition_type = Gtk.StackTransitionType.SLIDE_LEFT_RIGHT;
 
@@ -163,7 +167,9 @@ namespace ShowMyPictures {
 
             rotate_left = new Gtk.Button.from_icon_name ("object-rotate-left-symbolic", Gtk.IconSize.LARGE_TOOLBAR);
             rotate_left.clicked.connect (() => {
-
+                if (content.visible_child_name == "picture") {
+                    picture_view.current_picture.rotate_left_exif ();
+                }
             });
             rotate_right = new Gtk.Button.from_icon_name ("object-rotate-right-symbolic", Gtk.IconSize.LARGE_TOOLBAR);
             rotate_right.clicked.connect (() => {
@@ -187,8 +193,12 @@ namespace ShowMyPictures {
             });
 
             picture_view = new Widgets.Views.PictureView ();
+            picture_view.picture_loading.connect (() => {
+                spinner.active = true;
+            });
             picture_view.picture_loaded.connect ((picture) => {
                 headerbar.title = Path.get_basename (picture.path);
+                spinner.active = false;
             });
 
             content.add_named (welcome, "welcome");

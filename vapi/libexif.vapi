@@ -90,7 +90,7 @@ namespace Exif {
         public void unset_option(DataOption option);
         public void save_data(uchar **buffer, uint *size);
         public void set_data_type(DataType data_type);
-        
+
         // length is Exif.IFD_COUNT
         public Content[] ifd;
         public uchar *data;
@@ -113,7 +113,7 @@ namespace Exif {
         public unowned string get_name();
         public unowned string get_description();
     }
-    
+
     [CCode (
         cname="ExifDataType",
         cheader_filename="libexif/exif-data-type.h",
@@ -124,7 +124,7 @@ namespace Exif {
         UNCOMPRESSED_PLANAR,
         UNCOMPRESSED_YCC,
         COMPRESSED;
-        
+
         public bool is_valid() {
             switch (this) {
                 case UNCOMPRESSED_CHUNKY:
@@ -132,16 +132,16 @@ namespace Exif {
                 case UNCOMPRESSED_YCC:
                 case COMPRESSED:
                     return true;
-                
+
                 default:
                     return false;
             }
         }
     }
-    
+
     [CCode (cname="EXIF_DATA_TYPE_COUNT")]
     public const int DATA_TYPE_COUNT;
-    
+
     [Compact]
     [CCode (
         cname="ExifEntry",
@@ -160,14 +160,14 @@ namespace Exif {
         public string get_string() {
             char[] buffer = new char[256];
             get_value(buffer, 256);
-            
+
             GLib.StringBuilder builder = new GLib.StringBuilder();
-            foreach (char c in buffer)
+            foreach (char c in buffer) {
                 builder.append_c(c);
-            
+            }
             return builder.str;
         }
-        
+
         public Tag tag;
         public Format format;
         public ulong components;
@@ -215,7 +215,7 @@ namespace Exif {
 
         public unowned string get_name();
     }
-    
+
     [CCode (cname="EXIF_IFD_COUNT")]
     public const int IFD_COUNT;
 
@@ -265,7 +265,7 @@ namespace Exif {
         public unowned string get_title();
         public unowned string get_message();
     }
-    
+
     [Compact]
     [CCode (
         cname="ExifMem",
@@ -280,7 +280,7 @@ namespace Exif {
         public void free(void *ptr);
         public static Mem new_default();
     }
-    
+
     [SimpleType]
     [CCode (
         cname="ExifRational",
@@ -290,7 +290,7 @@ namespace Exif {
         uint32 numerator;
         uint32 denominator;
     }
-    
+
     [CCode (
         cname="ExifSupportLevel",
         cheader_filename="libexif/exif-tag.h",
@@ -302,7 +302,7 @@ namespace Exif {
         MANDATORY,
         OPTIONAL
     }
-    
+
     [CCode (
         cname="ExifTag",
         cheader_filename="libexif/exif-tag.h",
