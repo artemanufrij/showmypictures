@@ -36,6 +36,7 @@ namespace ShowMyPictures.Widgets.Views {
 
         Gtk.Image image;
         Gtk.ScrolledWindow scroll;
+        Gtk.Menu menu;
 
         double zoom = 1;
 
@@ -71,6 +72,9 @@ namespace ShowMyPictures.Widgets.Views {
         }
 
         private void build_ui () {
+            var event_box = new Gtk.EventBox ();
+            event_box.button_press_event.connect (show_context_menu);
+
             scroll = new Gtk.ScrolledWindow (null, null);
             scroll.expand = true;
             scroll.scroll_event.connect ((key_event) => {
@@ -84,12 +88,21 @@ namespace ShowMyPictures.Widgets.Views {
                 }
                 return false;
             });
+            event_box.add (scroll);
 
             image = new Gtk.Image ();
             image.get_style_context ().add_class ("card");
             scroll.add (image);
 
-            this.add (scroll);
+            menu = new Gtk.Menu ();
+            var menu_new_cover = new Gtk.MenuItem.with_label (_("Set as Album picture…"));
+            menu_new_cover.activate.connect (() => {
+                current_picture.album.set_new_cover_from_picture (current_picture);
+            });
+            menu.add (menu_new_cover);
+            menu.show_all ();
+
+            this.add (event_box);
         }
 
         public void show_picture (Objects.Picture picture) {
@@ -102,7 +115,10 @@ namespace ShowMyPictures.Widgets.Views {
             current_picture.exclude_exif ();
             try {
                 current_pixbuf = new Gdk.Pixbuf.from_file (current_picture.path);
-                current_pixbuf = current_pixbuf.rotate_simple (Utils.get_rotation (current_picture));
+                var r = Utils.get_rotation (current_picture);
+                if (r != Gdk.PixbufRotation.NONE) {
+                    current_pixbuf = current_pixbuf.rotate_simple (r);
+                }
             } catch (Error err) {
                 warning (err.message);
             }
@@ -162,6 +178,14 @@ namespace ShowMyPictures.Widgets.Views {
                 zoom_timer = 0;
                 return false;
             });
+        }
+
+        private bool show_context_menu (Gtk.Widget sender, Gdk.EventButton evt) {
+            if (evt.type == Gdk.EventType.BUTTON_PRESS && evt.button == 3) {
+                menu.popup (null, null, null, evt.button, evt.time);
+                return true;
+            }
+            return false;
         }
     }
 }

@@ -31,6 +31,7 @@ namespace ShowMyPictures.Widgets {
         public Objects.Picture picture { get; private set; }
 
         Gtk.Image preview;
+        Gtk.Menu menu;
 
         public Picture (Objects.Picture picture) {
             this.picture = picture;
@@ -44,13 +45,34 @@ namespace ShowMyPictures.Widgets {
         }
 
         private void build_ui () {
+            var event_box = new Gtk.EventBox ();
+            event_box.button_press_event.connect (show_context_menu);
+
             preview = new Gtk.Image ();
             preview.halign = Gtk.Align.CENTER;
             preview.get_style_context ().add_class ("card");
             preview.margin = 12;
             preview.pixbuf = picture.preview;
 
-            this.add (preview);
+            event_box.add (preview);
+
+            menu = new Gtk.Menu ();
+            var menu_new_cover = new Gtk.MenuItem.with_label (_("Set as Album picture…"));
+            menu_new_cover.activate.connect (() => {
+                picture.album.set_new_cover_from_picture (picture);
+            });
+            menu.add (menu_new_cover);
+            menu.show_all ();
+
+            this.add (event_box);
+        }
+
+        private bool show_context_menu (Gtk.Widget sender, Gdk.EventButton evt) {
+            if (evt.type == Gdk.EventType.BUTTON_PRESS && evt.button == 3) {
+                menu.popup (null, null, null, evt.button, evt.time);
+                return true;
+            }
+            return false;
         }
     }
 }

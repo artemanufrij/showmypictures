@@ -70,7 +70,6 @@ namespace ShowMyPictures.Services {
                 year        INT         NOT NULL,
                 month       INT         NOT NULL,
                 day         INT         NOT NULL,
-                title_id    INT         NOT NULL,
                 CONSTRAINT unique_box UNIQUE (title, year, month)
                 );""";
             if (db.exec (q, null, out errormsg) != Sqlite.OK) {
@@ -143,7 +142,7 @@ namespace ShowMyPictures.Services {
             Sqlite.Statement stmt;
 
             string sql = """
-                INSERT OR IGNORE INTO albums (year, month, day, title, title_id) VALUES ($YEAR, $MONTH, $DAY, $TITLE, $TITLE_ID);
+                INSERT OR IGNORE INTO albums (year, month, day, title) VALUES ($YEAR, $MONTH, $DAY, $TITLE);
             """;
 
             db.prepare_v2 (sql, sql.length, out stmt);
@@ -151,7 +150,6 @@ namespace ShowMyPictures.Services {
             set_parameter_int (stmt, sql, "$MONTH", album.month);
             set_parameter_int (stmt, sql, "$DAY", album.day);
             set_parameter_str (stmt, sql, "$TITLE", album.title);
-            set_parameter_int (stmt, sql, "$TITLE_ID", album.title_id);
 
             if (stmt.step () != Sqlite.DONE) {
                 warning ("Error: %d: %s", db.errcode (), db.errmsg ());

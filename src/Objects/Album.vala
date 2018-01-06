@@ -50,8 +50,6 @@ namespace ShowMyPictures.Objects {
         public int month { get; set; default = 0; }
         public int day { get; set; default = 0; }
 
-        public int title_id { get; set; default = 0; }
-
         GLib.List<Picture> _pictures = null;
         public GLib.List<Picture> pictures {
             get {
@@ -137,25 +135,48 @@ namespace ShowMyPictures.Objects {
                     return null;
                 }
 
-                string path = "";
                 if (pictures.length () == 0) {
                     cover_creating = false;
                     return null;
                 }
-
-                path = pictures.first ().data.path;
+                var picture = pictures.first ().data;
                 try {
-                    var pixbuf = new Gdk.Pixbuf.from_file (path);
-                    pixbuf = Utils.align_and_scale_pixbuf_for_cover (pixbuf);
-                    pixbuf.save (cover_path, "jpeg", "quality", "100");
-                    cover = pixbuf;
-                    pixbuf.dispose ();
+                    var pixbuf = new Gdk.Pixbuf.from_file (picture.path);
+                    var r = Utils.get_rotation (picture);
+                    if (r != Gdk.PixbufRotation.NONE) {
+                        pixbuf = cover.rotate_simple (r);
+                    }
+                    set_new_cover (pixbuf);
                 } catch (Error err) {
                     warning (err.message);
                 }
                 cover_creating = false;
                 return null;
             });
+        }
+
+        public void set_new_cover (Gdk.Pixbuf pixbuf) {
+            cover = Utils.align_and_scale_pixbuf_for_cover (pixbuf);
+            try {
+                cover.save (cover_path, "jpeg", "quality", "100");
+            } catch (Error err) {
+                warning (err.message);
+            }
+            pixbuf.dispose ();
+        }
+
+        public void set_new_cover_from_picture (Picture picture) {
+            try {
+                var cover = new Gdk.Pixbuf.from_file (picture.path);
+                picture.exclude_exif ();
+                var r = Utils.get_rotation (picture);
+                if (r != Gdk.PixbufRotation.NONE) {
+                    cover = cover.rotate_simple (r);
+                }
+                picture.album.set_new_cover (cover);
+            } catch (Error err) {
+                warning (err.message);
+            }
         }
     }
 }
