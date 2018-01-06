@@ -33,6 +33,18 @@ namespace ShowMyPictures.Widgets.Views {
 
         Gtk.FlowBox albums;
 
+        private string _filter = "";
+        public string filter {
+            get {
+                return _filter;
+            } set {
+                if (_filter != value) {
+                    _filter = value;
+                    albums.invalidate_filter ();
+                }
+            }
+        }
+
         construct {
             library_manager = ShowMyPictures.Services.LibraryManager.instance;
             library_manager.added_new_album.connect ((album) => {
@@ -54,6 +66,7 @@ namespace ShowMyPictures.Widgets.Views {
             albums.selection_mode = Gtk.SelectionMode.SINGLE;
             albums.max_children_per_line = 99;
             albums.set_sort_func (albums_sort_func);
+            albums.set_filter_func (albums_filter_func);
             albums.row_spacing = 24;
             albums.column_spacing = 24;
             albums.child_activated.connect ((child) => {
@@ -87,6 +100,29 @@ namespace ShowMyPictures.Widgets.Views {
                 return item2.day - item1.day;
             }
             return 0;
+        }
+
+        private bool albums_filter_func (Gtk.FlowBoxChild child) {
+            if (filter.strip ().length == 0) {
+                return true;
+            }
+            string[] filter_elements = filter.strip ().down ().split (" ");
+            var album = (child as Widgets.Album).album;
+            foreach (string filter_element in filter_elements) {
+                if (!album.title.down ().contains (filter_element)) {
+                    bool picture_title = false;
+                    foreach (var picture in album.pictures) {
+                        if (picture.path.down ().contains (filter_element)) {
+                            picture_title = true;
+                        }
+                    }
+                    if (picture_title) {
+                        continue;
+                    }
+                    return false;
+                }
+            }
+            return true;
         }
     }
 }

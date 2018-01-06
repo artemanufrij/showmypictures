@@ -39,7 +39,8 @@ namespace ShowMyPictures.Services {
             }
         }
 
-        public signal void added_new_album (ShowMyPictures.Objects.Album album);
+        public signal void added_new_album (Objects.Album album);
+        public signal void removed_album (Objects.Album album);
 
         public Services.DataBaseManager db_manager { get; construct set; }
         public Services.LocalFilesManager lf_manager { get; construct set; }
@@ -58,6 +59,7 @@ namespace ShowMyPictures.Services {
 
             db_manager = Services.DataBaseManager.instance;
             db_manager.added_new_album.connect ((album) => { added_new_album (album); });
+            db_manager.removed_album.connect ((album) => { removed_album (album); });
         }
 
         private LibraryManager () { }

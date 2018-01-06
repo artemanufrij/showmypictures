@@ -27,7 +27,9 @@
 
 namespace ShowMyPictures.Objects {
     public class Picture : GLib.Object {
+
         public signal void preview_created ();
+        public signal void removed ();
 
         int _ID = 0;
         public int ID {
@@ -82,6 +84,16 @@ namespace ShowMyPictures.Objects {
 
         bool preview_creating = false;
         bool exif_excluded = false;
+
+        construct {
+            removed.connect (() => {
+                if (album != null) {
+                    album.picture_removed (this);
+                }
+                var f = File.new_for_path (path);
+                f.trash_async.begin ();
+            });
+        }
 
         public Picture (Album? album = null) {
             this.album = album;

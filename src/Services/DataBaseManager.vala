@@ -38,6 +38,7 @@ namespace ShowMyPictures.Services {
         }
 
         public signal void added_new_album (Objects.Album album);
+        public signal void removed_album (Objects.Album album);
 
         GLib.List<Objects.Album> _albums = null;
         public GLib.List<Objects.Album> albums {
@@ -53,6 +54,10 @@ namespace ShowMyPictures.Services {
         string errormsg;
 
         construct {
+            removed_album.connect ((album) => {
+                _albums.remove (album);
+                album.removed ();
+            });
         }
 
         private DataBaseManager () {
@@ -213,6 +218,25 @@ namespace ShowMyPictures.Services {
             return return_value;
         }
 
+        public void remove_album (Objects.Album album) {
+            Sqlite.Statement stmt;
+
+            string sql = """
+                DELETE FROM albums WHERE id=$ID;
+            """;
+
+            db.prepare_v2 (sql, sql.length, out stmt);
+            set_parameter_int (stmt, sql, "$ID", album.ID);
+
+            if (stmt.step () != Sqlite.DONE) {
+                warning ("Error: %d: %s", db.errcode (), db.errmsg ());
+            } else {
+                stdout.printf ("Album Removed: %d\n", album.ID);
+                removed_album (album);
+            }
+            stmt.reset ();
+        }
+
 // PICTURE REGION
         public GLib.List<Objects.Picture> get_picture_collection (Objects.Album album) {
             GLib.List<Objects.Picture> return_value = new GLib.List<Objects.Picture> ();
@@ -277,6 +301,25 @@ namespace ShowMyPictures.Services {
                 stdout.printf ("Picture ID: %d - %s\n", picture.ID, picture.album.title);
             } else {
                 warning ("Error: %d: %s", db.errcode (), db.errmsg ());
+            }
+            stmt.reset ();
+        }
+
+        public void remove_picture (Objects.Picture picture) {
+            Sqlite.Statement stmt;
+
+            string sql = """
+                DELETE FROM pictures WHERE id=$ID;
+            """;
+
+            db.prepare_v2 (sql, sql.length, out stmt);
+            set_parameter_int (stmt, sql, "$ID", picture.ID);
+
+            if (stmt.step () != Sqlite.DONE) {
+                warning ("Error: %d: %s", db.errcode (), db.errmsg ());
+            } else {
+                stdout.printf ("Picture Removed: %d\n", picture.ID);
+                picture.removed ();
             }
             stmt.reset ();
         }

@@ -30,7 +30,9 @@ namespace ShowMyPictures.Objects {
         ShowMyPictures.Services.DataBaseManager db_manager;
 
         public signal void picture_added (Picture picture);
+        public signal void picture_removed (Picture picture);
         public signal void cover_created ();
+        public signal void removed ();
 
         int _ID = 0;
         public int ID {
@@ -79,6 +81,12 @@ namespace ShowMyPictures.Objects {
 
         construct {
             db_manager = ShowMyPictures.Services.DataBaseManager.instance;
+            picture_removed.connect ((track) => {
+                this._pictures.remove (track);
+                if (this.pictures.length () == 0) {
+                    db_manager.remove_album (this);
+                }
+            });
         }
 
         public Album (string title) {
@@ -134,19 +142,13 @@ namespace ShowMyPictures.Objects {
                     cover_creating = false;
                     return null;
                 }
-
                 if (pictures.length () == 0) {
                     cover_creating = false;
                     return null;
                 }
                 var picture = pictures.first ().data;
                 try {
-                    var pixbuf = new Gdk.Pixbuf.from_file (picture.path);
-                    var r = Utils.get_rotation (picture);
-                    if (r != Gdk.PixbufRotation.NONE) {
-                        pixbuf = cover.rotate_simple (r);
-                    }
-                    set_new_cover (pixbuf);
+                    set_new_cover_from_picture (picture);
                 } catch (Error err) {
                     warning (err.message);
                 }
@@ -167,13 +169,13 @@ namespace ShowMyPictures.Objects {
 
         public void set_new_cover_from_picture (Picture picture) {
             try {
-                var cover = new Gdk.Pixbuf.from_file (picture.path);
+                var pixbuf = new Gdk.Pixbuf.from_file (picture.path);
                 picture.exclude_exif ();
                 var r = Utils.get_rotation (picture);
                 if (r != Gdk.PixbufRotation.NONE) {
-                    cover = cover.rotate_simple (r);
+                    pixbuf = pixbuf.rotate_simple (r);
                 }
-                picture.album.set_new_cover (cover);
+                set_new_cover (pixbuf);
             } catch (Error err) {
                 warning (err.message);
             }

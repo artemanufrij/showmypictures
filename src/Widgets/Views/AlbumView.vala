@@ -33,6 +33,18 @@ namespace ShowMyPictures.Widgets.Views {
 
         Gtk.FlowBox pictures;
 
+        private string _filter = "";
+        public string filter {
+            get {
+                return _filter;
+            } set {
+                if (_filter != value) {
+                    _filter = value;
+                    pictures.invalidate_filter ();
+                }
+            }
+        }
+
         public AlbumView () {
             build_ui ();
         }
@@ -41,6 +53,7 @@ namespace ShowMyPictures.Widgets.Views {
             pictures = new Gtk.FlowBox ();
             pictures.homogeneous = false;
             pictures.set_sort_func (pictures_sort_func);
+            pictures.set_filter_func (pictures_filter_func);
             pictures.margin = 24;
             pictures.row_spacing = 12;
             pictures.column_spacing = 12;
@@ -62,6 +75,7 @@ namespace ShowMyPictures.Widgets.Views {
 
             if (current_album != null) {
                 current_album.picture_added.disconnect (add_picture);
+                current_album.removed.disconnect (album_removed);
             }
             current_album = album;
             reset ();
@@ -71,6 +85,7 @@ namespace ShowMyPictures.Widgets.Views {
             }
 
             current_album.picture_added.connect (add_picture);
+            current_album.removed.disconnect (album_removed);
         }
 
         private void reset () {
@@ -88,10 +103,28 @@ namespace ShowMyPictures.Widgets.Views {
             });
         }
 
+        private void album_removed () {
+            current_album = null;
+        }
+
         private int pictures_sort_func (Gtk.FlowBoxChild child1, Gtk.FlowBoxChild child2) {
             var item1 = (Widgets.Picture)child1;
             var item2 = (Widgets.Picture)child2;
             return item1.picture.path.collate (item2.picture.path);
+        }
+
+        private bool pictures_filter_func (Gtk.FlowBoxChild child) {
+            if (filter.strip ().length == 0) {
+                return true;
+            }
+            string[] filter_elements = filter.strip ().down ().split (" ");
+            var picture = (child as Widgets.Picture).picture;
+            foreach (string filter_element in filter_elements) {
+                if (!picture.path.down ().contains (filter_element)) {
+                    return false;
+                }
+            }
+            return true;
         }
     }
 }

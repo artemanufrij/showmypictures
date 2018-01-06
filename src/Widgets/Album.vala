@@ -41,12 +41,16 @@ namespace ShowMyPictures.Widgets {
 
         public Album (Objects.Album album) {
             this.album = album;
-
-            build_ui ();
-
             this.album.notify["title"].connect (() => {
                 title.label = this.album.title;
             });
+            this.album.removed.connect (() => {
+                Idle.add (() => {
+                    this.destroy ();
+                    return false;
+                });
+            });
+            build_ui ();
         }
 
         private void build_ui () {

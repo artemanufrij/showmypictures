@@ -27,6 +27,8 @@
 
 namespace ShowMyPictures.Widgets.Views {
     public class PictureView : Gtk.Grid {
+        ShowMyPictures.Services.LibraryManager library_manager;
+
         public Objects.Picture current_picture { get; private set; default = null; }
 
         public signal void picture_loading ();
@@ -45,24 +47,49 @@ namespace ShowMyPictures.Widgets.Views {
 
         uint zoom_timer = 0;
 
+        construct {
+            library_manager = ShowMyPictures.Services.LibraryManager.instance;
+        }
+
         public PictureView () {
             build_ui ();
             this.draw.connect (first_draw);
             this.key_press_event.connect ((key) => {
-                if (!(Gdk.ModifierType.MOD1_MASK in key.state) && current_picture != null) {
-                    Objects.Picture next = null;
-                    if (key.keyval == Gdk.Key.Left) {
-                        next = current_picture.album.get_prev_picture (current_picture);
-                    } else if (key.keyval == Gdk.Key.Right) {
-                        next = current_picture.album.get_next_picture (current_picture);
+                if (key.keyval == Gdk.Key.Delete) {
+                    var for_delete = current_picture;
+                    if (!show_next_picture ()) {
+                        show_prev_picture ();
                     }
-                    if (next != null) {
-                        show_picture (next);
-                        return true;
+                    library_manager.db_manager.remove_picture (for_delete);
+                } else if (!(Gdk.ModifierType.MOD1_MASK in key.state) && current_picture != null) {
+                    if (key.keyval == Gdk.Key.Left) {
+                        return show_prev_picture ();
+                    } else if (key.keyval == Gdk.Key.Right) {
+                        return show_next_picture ();
                     }
                 }
                 return false;
             });
+        }
+
+        private bool show_next_picture () {
+            var pic = current_picture.album.get_next_picture (current_picture);
+            if (pic != null) {
+                show_picture (pic);
+                return true;
+            }
+
+            return false;
+        }
+
+        private bool show_prev_picture () {
+            var pic = current_picture.album.get_prev_picture (current_picture);
+            if (pic != null) {
+                show_picture (pic);
+                return true;
+            }
+
+            return false;
         }
 
         private bool first_draw () {
@@ -99,7 +126,12 @@ namespace ShowMyPictures.Widgets.Views {
             menu_new_cover.activate.connect (() => {
                 current_picture.album.set_new_cover_from_picture (current_picture);
             });
+            var menu_move_into_trash = new Gtk.MenuItem.with_label (_("Move into Trash"));
+            menu_move_into_trash.activate.connect (() => {
+                library_manager.db_manager.remove_picture (current_picture);
+            });
             menu.add (menu_new_cover);
+            menu.add (menu_move_into_trash);
             menu.show_all ();
 
             this.add (event_box);

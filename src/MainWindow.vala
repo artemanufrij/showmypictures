@@ -30,6 +30,7 @@ namespace ShowMyPictures {
         ShowMyPictures.Services.LibraryManager library_manager;
         ShowMyPictures.Settings settings;
 
+        Gtk.SearchEntry search_entry;
         Gtk.HeaderBar headerbar;
         Gtk.MenuButton app_menu;
         Gtk.Stack content;
@@ -62,6 +63,15 @@ namespace ShowMyPictures {
                     }
                     return false;
                 });
+            });
+            library_manager.removed_album.connect ((album) => {
+                if ((content.visible_child_name == "album" && album_view.current_album == album) || (content.visible_child_name == "picture" && picture_view.current_picture.album == album)) {
+                    if (library_manager.albums.length () > 0) {
+                        show_albums ();
+                    } else {
+                        show_welcome ();
+                    }
+                }
             });
         }
 
@@ -148,6 +158,22 @@ namespace ShowMyPictures {
             app_menu.popup = settings_menu;
             headerbar.pack_end (app_menu);
 
+            // SEARCH ENTRY
+            search_entry = new Gtk.SearchEntry ();
+            search_entry.placeholder_text = _("Search Pictures");
+            search_entry.margin_right = 5;
+            search_entry.search_changed.connect (() => {
+                switch (content.visible_child_name) {
+                    case "albums":
+                        albums_view.filter = search_entry.text;
+                        break;
+                    case "album":
+                        album_view.filter = search_entry.text;
+                        break;
+                }
+            });
+            headerbar.pack_end (search_entry);
+
             spinner = new Gtk.Spinner ();
             headerbar.pack_end (spinner);
 
@@ -188,8 +214,8 @@ namespace ShowMyPictures {
             });
             album_view = new Widgets.Views.AlbumView ();
             album_view.picture_selected.connect ((picture) => {
-                show_picture ();
                 picture_view.show_picture (picture);
+                show_picture ();
             });
 
             picture_view = new Widgets.Views.PictureView ();
@@ -212,6 +238,7 @@ namespace ShowMyPictures {
             navigation_button.hide ();
             rotate_left.hide ();
             rotate_right.hide ();
+            search_entry.hide ();
         }
 
         private void show_albums () {
@@ -219,6 +246,8 @@ namespace ShowMyPictures {
             navigation_button.hide ();
             rotate_left.hide ();
             rotate_right.hide ();
+            search_entry.show ();
+            search_entry.text = albums_view.filter;
         }
 
         private void show_album () {
@@ -226,6 +255,8 @@ namespace ShowMyPictures {
             navigation_button.show ();
             rotate_left.hide ();
             rotate_right.hide ();
+            search_entry.show ();
+            search_entry.text = album_view.filter;
         }
 
         private void show_picture () {
@@ -233,6 +264,15 @@ namespace ShowMyPictures {
             navigation_button.show ();
             rotate_left.show ();
             rotate_right.show ();
+            search_entry.hide ();
+        }
+
+        private void show_welcome () {
+            content.visible_child_name = "welcome";
+            navigation_button.hide ();
+            rotate_left.hide ();
+            rotate_right.hide ();
+            search_entry.hide ();
         }
 
         private void load_settings () {
@@ -264,6 +304,12 @@ namespace ShowMyPictures {
                 show_picture ();
             } else if (content.visible_child_name == "albums" && album_view.current_album != null) {
                 show_album ();
+            }
+        }
+
+        public void reset_action () {
+            if (search_entry.visible && search_entry.text != "") {
+                search_entry.text = "";
             }
         }
 

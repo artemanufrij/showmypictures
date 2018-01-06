@@ -27,17 +27,28 @@
 
 namespace ShowMyPictures.Widgets {
     public class Picture : Gtk.FlowBoxChild {
+        ShowMyPictures.Services.LibraryManager library_manager;
 
         public Objects.Picture picture { get; private set; }
 
         Gtk.Image preview;
         Gtk.Menu menu;
 
+        construct {
+            library_manager = ShowMyPictures.Services.LibraryManager.instance;
+        }
+
         public Picture (Objects.Picture picture) {
             this.picture = picture;
             this.picture.preview_created.connect (() => {
                 Idle.add (() => {
                     preview.pixbuf = this.picture.preview;
+                    return false;
+                });
+            });
+            this.picture.removed.connect (() => {
+                Idle.add (() => {
+                    this.destroy ();
                     return false;
                 });
             });
@@ -57,11 +68,17 @@ namespace ShowMyPictures.Widgets {
             event_box.add (preview);
 
             menu = new Gtk.Menu ();
-            var menu_new_cover = new Gtk.MenuItem.with_label (_("Set as Album picture…"));
+            var menu_new_cover = new Gtk.MenuItem.with_label (_("Set as Album picture"));
             menu_new_cover.activate.connect (() => {
                 picture.album.set_new_cover_from_picture (picture);
             });
+            var menu_move_into_trash = new Gtk.MenuItem.with_label (_("Move into Trash"));
+            menu_move_into_trash.activate.connect (() => {
+                library_manager.db_manager.remove_picture (picture);
+            });
+
             menu.add (menu_new_cover);
+            menu.add (menu_move_into_trash);
             menu.show_all ();
 
             this.add (event_box);
@@ -69,6 +86,7 @@ namespace ShowMyPictures.Widgets {
 
         private bool show_context_menu (Gtk.Widget sender, Gdk.EventButton evt) {
             if (evt.type == Gdk.EventType.BUTTON_PRESS && evt.button == 3) {
+                (this.parent as Gtk.FlowBox).select_child (this);
                 menu.popup (null, null, null, evt.button, evt.time);
                 return true;
             }
