@@ -241,6 +241,13 @@ namespace ShowMyPictures {
             search_entry.hide ();
         }
 
+        public override bool key_press_event (Gdk.EventKey e) {
+            if (!search_entry.is_focus && e.str.strip ().length > 0) {
+                search_entry.grab_focus ();
+            }
+            return base.key_press_event (e);
+        }
+
         private void show_albums () {
             content.visible_child_name = "albums";
             navigation_button.hide ();
