@@ -33,6 +33,7 @@ namespace ShowMyPictures.Widgets {
 
         Gtk.Image preview;
         Gtk.Menu menu;
+        Gtk.Menu open_with;
 
         construct {
             library_manager = ShowMyPictures.Services.LibraryManager.instance;
@@ -77,6 +78,11 @@ namespace ShowMyPictures.Widgets {
                 library_manager.db_manager.remove_picture (picture);
             });
 
+            var menu_open_with = new Gtk.MenuItem.with_label (_("Open with"));
+            open_with = new Gtk.Menu ();
+            menu_open_with.set_submenu (open_with);
+
+            menu.add (menu_open_with);
             menu.add (menu_new_cover);
             menu.add (menu_move_into_trash);
             menu.show_all ();
@@ -86,6 +92,29 @@ namespace ShowMyPictures.Widgets {
 
         private bool show_context_menu (Gtk.Widget sender, Gdk.EventButton evt) {
             if (evt.type == Gdk.EventType.BUTTON_PRESS && evt.button == 3) {
+                foreach (var child in open_with.get_children ()) {
+                    child.destroy ();
+                }
+
+                var f = File.new_for_path (picture.path);
+                var info = f.query_info (FileAttribute.STANDARD_CONTENT_TYPE, 0);
+                var mime_type = info.get_content_type ();
+
+                foreach (var appinfo in AppInfo.get_all_for_type (mime_type)) {
+                    var item = new Gtk.MenuItem.with_label (appinfo.get_name ());
+                    item.activate.connect (() => {
+                        GLib.List<File> files = new GLib.List<File> ();
+                        files.append (f);
+                        try {
+                            appinfo.launch (files, null);
+                        } catch (Error err) {
+                            warning (err.message);
+                        }
+                    });
+                    open_with.add (item);
+                }
+                open_with.show_all ();
+
                 (this.parent as Gtk.FlowBox).select_child (this);
                 menu.popup (null, null, null, evt.button, evt.time);
                 return true;

@@ -235,10 +235,7 @@ namespace ShowMyPictures {
             this.add (content);
             this.show_all ();
 
-            navigation_button.hide ();
-            rotate_left.hide ();
-            rotate_right.hide ();
-            search_entry.hide ();
+            show_welcome ();
         }
 
         public override bool key_press_event (Gdk.EventKey e) {

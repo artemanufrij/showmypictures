@@ -41,6 +41,7 @@ namespace ShowMyPictures.Widgets {
 
         public Album (Objects.Album album) {
             this.album = album;
+            build_ui ();
             this.album.notify["title"].connect (() => {
                 title.label = this.album.title;
             });
@@ -50,7 +51,6 @@ namespace ShowMyPictures.Widgets {
                     return false;
                 });
             });
-            build_ui ();
         }
 
         private void build_ui () {
@@ -72,7 +72,13 @@ namespace ShowMyPictures.Widgets {
                     return false;
                 });
             });
-            cover.pixbuf = album.cover;
+            if (album.cover != null) {
+                cover.pixbuf = album.cover;
+            } else {
+                cover.set_from_icon_name ("image-x-generic-symbolic", Gtk.IconSize.DIALOG);
+                cover.height_request = 192;
+                cover.width_request = 192;
+            }
             cover.margin = 6;
 
             title = new Gtk.Label (album.title);

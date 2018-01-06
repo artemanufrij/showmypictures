@@ -122,7 +122,7 @@ namespace ShowMyPictures.Widgets.Views {
             scroll.add (image);
 
             menu = new Gtk.Menu ();
-            var menu_new_cover = new Gtk.MenuItem.with_label (_("Set as Album picture…"));
+            var menu_new_cover = new Gtk.MenuItem.with_label (_("Set as Album picture"));
             menu_new_cover.activate.connect (() => {
                 current_picture.album.set_new_cover_from_picture (current_picture);
             });
