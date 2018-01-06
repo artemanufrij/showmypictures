@@ -62,7 +62,6 @@ namespace ShowMyPictures.Widgets.Views {
 
             var scroll = new Gtk.ScrolledWindow (null, null);
             scroll.expand = true;
-
             scroll.add (albums);
 
             this.add (scroll);

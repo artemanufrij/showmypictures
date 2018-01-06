@@ -101,7 +101,8 @@ namespace ShowMyPictures.Dialogs {
 
         private void save () {
             var new_title = title_entry.text.strip ();
-
+            album.title = new_title;
+            db_manager.update_album (album);
             this.destroy ();
         }
     }

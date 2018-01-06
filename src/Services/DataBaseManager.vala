@@ -138,6 +138,26 @@ namespace ShowMyPictures.Services {
             return return_value;
         }
 
+        public void update_album (Objects.Album album) {
+            Sqlite.Statement stmt;
+
+            string sql = """
+                UPDATE albums SET year=$YEAR, month=$MONTH, day=$DAY, title=$TITLE WHERE id=$ID;
+            """;
+
+            db.prepare_v2 (sql, sql.length, out stmt);
+            set_parameter_int (stmt, sql, "$ID", album.ID);
+            set_parameter_int (stmt, sql, "$YEAR", album.year);
+            set_parameter_int (stmt, sql, "$MONTH", album.month);
+            set_parameter_int (stmt, sql, "$DAY", album.day);
+            set_parameter_str (stmt, sql, "$TITLE", album.title);
+
+            if (stmt.step () != Sqlite.DONE) {
+                warning ("Error: %d: %s", db.errcode (), db.errmsg ());
+            }
+            stmt.reset ();
+        }
+
         public void insert_album (Objects.Album album) {
             Sqlite.Statement stmt;
 

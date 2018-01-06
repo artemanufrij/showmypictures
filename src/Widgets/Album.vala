@@ -32,6 +32,7 @@ namespace ShowMyPictures.Widgets {
 
         Gtk.Image cover;
         Gtk.Label counter;
+        Gtk.Label title;
         Gtk.Menu menu;
 
         public int year { get { return album.year; } }
@@ -40,7 +41,12 @@ namespace ShowMyPictures.Widgets {
 
         public Album (Objects.Album album) {
             this.album = album;
+
             build_ui ();
+
+            this.album.notify["title"].connect (() => {
+                title.label = this.album.title;
+            });
         }
 
         private void build_ui () {
@@ -56,7 +62,7 @@ namespace ShowMyPictures.Widgets {
             event_box.add (content);
 
             cover = new Gtk.Image ();
-            this.album.cover_created.connect (() => {
+            album.cover_created.connect (() => {
                 Idle.add (() => {
                     cover.pixbuf = this.album.cover;
                     return false;
@@ -65,10 +71,10 @@ namespace ShowMyPictures.Widgets {
             cover.pixbuf = album.cover;
             cover.margin = 6;
 
-            var title = new Gtk.Label (album.title);
+            title = new Gtk.Label (album.title);
             title.get_style_context ().add_class ("h3");
             counter = new Gtk.Label (_("%u Pictures").printf (album.pictures.length ()));
-            this.album.picture_added.connect ((picture) => {
+            album.picture_added.connect ((picture) => {
                 Idle.add (() => {
                     counter.label = _("%u Pictures").printf (album.pictures.length ());
                     return false;

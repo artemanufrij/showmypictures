@@ -57,6 +57,15 @@ namespace ShowMyPictures {
                 }
             });
 
+            var action_forward = new SimpleAction ("forward-action", null);
+            add_action (action_forward);
+            add_accelerator ("<Alt>Right", "app.forward-action", null);
+            action_forward.activate.connect (() => {
+                if (mainwindow != null) {
+                    mainwindow.forward_action ();
+                }
+            });
+
             create_cache_folders ();
         }
 

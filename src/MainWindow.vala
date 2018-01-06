@@ -188,8 +188,8 @@ namespace ShowMyPictures {
             });
             album_view = new Widgets.Views.AlbumView ();
             album_view.picture_selected.connect ((picture) => {
-                picture_view.show_picture (picture);
                 show_picture ();
+                picture_view.show_picture (picture);
             });
 
             picture_view = new Widgets.Views.PictureView ();
@@ -256,6 +256,14 @@ namespace ShowMyPictures {
                 show_album ();
             } else if (content.visible_child_name == "album") {
                 show_albums ();
+            }
+        }
+
+        public void forward_action () {
+            if (content.visible_child_name == "album" && picture_view.current_picture != null) {
+                show_picture ();
+            } else if (content.visible_child_name == "albums" && album_view.current_album != null) {
+                show_album ();
             }
         }
 
