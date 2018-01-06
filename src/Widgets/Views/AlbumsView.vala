@@ -51,6 +51,7 @@ namespace ShowMyPictures.Widgets.Views {
             albums = new Gtk.FlowBox ();
             albums.margin = 24;
             albums.valign = Gtk.Align.START;
+            albums.selection_mode = Gtk.SelectionMode.SINGLE;
             albums.max_children_per_line = 99;
             albums.set_sort_func (albums_sort_func);
             albums.row_spacing = 24;

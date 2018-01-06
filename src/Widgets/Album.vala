@@ -32,6 +32,7 @@ namespace ShowMyPictures.Widgets {
 
         Gtk.Image cover;
         Gtk.Label counter;
+        Gtk.Menu menu;
 
         public int year { get { return album.year; } }
         public int month { get { return album.month; } }
@@ -43,12 +44,16 @@ namespace ShowMyPictures.Widgets {
         }
 
         private void build_ui () {
+            var event_box = new Gtk.EventBox ();
+            event_box.button_press_event.connect (show_context_menu);
+
             var content = new Gtk.Grid ();
             content.halign = Gtk.Align.CENTER;
             content.row_spacing = 6;
             content.margin = 12;
             content.get_style_context ().add_class ("album");
             content.get_style_context ().add_class ("card");
+            event_box.add (content);
 
             cover = new Gtk.Image ();
             this.album.cover_created.connect (() => {
@@ -71,12 +76,36 @@ namespace ShowMyPictures.Widgets {
             });
             counter.margin_bottom = 6;
 
+            menu = new Gtk.Menu ();
+            var menu_new_cover = new Gtk.MenuItem.with_label (_("Edit Album properties…"));
+            menu_new_cover.activate.connect (() => {
+                edit_album ();
+            });
+            menu.add (menu_new_cover);
+            menu.show_all ();
+
             content.attach (cover, 0, 0);
             content.attach (title, 0, 1);
             content.attach (counter, 0, 2);
 
-            this.add (content);
+            this.add (event_box);
             this.show_all ();
+        }
+
+        private bool show_context_menu (Gtk.Widget sender, Gdk.EventButton evt) {
+            if (evt.type == Gdk.EventType.BUTTON_PRESS && evt.button == 3) {
+                (this.parent as Gtk.FlowBox).select_child (this);
+                menu.popup (null, null, null, evt.button, evt.time);
+                return true;
+            }
+            return false;
+        }
+
+        private void edit_album () {
+            var editor = new Dialogs.AlbumEditor (ShowMyPicturesApp.instance.mainwindow, this.album);
+            if (editor.run () == Gtk.ResponseType.ACCEPT) {
+                editor.destroy ();
+            }
         }
     }
 }

@@ -16,6 +16,7 @@ vala_precompile (VALA_C ${CMAKE_PROJECT_NAME}
     Utils/Utils.vala
     Utils/Pixbuf.vala
     Dialogs/Preferences.vala
+    Dialogs/AlbumEditor.vala
     Settings.vala
     MainWindow.vala
     Application.vala
