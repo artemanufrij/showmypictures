@@ -42,6 +42,7 @@ namespace ShowMyPictures.Widgets {
 
         public Picture (Objects.Picture picture) {
             this.picture = picture;
+            build_ui ();
             this.picture.preview_created.connect (() => {
                 Idle.add (() => {
                     preview.pixbuf = this.picture.preview;
@@ -54,25 +55,19 @@ namespace ShowMyPictures.Widgets {
                     return false;
                 });
             });
-            build_ui ();
         }
 
         private void build_ui () {
+            this.tooltip_text = picture.path;
             var event_box = new Gtk.EventBox ();
             event_box.button_press_event.connect (show_context_menu);
 
             spinner = new Gtk.Spinner ();
 
-
             preview = new Gtk.Image ();
             preview.halign = Gtk.Align.CENTER;
             preview.get_style_context ().add_class ("card");
             preview.margin = 12;
-            if (picture.preview != null) {
-                preview.pixbuf = picture.preview;
-            } else {
-                preview.set_from_icon_name ("image-x-generic-symbolic", Gtk.IconSize.DIALOG);
-            }
 
             event_box.add (preview);
 
@@ -96,6 +91,13 @@ namespace ShowMyPictures.Widgets {
             menu.show_all ();
 
             this.add (event_box);
+            this.show_all ();
+
+            if (picture.preview != null) {
+                preview.pixbuf = picture.preview;
+            } else {
+                preview.set_from_icon_name ("image-x-generic-symbolic", Gtk.IconSize.DIALOG);
+            }
         }
 
         private bool show_context_menu (Gtk.Widget sender, Gdk.EventButton evt) {

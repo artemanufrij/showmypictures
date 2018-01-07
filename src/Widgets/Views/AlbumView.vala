@@ -45,6 +45,8 @@ namespace ShowMyPictures.Widgets.Views {
             }
         }
 
+        uint timer_sort = 0;
+
         public AlbumView () {
             build_ui ();
         }
@@ -52,12 +54,11 @@ namespace ShowMyPictures.Widgets.Views {
         private void build_ui () {
             pictures = new Gtk.FlowBox ();
             pictures.homogeneous = false;
-            pictures.set_sort_func (pictures_sort_func);
-            pictures.set_filter_func (pictures_filter_func);
             pictures.margin = 24;
             pictures.row_spacing = 12;
             pictures.column_spacing = 12;
             pictures.valign = Gtk.Align.START;
+            pictures.set_filter_func (pictures_filter_func);
             pictures.child_activated.connect ((child) => {
                 picture_selected ((child as Widgets.Picture).picture);
             });
@@ -74,19 +75,18 @@ namespace ShowMyPictures.Widgets.Views {
             }
 
             if (current_album != null) {
-                current_album.picture_added.disconnect (add_picture);
+                current_album.picture_added.disconnect (add_picture_from_signal);
                 current_album.removed.disconnect (album_removed);
             }
             current_album = album;
             reset ();
-            current_album.create_pictures_preview ();
 
             foreach (var picture in current_album.pictures) {
                 add_picture (picture);
             }
-
-            current_album.picture_added.connect (add_picture);
+            current_album.picture_added.connect (add_picture_from_signal);
             current_album.removed.disconnect (album_removed);
+            current_album.create_pictures_preview ();
         }
 
         private void reset () {
@@ -95,14 +95,33 @@ namespace ShowMyPictures.Widgets.Views {
             }
         }
 
-        private void add_picture (Objects.Picture picture) {
+        private void add_picture_from_signal (Objects.Picture picture) {
+            add_picture (picture, true);
+        }
+
+        private void add_picture (Objects.Picture picture, bool from_signal = false) {
             Idle.add (() => {
                 var item = new Widgets.Picture (picture);
                 this.pictures.add (item);
-                item.show_all ();
-                if (!picture.album.pictures_preview_creating) {
+                if (from_signal) {
                     picture.create_preview_async.begin ();
                 }
+                do_sort ();
+                return false;
+            });
+        }
+
+        private void do_sort () {
+            if (timer_sort != 0) {
+                Source.remove (timer_sort);
+                timer_sort = 0;
+            }
+
+            timer_sort = Timeout.add (500, () => {
+                pictures.set_sort_func (pictures_sort_func);
+                pictures.set_sort_func (null);
+                Source.remove (timer_sort);
+                timer_sort = 0;
                 return false;
             });
         }

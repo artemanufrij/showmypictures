@@ -103,7 +103,9 @@ namespace ShowMyPictures.Objects {
                 }
                 new_picture.album = this;
                 db_manager.insert_picture (new_picture);
-                this._pictures.append (new_picture);
+                this._pictures.insert_sorted_with_data (new_picture, (a, b) => {
+                    return a.path.collate (b.path);
+                });
                 picture_added (new_picture);
                 create_cover.begin ();
             }

@@ -48,6 +48,8 @@ namespace ShowMyPictures.Widgets.Views {
         int filter_year = 0;
         int filter_month = 0;
 
+        uint timer_sort = 0;
+
         construct {
             library_manager = ShowMyPictures.Services.LibraryManager.instance;
             library_manager.added_new_album.connect ((album) => {
@@ -66,10 +68,9 @@ namespace ShowMyPictures.Widgets.Views {
             albums = new Gtk.FlowBox ();
             albums.margin = 24;
             albums.valign = Gtk.Align.START;
+            albums.set_filter_func (albums_filter_func);
             albums.selection_mode = Gtk.SelectionMode.SINGLE;
             albums.max_children_per_line = 99;
-            albums.set_sort_func (albums_sort_func);
-            albums.set_filter_func (albums_filter_func);
             albums.row_spacing = 24;
             albums.column_spacing = 24;
             albums.child_activated.connect ((child) => {
@@ -88,6 +89,22 @@ namespace ShowMyPictures.Widgets.Views {
             lock (albums) {
                 albums.add (a);
             }
+            do_sort ();
+        }
+
+        private void do_sort () {
+            if (timer_sort != 0) {
+                Source.remove (timer_sort);
+                timer_sort = 0;
+            }
+
+            timer_sort = Timeout.add (500, () => {
+                albums.set_sort_func (albums_sort_func);
+                albums.set_sort_func (null);
+                Source.remove (timer_sort);
+                timer_sort = 0;
+                return false;
+            });
         }
 
         public void date_filter (int year, int month) {

@@ -165,6 +165,7 @@ namespace ShowMyPictures.Objects {
                             (user as Objects.Picture).month = date.get_month ();
                             (user as Objects.Picture).day = date.get_day ();
                         }
+                        date.clear ();
                     } else if (entry.tag == Exif.Tag.ORIENTATION) {
                         (user as Objects.Picture).rotation = Exif.Convert.get_short (entry.data, Exif.ByteOrder.INTEL);
                     }
@@ -213,12 +214,14 @@ namespace ShowMyPictures.Objects {
             if (output == null) {
                 output = info.get_attribute_as_string (FileAttribute.TIME_MODIFIED);
             }
+            info.dispose ();
 
             if (output != null) {
                 var date = new DateTime.from_unix_local (int64.parse (output));
                 year = date.get_year ();
                 month = date.get_month ();
                 day = date.get_day_of_month ();
+                date = null;
             }
         }
     }
