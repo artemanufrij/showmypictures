@@ -205,9 +205,19 @@ namespace ShowMyPictures.Objects {
 
         private void exclude_creation_date () {
             var f = File.new_for_path (path);
-            var info = f.query_info ("time::created", 0);
-            stdout.printf ("%s\n", info.get_attribute_as_string ("time::created"));
+            var info = f.query_info ("time::*", 0);
             f.dispose ();
+            var output = info.get_attribute_as_string (FileAttribute.TIME_CREATED);
+            if (output == null) {
+                output = info.get_attribute_as_string (FileAttribute.TIME_MODIFIED);
+            }
+
+            if (output != null) {
+                var date = new DateTime.from_unix_local (int64.parse (output));
+                year = date.get_year ();
+                month = date.get_month ();
+                day = date.get_day_of_month ();
+            }
         }
     }
 }

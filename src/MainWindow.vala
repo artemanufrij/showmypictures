@@ -286,6 +286,7 @@ namespace ShowMyPictures {
             rotate_left.show ();
             rotate_right.show ();
             search_entry.hide ();
+            navigation.reveal_child = false;
         }
 
         private void show_welcome () {
