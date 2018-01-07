@@ -244,7 +244,7 @@ namespace ShowMyPictures.Services {
             Sqlite.Statement stmt;
 
             string sql = """
-                SELECT id, path, year, month, day FROM pictures WHERE album_id=$ALBUM_ID ORDER BY year, month, day, path;
+                SELECT id, path, year, month, day, mime_type FROM pictures WHERE album_id=$ALBUM_ID ORDER BY year, month, day, path;
             """;
 
             db.prepare_v2 (sql, sql.length, out stmt);
@@ -266,6 +266,7 @@ namespace ShowMyPictures.Services {
             return_value.year = stmt.column_int (2);
             return_value.month = stmt.column_int (3);
             return_value.day = stmt.column_int (4);
+            return_value.mime_type = stmt.column_text (5);
             return return_value;
         }
 

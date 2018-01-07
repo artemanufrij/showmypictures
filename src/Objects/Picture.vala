@@ -160,9 +160,11 @@ namespace ShowMyPictures.Objects {
                         var date_string = tag_string.split (" ")[0];
                         Date date = {};
                         date.set_parse (date_string);
-                        (user as Objects.Picture).year = date.get_year ();
-                        (user as Objects.Picture).month = date.get_month ();
-                        (user as Objects.Picture).day = date.get_day ();
+                        if (date.valid ()) {
+                            (user as Objects.Picture).year = date.get_year ();
+                            (user as Objects.Picture).month = date.get_month ();
+                            (user as Objects.Picture).day = date.get_day ();
+                        }
                     } else if (entry.tag == Exif.Tag.ORIENTATION) {
                         (user as Objects.Picture).rotation = Exif.Convert.get_short (entry.data, Exif.ByteOrder.INTEL);
                     }

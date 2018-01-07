@@ -105,10 +105,8 @@ namespace ShowMyPictures.Widgets {
                 }
 
                 var f = File.new_for_path (picture.path);
-                var info = f.query_info (FileAttribute.STANDARD_CONTENT_TYPE, 0);
-                var mime_type = info.get_content_type ();
 
-                foreach (var appinfo in AppInfo.get_all_for_type (mime_type)) {
+                foreach (var appinfo in AppInfo.get_all_for_type (picture.mime_type)) {
                     var item = new Gtk.MenuItem.with_label (appinfo.get_name ());
                     item.activate.connect (() => {
                         GLib.List<File> files = new GLib.List<File> ();

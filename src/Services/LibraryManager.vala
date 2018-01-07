@@ -72,9 +72,9 @@ namespace ShowMyPictures.Services {
             });
         }
 
-        public void found_local_image_file (string path) {
+        public void found_local_image_file (string path, string mime_type) {
             if (!db_manager.picture_file_exists (path)) {
-                insert_picture_file (path);
+                insert_picture_file (path, mime_type);
             }
         }
 
@@ -82,9 +82,10 @@ namespace ShowMyPictures.Services {
             lf_manager.scan (path);
         }
 
-        private void insert_picture_file (string path) {
+        private void insert_picture_file (string path, string mime_type) {
             var picture = new Objects.Picture ();
             picture.path = path;
+            picture.mime_type = mime_type;
 
             var album = new Objects.Album ("");
             album.year = picture.year;

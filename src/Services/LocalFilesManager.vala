@@ -38,7 +38,7 @@ namespace ShowMyPictures.Services {
         }
 
         public signal void scan_started ();
-        public signal void found_image_file (string path);
+        public signal void found_image_file (string path, string mime_path);
 
         private LocalFilesManager () { }
 
@@ -72,7 +72,7 @@ namespace ShowMyPictures.Services {
                             bool valid_file = !file_info.get_is_hidden () && (mime_type.has_prefix ("image/png") || mime_type.has_prefix ("image/jpeg"));
                             if (valid_file) {
                                 string found_path = GLib.Path.build_filename (path, file_info.get_name ());
-                                found_image_file (found_path);
+                                found_image_file (found_path, mime_type);
                             }
                         }
                     }
