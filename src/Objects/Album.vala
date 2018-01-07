@@ -78,6 +78,7 @@ namespace ShowMyPictures.Objects {
         }
 
         bool cover_creating = false;
+        public bool pictures_preview_creating { get; private set; default = false; }
 
         construct {
             db_manager = ShowMyPictures.Services.DataBaseManager.instance;
@@ -179,6 +180,17 @@ namespace ShowMyPictures.Objects {
             } catch (Error err) {
                 warning (err.message);
             }
+        }
+
+        public void create_pictures_preview () {
+            pictures_preview_creating = true;
+            new Thread<void*> (null, () => {
+                foreach (var picture in pictures) {
+                    picture.create_preview ();
+                }
+                pictures_preview_creating = false;
+                return null;
+            });
         }
     }
 }

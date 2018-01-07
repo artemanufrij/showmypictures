@@ -79,6 +79,7 @@ namespace ShowMyPictures.Widgets.Views {
             }
             current_album = album;
             reset ();
+            current_album.create_pictures_preview ();
 
             foreach (var picture in current_album.pictures) {
                 add_picture (picture);
@@ -99,6 +100,9 @@ namespace ShowMyPictures.Widgets.Views {
                 var item = new Widgets.Picture (picture);
                 this.pictures.add (item);
                 item.show_all ();
+                if (!picture.album.pictures_preview_creating) {
+                    picture.create_preview_async.begin ();
+                }
                 return false;
             });
         }

@@ -34,6 +34,7 @@ namespace ShowMyPictures.Widgets {
         Gtk.Image preview;
         Gtk.Menu menu;
         Gtk.Menu open_with;
+        Gtk.Spinner spinner;
 
         construct {
             library_manager = ShowMyPictures.Services.LibraryManager.instance;
@@ -60,11 +61,18 @@ namespace ShowMyPictures.Widgets {
             var event_box = new Gtk.EventBox ();
             event_box.button_press_event.connect (show_context_menu);
 
+            spinner = new Gtk.Spinner ();
+
+
             preview = new Gtk.Image ();
             preview.halign = Gtk.Align.CENTER;
             preview.get_style_context ().add_class ("card");
             preview.margin = 12;
-            preview.pixbuf = picture.preview;
+            if (picture.preview != null) {
+                preview.pixbuf = picture.preview;
+            } else {
+                preview.set_from_icon_name ("image-x-generic-symbolic", Gtk.IconSize.DIALOG);
+            }
 
             event_box.add (preview);
 

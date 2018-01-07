@@ -54,14 +54,8 @@ namespace ShowMyPictures.Widgets.Views {
         public PictureView () {
             build_ui ();
             this.draw.connect (first_draw);
-            this.key_press_event.connect ((key) => {
-                if (key.keyval == Gdk.Key.Delete) {
-                    var for_delete = current_picture;
-                    if (!show_next_picture ()) {
-                        show_prev_picture ();
-                    }
-                    library_manager.db_manager.remove_picture (for_delete);
-                } else if (!(Gdk.ModifierType.MOD1_MASK in key.state) && current_picture != null) {
+            /*this.key_press_event.connect ((key) => {
+                if (!(Gdk.ModifierType.MOD1_MASK in key.state) && current_picture != null) {
                     if (key.keyval == Gdk.Key.Left) {
                         return show_prev_picture ();
                     } else if (key.keyval == Gdk.Key.Right) {
@@ -69,10 +63,10 @@ namespace ShowMyPictures.Widgets.Views {
                     }
                 }
                 return false;
-            });
+            });*/
         }
 
-        private bool show_next_picture () {
+        public bool show_next_picture () {
             var pic = current_picture.album.get_next_picture (current_picture);
             if (pic != null) {
                 show_picture (pic);
@@ -82,7 +76,7 @@ namespace ShowMyPictures.Widgets.Views {
             return false;
         }
 
-        private bool show_prev_picture () {
+        public bool show_prev_picture () {
             var pic = current_picture.album.get_prev_picture (current_picture);
             if (pic != null) {
                 show_picture (pic);
@@ -90,6 +84,14 @@ namespace ShowMyPictures.Widgets.Views {
             }
 
             return false;
+        }
+
+        public void delete_current_picture () {
+            var for_delete = current_picture;
+            if (!show_next_picture ()) {
+                show_prev_picture ();
+            }
+            library_manager.db_manager.remove_picture (for_delete);
         }
 
         private bool first_draw () {

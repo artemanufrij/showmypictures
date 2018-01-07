@@ -25,17 +25,31 @@
  * Authored by: Artem Anufrij <artem.anufrij@live.de>
  */
 
-namespace ShowMyPictures.Utils {
-    public static string get_default_album_title (int year, int month, int day) {
-        if (year == 0 || month == 0 || day == 0) {
-            return _("No Date");
-        }
-        var date_time = new DateTime.local (year, month, day, 0, 0, 0);
-        return date_time.format ("%e. %b, %Y");
-    }
+namespace ShowMyPictures.Widgets {
+    public class NavigationAlbum : Granite.Widgets.SourceList.ExpandableItem, Granite.Widgets.SourceListSortable {
 
-    public static string get_month_name (int month) {
-        var date_time = new DateTime.local (1, month, 1, 0, 0, 0);
-        return date_time.format ("%B");
+        public Objects.Album album { get; private set; }
+
+        public NavigationAlbum (Objects.Album album) {
+            this.album = album;
+            this.name = this.album.title;
+            this.album.removed.connect (() => {
+                this.parent.remove (this);
+            });
+        }
+
+        public int compare (Granite.Widgets.SourceList.Item a, Granite.Widgets.SourceList.Item b) {
+            if (a is NavigationAlbum && b is NavigationAlbum) {
+                return (b as NavigationAlbum).album.day - ((a as NavigationAlbum).album.day);
+            }
+            if (a is NavigationAlbum && !(b is NavigationAlbum)) {
+                return 1;
+            }
+            return 0;
+        }
+
+        public bool allow_dnd_sorting () {
+            return false;
+        }
     }
 }

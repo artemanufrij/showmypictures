@@ -43,6 +43,7 @@ namespace ShowMyPictures {
         Widgets.Views.AlbumsView albums_view;
         Widgets.Views.AlbumView album_view;
         Widgets.Views.PictureView picture_view;
+        Widgets.NavigationBar navigation;
 
         construct {
             settings = ShowMyPictures.Settings.get_default ();
@@ -59,7 +60,7 @@ namespace ShowMyPictures {
             library_manager.added_new_album.connect ((album) => {
                 Idle.add (() => {
                     if (content.visible_child_name == "welcome") {
-                        content.visible_child_name = "albums";
+                        show_albums ();
                     }
                     return false;
                 });
@@ -114,7 +115,6 @@ namespace ShowMyPictures {
         private void build_ui () {
             headerbar = new Gtk.HeaderBar ();
             headerbar.show_close_button = true;
-            headerbar.title = _("Show My Pictures");
             this.set_titlebar (headerbar);
 
             app_menu = new Gtk.MenuButton ();
@@ -208,7 +208,6 @@ namespace ShowMyPictures {
             welcome = new Widgets.Views.Welcome ();
             albums_view = new Widgets.Views.AlbumsView ();
             albums_view.album_selected.connect ((album) => {
-                headerbar.title = album.title;
                 album_view.show_album (album);
                 show_album ();
             });
@@ -232,7 +231,21 @@ namespace ShowMyPictures {
             content.add_named (album_view, "album");
             content.add_named (picture_view, "picture");
 
-            this.add (content);
+            var grid = new Gtk.Grid ();
+            grid.attach (content, 1, 0);
+
+            navigation = new Widgets.NavigationBar ();
+            navigation.album_selected.connect ((album) => {
+                album_view.show_album (album);
+                show_album ();
+            });
+            navigation.date_selected.connect ((year, month) => {
+                albums_view.date_filter (year, month);
+                show_albums ();
+            });
+            grid.attach (navigation, 0, 0);
+
+            this.add (grid);
             this.show_all ();
 
             show_welcome ();
@@ -246,21 +259,25 @@ namespace ShowMyPictures {
         }
 
         private void show_albums () {
+            headerbar.title = _("Show My Pictures");
             content.visible_child_name = "albums";
             navigation_button.hide ();
             rotate_left.hide ();
             rotate_right.hide ();
             search_entry.show ();
             search_entry.text = albums_view.filter;
+            navigation.reveal_child = true;
         }
 
         private void show_album () {
+            headerbar.title = album_view.current_album.title;
             content.visible_child_name = "album";
             navigation_button.show ();
             rotate_left.hide ();
             rotate_right.hide ();
             search_entry.show ();
             search_entry.text = album_view.filter;
+            navigation.reveal_child = true;
         }
 
         private void show_picture () {
@@ -272,11 +289,13 @@ namespace ShowMyPictures {
         }
 
         private void show_welcome () {
+            headerbar.title = _("Show My Pictures");
             content.visible_child_name = "welcome";
             navigation_button.hide ();
             rotate_left.hide ();
             rotate_right.hide ();
             search_entry.hide ();
+            navigation.reveal_child = false;
         }
 
         private void load_settings () {
@@ -317,12 +336,31 @@ namespace ShowMyPictures {
             }
         }
 
+        public void delete_action () {
+            if (content.visible_child_name == "picture") {
+                picture_view.delete_current_picture ();
+            }
+        }
+
+        public void next_action () {
+            if (content.visible_child_name == "picture") {
+                picture_view.show_next_picture ();
+            }
+        }
+
+        public void prev_action () {
+            if (content.visible_child_name == "picture") {
+                picture_view.show_prev_picture ();
+            }
+        }
+
         private async void load_content_from_database () {
             if (library_manager.albums.length () > 0) {
                 show_albums ();
             }
             foreach (var album in library_manager.albums) {
                 albums_view.add_album (album);
+                navigation.add_album (album);
             }
         }
     }

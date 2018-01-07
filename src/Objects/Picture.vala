@@ -53,6 +53,9 @@ namespace ShowMyPictures.Objects {
                 _path = value;
                 if (ID == 0) {
                     exclude_exif ();
+                    if (year == 0) {
+                        exclude_creation_date ();
+                    }
                 }
             }
         }
@@ -68,15 +71,12 @@ namespace ShowMyPictures.Objects {
         Gdk.Pixbuf? _preview = null;
         public Gdk.Pixbuf? preview {
             get {
-                if (_preview == null) {
-                    create_preview.begin ();
-                }
                 return _preview;
             } private set {
                 if (_preview != value) {
                     _preview = value;
-                    preview_created ();
                 }
+                preview_created ();
             }
         }
 
@@ -103,36 +103,47 @@ namespace ShowMyPictures.Objects {
             return Utils.get_default_album_title (year, month, day);
         }
 
-        public async void create_preview () {
+        public async void create_preview_async () {
             if (preview_creating) {
                 return;
             }
             new Thread<void*> (null, () => {
-                preview_creating = true;
-                if (GLib.FileUtils.test (preview_path, GLib.FileTest.EXISTS)) {
-                    try {
-                        preview = new Gdk.Pixbuf.from_file (preview_path);
-                    } catch (Error err) {
-                        warning (err.message);
-                    }
-                }
-                if (preview != null) {
-                    preview_creating = false;
-                    return null;
-                }
+                create_preview ();
+                return null;
+            });
+        }
+
+        public void create_preview () {
+            preview_creating = true;
+
+            if (preview != null) {
+                preview_creating = false;
+                return;
+            }
+
+            if (GLib.FileUtils.test (preview_path, GLib.FileTest.EXISTS)) {
                 try {
-                    var pixbuf = new Gdk.Pixbuf.from_file (path);
-                    pixbuf = pixbuf.rotate_simple (Utils.get_rotation (this));
-                    pixbuf = Utils.align_and_scale_pixbuf_for_preview (pixbuf);
-                    pixbuf.save (preview_path, "png");
-                    preview = pixbuf;
-                    pixbuf.dispose ();
+                    preview = new Gdk.Pixbuf.from_file (preview_path);
                 } catch (Error err) {
                     warning (err.message);
                 }
+            }
+            if (preview != null) {
                 preview_creating = false;
-                return null;
-            });
+                return;
+            }
+            try {
+                var pixbuf = new Gdk.Pixbuf.from_file (path);
+                exclude_exif ();
+                pixbuf = pixbuf.rotate_simple (Utils.get_rotation (this));
+                pixbuf = Utils.align_and_scale_pixbuf_for_preview (pixbuf);
+                pixbuf.save (preview_path, "png");
+                preview = pixbuf;
+                pixbuf.dispose ();
+            } catch (Error err) {
+                warning (err.message);
+            }
+            preview_creating = false;
         }
 
         public void exclude_exif () {
@@ -190,6 +201,13 @@ namespace ShowMyPictures.Objects {
             }, this);
 
             return false;
+        }
+
+        private void exclude_creation_date () {
+            var f = File.new_for_path (path);
+            var info = f.query_info ("time::created", 0);
+            stdout.printf ("%s\n", info.get_attribute_as_string ("time::created"));
+            f.dispose ();
         }
     }
 }

@@ -45,6 +45,9 @@ namespace ShowMyPictures.Widgets.Views {
             }
         }
 
+        int filter_year = 0;
+        int filter_month = 0;
+
         construct {
             library_manager = ShowMyPictures.Services.LibraryManager.instance;
             library_manager.added_new_album.connect ((album) => {
@@ -81,9 +84,17 @@ namespace ShowMyPictures.Widgets.Views {
         }
 
         public void add_album (Objects.Album album) {
+            var a = new Widgets.Album (album);
             lock (albums) {
-                var a = new Widgets.Album (album);
                 albums.add (a);
+            }
+        }
+
+        public void date_filter (int year, int month) {
+            if (year != filter_year || month != filter_month) {
+                filter_year = year;
+                filter_month = month;
+                albums.invalidate_filter ();
             }
         }
 
@@ -103,25 +114,38 @@ namespace ShowMyPictures.Widgets.Views {
         }
 
         private bool albums_filter_func (Gtk.FlowBoxChild child) {
-            if (filter.strip ().length == 0) {
+            if (filter.strip ().length == 0 && filter_year == 0 && filter_month == 0) {
                 return true;
             }
-            string[] filter_elements = filter.strip ().down ().split (" ");
+
             var album = (child as Widgets.Album).album;
-            foreach (string filter_element in filter_elements) {
-                if (!album.title.down ().contains (filter_element)) {
-                    bool picture_title = false;
-                    foreach (var picture in album.pictures) {
-                        if (picture.path.down ().contains (filter_element)) {
-                            picture_title = true;
+
+            if (filter.strip ().length > 0) {
+                string[] filter_elements = filter.strip ().down ().split (" ");
+                foreach (string filter_element in filter_elements) {
+                    if (!album.title.down ().contains (filter_element)) {
+                        bool picture_title = false;
+                        foreach (var picture in album.pictures) {
+                            if (picture.path.down ().contains (filter_element)) {
+                                picture_title = true;
+                            }
                         }
+                        if (picture_title) {
+                            continue;
+                        }
+                        return false;
                     }
-                    if (picture_title) {
-                        continue;
-                    }
+                }
+            }
+
+            if (filter_year > 0) {
+                if (album.year != filter_year) {
+                    return false;
+                } else if (filter_month > 0 && album.month != filter_month) {
                     return false;
                 }
             }
+
             return true;
         }
     }

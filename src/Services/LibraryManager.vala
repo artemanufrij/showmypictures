@@ -73,12 +73,9 @@ namespace ShowMyPictures.Services {
         }
 
         public void found_local_image_file (string path) {
-            //new Thread<void*> (null, () => {
-                if (!db_manager.picture_file_exists (path)) {
-                    insert_picture_file (path);
-                }
-            //    return null;
-            //});
+            if (!db_manager.picture_file_exists (path)) {
+                insert_picture_file (path);
+            }
         }
 
         public void scan_local_library_for_new_files (string path) {
@@ -86,11 +83,8 @@ namespace ShowMyPictures.Services {
         }
 
         private void insert_picture_file (string path) {
-            string mime_type = "";
-
             var picture = new Objects.Picture ();
             picture.path = path;
-            picture.mime_type = mime_type;
 
             var album = new Objects.Album ("");
             album.year = picture.year;
@@ -102,9 +96,6 @@ namespace ShowMyPictures.Services {
 
             if (album.ID > 0) {
                 album.add_picture_if_not_exists (picture);
-                if (picture.ID > 0) {
-                    picture.create_preview.begin ();
-                }
             }
         }
 
