@@ -100,6 +100,10 @@ namespace ShowMyPictures.Services {
             }
         }
 
+        public void scan_for_duplicates () {
+
+        }
+
         public string? choose_folder () {
             string? return_value = null;
             Gtk.FileChooserDialog chooser = new Gtk.FileChooserDialog (
