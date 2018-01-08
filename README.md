@@ -11,4 +11,4 @@
 
 <br/>
 
-![screenshot](screenshots/Screenshot.png)
+![screenshot](Screenshot.png)
