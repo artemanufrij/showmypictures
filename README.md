@@ -7,11 +7,10 @@
   <a href="https://appcenter.elementary.io/com.github.artemanufrij.showmypictures">
     <img src="https://appcenter.elementary.io/badge.svg" alt="Get it on AppCenter">
   </a>
+  <p align="center">
+    <img src="Screenshot.png"/>
+  </p>
 </p>
-
-<br/>
-
-![screenshot](Screenshot.png)
 
 ## Donations
 If you liked _Show My Pictures_, and would like to support it's development of this app and more, consider [buying me a coffee](https://www.paypal.me/ArtemAnufrij) :) 
