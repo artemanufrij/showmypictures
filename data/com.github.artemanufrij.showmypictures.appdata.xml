@@ -1,261 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Copyright 2017 Artem Anufrij <artem.anufrij@live.de> -->
 <component type="desktop">
-    <id>com.github.artemanufrij.playmymusic.desktop</id>
+    <id>com.github.artemanufrij.showmypictures.desktop</id>
     <metadata_license>CC0-1.0</metadata_license>
     <project_license>GPL-3.0+</project_license>
-    <name>Music Player</name>
-    <summary>A music player for listening local music files, online radios and Audio CD's.</summary>
+    <name>Image Viewer</name>
+    <summary>An image viewer for manage local image files</summary>
     <description>
-        <p>A very fast music player designed extra for large local libraries.</p>
-        <p>Features:</p>
-        <ul>
-            <li>Show all Albums from your library</li>
-            <li>Group tracks by Artists</li>
-            <li>Manage your Playlists</li>
-            <li>Listen to online Radio</li>
-            <li>Audio CD support</li>
-            <li>Manage your MTP device</li>
-        </ul>
+        <p>A very fast image viewer designed extra for large local libraries.</p>
     </description>
     <categories>
-        <category>Music</category>
+        <category>Graphics</category>
     </categories>
     <custom>
-        <value key="x-appcenter-color-primary">#004988</value>
+        <value key="x-appcenter-color-primary">#404040</value>
         <value key="x-appcenter-color-primary-text">rgb(255,255,255)</value>
         <value key="x-appcenter-suggested-price">1</value>
     </custom>
     <developer_name>Artem Anufrij</developer_name>
-    <url type="homepage">https://github.com/artemanufrij/playmymusic</url>
-    <url type="bugtracker">https://github.com/artemanufrij/playmymusic/issues</url>
-    <url type="help">https://github.com/artemanufrij/playmymusic/issues</url>
+    <url type="homepage">https://github.com/artemanufrij/showmypictures</url>
+    <url type="bugtracker">https://github.com/artemanufrij/showmypictures/issues</url>
+    <url type="help">https://github.com/artemanufrij/showmypictures/issues</url>
     <update_contact>artem.anufrij@live.de</update_contact>
     <screenshots>
         <screenshot type="default">
             <caption>Albums</caption>
-            <image>https://raw.githubusercontent.com/artemanufrij/playmymusic/master/screenshots/Screenshot.png</image>
-        </screenshot>
-        <screenshot>
-            <caption>Artists</caption>
-            <image>https://raw.githubusercontent.com/artemanufrij/playmymusic/master/screenshots/Screenshot_Artists.png</image>
-        </screenshot>
-        <screenshot>
-            <caption>Playlists</caption>
-            <image>https://raw.githubusercontent.com/artemanufrij/playmymusic/master/screenshots/Screenshot_Playlists.png</image>
-        </screenshot>
-        <screenshot>
-            <caption>MTP Support</caption>
-            <image>https://raw.githubusercontent.com/artemanufrij/playmymusic/master/screenshots/Screenshot_MTP.png</image>
-        </screenshot>
-        <screenshot>
-            <caption>Manage Online Radio Stations</caption>
-            <image>https://raw.githubusercontent.com/artemanufrij/playmymusic/master/screenshots/Screenshot_Radio_Stations.png</image>
-        </screenshot>
-        <screenshot>
-            <caption>Audio CD</caption>
-            <image>https://raw.githubusercontent.com/artemanufrij/playmymusic/master/screenshots/Screenshot_Audio_CD.png</image>
+            <image>https://raw.githubusercontent.com/artemanufrij/showmypictures/master/screenshots/Screenshot.png</image>
         </screenshot>
     </screenshots>
     <releases>
-        <release version="0.4.3" date="2018-01-20">
-            <description>
-                <p>Fix:</p>
-                <ul>
-                    <li>Spinner visibility while library is being scanned</li>
-                </ul>
-            </description>
-        </release>
-        <release version="0.4.2" date="2018-01-07">
-            <description>
-                <p>New:</p>
-                <ul>
-                    <li>Show song title from online radio in audio indicator</li>
-                    <li>Save/restore window position</li>
-                </ul>
-                <p>Improved:</p>
-                <ul>
-                    <li>Start searching instand on key press</li>
-                    <li>Playlist Editor: Accept changes on press CTRL+Enter</li>
-                </ul>
-            </description>
-        </release>
-        <release version="0.4.1" date="2017-12-30">
-            <description>
-                <p>New:</p>
-                <ul>
-                    <li>Reorder Playlist items by Drag an Drop</li>
-                </ul>
-                <p>Fix:</p>
-                <ul>
-                    <li>Playlist behavior</li>
-                </ul>
-                <p>Translation:</p>
-                <ul>
-                    <li>Russian (by Camellan)</li>
-                </ul>
-            </description>
-        </release>
-        <release version="0.4.0" date="2017-12-15">
-            <description>
-                <p>New:</p>
-                <ul>
-                    <li>Option for saving custom covers into library</li>
-                    <li>Merge Albums</li>
-                    <li>Album Editor [F2]</li>
-                    <li>Merge Artists</li>
-                    <li>Artist Editor [F2]</li>
-                    <li>Multiple selection [CTRL]</li>
-                </ul>
-            </description>
-        </release>
-        <release version="0.3.4" date="2017-12-08">
-            <description>
-                <p>Changes:</p>
-                <ul>
-                    <li>Moved 'Shuffle' and 'Repeat' buttons into header bar</li>
-                    <li>Hide MTP-View if playlists, radios or audio cd is choosed</li>
-                    <li>Switched from 'search for new files' to 'resync library'</li>
-                </ul>
-                <p>Fix:</p>
-                <ul>
-                    <li>[MusicBrainz] fetch artist cover if name of artist contains '/' (like AC/DC)</li>
-                </ul>
-                <p>Translation:</p>
-                <ul>
-                    <li>Russian (by Camellan)</li>
-                    <li>Lithuanian (by welaq)</li>
-                </ul>
-            </description>
-        </release>
-        <release version="0.3.3" date="2017-12-03">
-            <description>
-                <p>New:</p>
-                <ul>
-                    <li>Hotkeys for switching between views: Alt+1,2,3,4,5</li>
-                    <li>[MTP] Copy Albums or Artists to your device by Drag and Drop</li>
-                    <li>[MTP] Sort music content in the mobile view</li>
-                    <li>[MTP] Don't expand all music content in the mobile view</li>
-                </ul>
-                <p>Fix:</p>
-                <ul>
-                    <li>Shuffle Mode and Repeat behavior</li>
-                    <li>URI includes # inside location path</li>
-                </ul>
-                <p>Translation:</p>
-                <ul>
-                    <li>Spanish (by Adolfo Jayme-Barrientos)</li>
-                </ul>
-            </description>
-        </release>
-        <release version="0.3.2" date="2017-11-25">
-            <description>
-                <p>Changes:</p>
-                <ul>
-                    <li>Icon (by Alexey Varfolomeev)</li>
-                </ul>
-                <p>Fix:</p>
-                <ul>
-                    <li>Enable screensaver again after playing finished</li>
-                    <li>Improved MTP for UbuntuPhone</li>
-                </ul>
-            </description>
-        </release>
-        <release version="0.3.1" date="2017-11-20">
-            <description>
-                <p>New:</p>
-                <ul>
-                    <li>Option for Dark Theme</li>
-                    <li>Repeat function for one song</li>
-                    <li>Online Radio Icon (by Alexey Varfolomeev)</li>
-                    <li>Moved from 'path' to 'uri' for GVFS support</li>
-                </ul>
-                <p>Fix:</p>
-                <ul>
-                    <li>Sorting Playlist inside context menu</li>
-                </ul>
-                <p>Translation:</p>
-                <ul>
-                    <li>Russian (by Alexey Varfolomeev)</li>
-                </ul>
-            </description>
-        </release>
-        <release version="0.3.0" date="2017-11-18">
-            <description>
-                <p>New:</p>
-                <ul>
-                    <li>MTP-Support (Tested on Android)</li>
-                </ul>
-            </description>
-        </release>
-        <release version="0.2.2" date="2017-11-12">
-            <description>
-                <p>New:</p>
-                <ul>
-                    <li>Disable screensaver while playing</li>
-                    <li>Import files by Drag and Drop</li>
-                </ul>
-            </description>
-        </release>
-        <release version="0.2.1" date="2017-11-05">
-            <description>
-                <p>New:</p>
-                <ul>
-                    <li>Audio CD support</li>
-                    <li>[artist view] Download artwork from MusicBrainz if exists</li>
-                    <li>A lot of improvements</li>
-                </ul>
-                <p>Fix:</p>
-                <ul>
-                    <li>[online radio] Freeze on 'audio/aacp' stream</li>
-                    <li>Critical error when external file playing</li>
-                    <li>Crash if music files are not exist and play mode is 'repeat'</li>
-                    <li>Crash if you scan a NFS-mounted directory</li>
-                </ul>
-                <p>Change:</p>
-                <ul>
-                    <li>Moved to Granite SeekBar</li>
-                </ul>
-                <p>Translation:</p>
-                <ul>
-                    <li>Lithuanian (by welaq)</li>
-                    <li>French (by nvivant)</li>
-                </ul>
-            </description>
-        </release>
-        <release version="0.1.6" date="2017-10-16">
-            <description>
-                <p>New:</p>
-                <ul>
-                    <li>[option] Look for new music files on start up [on/off]</li>
-                    <li>Added 16px icon</li>
-                </ul>
-                <p>Fix:</p>
-                <ul>
-                    <li>Crash while importing files</li>
-                    <li>[artist view] Don't show track twice</li>
-                </ul>
-                <p>Change:</p>
-                <ul>
-                    <li>App icon</li>
-                </ul>
-            </description>
-        </release>
-        <release version="0.1.5" date="2017-10-15">
-            <description>
-                <p>New:</p>
-                <ul>
-                    <li>Playlist support</li>
-                    <li>Play in Backgound</li>
-                    <li>Translation: Portuguese (by Rafael Campos Nunes)</li>
-                </ul>
-                <p>Fix:</p>
-                <ul>
-                    <li>Crash on trying to stream online radio</li>
-                </ul>
-            </description>
-        </release>
-        <release version="0.1.4" date="2017-10-09">
+        <release version="0.1.0" date="2018-10-01">
             <description>
                 <p>New:</p>
                 <ul>

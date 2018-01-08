@@ -1,6 +1,6 @@
 [Desktop Entry]
 Name=Photo Viewer
-GenericName=Photo Viewer
+GenericName=Image Viewer
 Comment=Manage your Pictures
 Keywords=picture;photo;album;
 Exec=com.github.artemanufrij.showmypictures %U
