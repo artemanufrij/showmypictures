@@ -32,7 +32,7 @@ sudo apt install libexif-dev
 Clone repository and change directory
 ```
 git clone https://github.com/artemanufrij/showmypictures.git
-cd playmymusic
+cd showmypictures
 ```
 
 Create **build** folder, compile and start application
