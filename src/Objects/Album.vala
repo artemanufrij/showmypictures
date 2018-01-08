@@ -52,6 +52,8 @@ namespace ShowMyPictures.Objects {
         public int month { get; set; default = 0; }
         public int day { get; set; default = 0; }
 
+        public string keywords { get; set; default = ""; }
+
         GLib.List<Picture> _pictures = null;
         public GLib.List<Picture> pictures {
             get {

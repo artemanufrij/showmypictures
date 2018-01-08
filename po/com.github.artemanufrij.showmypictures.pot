@@ -1,0 +1,118 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-01-08 22:53+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../src/Utils/Utils.vala:31
+msgid "No Date"
+msgstr ""
+
+#: ../src/Widgets/Album.vala:62 ../src/Widgets/Album.vala:85
+msgid "%u Pictures"
+msgstr ""
+
+#: ../src/Widgets/Album.vala:89
+msgid "Edit Album properties…"
+msgstr ""
+
+#: ../src/Widgets/NavigationBar.vala:72
+msgid "Devices"
+msgstr ""
+
+#: ../src/Widgets/NavigationBar.vala:76
+msgid "Events"
+msgstr ""
+
+#: ../src/Widgets/Picture.vala:75 ../src/Widgets/Views/PictureView.vala:117
+msgid "Set as Album picture"
+msgstr ""
+
+#: ../src/Widgets/Picture.vala:79 ../src/Widgets/Views/PictureView.vala:121
+msgid "Move into Trash"
+msgstr ""
+
+#: ../src/Widgets/Picture.vala:84
+msgid "Open with"
+msgstr ""
+
+#: ../src/Widgets/Views/Welcome.vala:44
+msgid "Change Pictures Folder"
+msgstr ""
+
+#: ../src/Widgets/Views/Welcome.vala:44
+msgid "Load pictures from a folder, a network or an external disk."
+msgstr ""
+
+#: ../src/Widgets/Views/Welcome.vala:45
+msgid "Import Pictures"
+msgstr ""
+
+#: ../src/Widgets/Views/Welcome.vala:45
+msgid "Import pictures from a source into your library."
+msgstr ""
+
+#: ../src/Services/LibraryManager.vala:106
+msgid "Select a folder."
+msgstr ""
+
+#: ../src/Services/LibraryManager.vala:107
+msgid "_Cancel"
+msgstr ""
+
+#: ../src/Services/LibraryManager.vala:108
+msgid "_Open"
+msgstr ""
+
+#: ../src/Services/LibraryManager.vala:111
+msgid "Folder"
+msgstr ""
+
+#: ../src/MainWindow.vala:129
+msgid "Change Video Folder…"
+msgstr ""
+
+#: ../src/MainWindow.vala:138
+msgid "Import Videos…"
+msgstr ""
+
+#: ../src/MainWindow.vala:146
+msgid "Preferences"
+msgstr ""
+
+#: ../src/MainWindow.vala:163
+msgid "Search Pictures"
+msgstr ""
+
+#: ../src/MainWindow.vala:184
+msgid "Back"
+msgstr ""
+
+#: ../src/MainWindow.vala:262 ../src/MainWindow.vala:293
+msgid "Show My Pictures"
+msgstr ""
+
+#: ../src/Dialogs/Preferences.vala:60
+msgid "Use Dark Theme"
+msgstr ""
+
+#: ../src/Dialogs/AlbumEditor.vala:93
+msgid "Keywords:"
+msgstr ""
+
+#: ../src/Dialogs/AlbumEditor.vala:104
+msgid "Save"
+msgstr ""

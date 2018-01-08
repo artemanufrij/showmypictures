@@ -1,0 +1,13 @@
+[Desktop Entry]
+Name=Photo Viewer
+GenericName=Photo Viewer
+Comment=Manage your Pictures
+Keywords=picture;photo;album;
+Exec=com.github.artemanufrij.showmypictures %U
+Icon=com.github.artemanufrij.showmypictures
+Terminal=false
+Type=Application
+Categories=Graphics;Photography;GNOME;GTK;
+MimeType=image/*;
+X-GNOME-Gettext-Domain=com.github.artemanufrij.showmypictures
+X-GNOME-UsesNotifications=false

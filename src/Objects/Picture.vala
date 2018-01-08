@@ -56,15 +56,19 @@ namespace ShowMyPictures.Objects {
                     if (year == 0) {
                         exclude_creation_date ();
                     }
+                    calculate_hash ();
                 }
             }
         }
 
         public string mime_type { get; set; default = ""; }
         public int year { get; set; default = 0; }
-        public int month { get; set;  default = 0; }
-        public int day { get; set;  default = 0; }
+        public int month { get; set; default = 0; }
+        public int day { get; set; default = 0; }
         public int rotation { get; private set; default = 1; }
+
+        public string keywords { get; set; default = ""; }
+        public string hash { get; set; }
 
         public Album? album { get; set; default = null; }
 
@@ -223,6 +227,17 @@ namespace ShowMyPictures.Objects {
                 day = date.get_day_of_month ();
                 date = null;
             }
+        }
+
+        private void calculate_hash () {
+            Checksum checksum = new Checksum (ChecksumType.MD5);
+            FileStream stream = FileStream.open (path, "r");
+            uint8 fbuf[100];
+            size_t size;
+            while ((size = stream.read (fbuf)) > 0) {
+                checksum.update (fbuf, size);
+            }
+            hash = checksum.get_string ();
         }
     }
 }

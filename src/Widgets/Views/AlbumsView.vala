@@ -140,7 +140,7 @@ namespace ShowMyPictures.Widgets.Views {
             if (filter.strip ().length > 0) {
                 string[] filter_elements = filter.strip ().down ().split (" ");
                 foreach (string filter_element in filter_elements) {
-                    if (!album.title.down ().contains (filter_element)) {
+                    if (!album.title.down ().contains (filter_element) && !album.keywords.down ().contains (filter_element)) {
                         bool picture_title = false;
                         foreach (var picture in album.pictures) {
                             if (picture.path.down ().contains (filter_element)) {

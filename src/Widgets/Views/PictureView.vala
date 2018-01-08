@@ -54,16 +54,6 @@ namespace ShowMyPictures.Widgets.Views {
         public PictureView () {
             build_ui ();
             this.draw.connect (first_draw);
-            /*this.key_press_event.connect ((key) => {
-                if (!(Gdk.ModifierType.MOD1_MASK in key.state) && current_picture != null) {
-                    if (key.keyval == Gdk.Key.Left) {
-                        return show_prev_picture ();
-                    } else if (key.keyval == Gdk.Key.Right) {
-                        return show_next_picture ();
-                    }
-                }
-                return false;
-            });*/
         }
 
         public bool show_next_picture () {
