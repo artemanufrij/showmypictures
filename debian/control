@@ -7,7 +7,7 @@ Build-Depends: cmake (>= 2.8),
                debhelper (>= 9),
                libgranite-dev,
                libsqlite3-dev,
-               libexif,
+               libexif-dev,
                valac (>= 0.26)
 Standards-Version: 3.9.3
 
