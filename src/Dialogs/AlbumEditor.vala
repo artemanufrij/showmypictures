@@ -35,6 +35,7 @@ namespace ShowMyPictures.Dialogs {
         Gtk.Image cover;
         Gtk.Entry title_entry;
         Gtk.Entry keywords_entry;
+        Gtk.TextView comment_entry;
 
         construct {
             library_manager = Services.LibraryManager.instance;
@@ -90,14 +91,21 @@ namespace ShowMyPictures.Dialogs {
             title_entry.get_style_context ().add_class("h3");
             title_entry.text = album.title;
 
-            var keywords_label = new Gtk.Label (_("Keywords:"));
+            var keywords_label = new Gtk.Label (_("Keywords"));
             keywords_entry = new Gtk.Entry ();
             keywords_entry.text = album.keywords;
+
+            var comment_scroll = new Gtk.ScrolledWindow (null, null);
+            comment_scroll.height_request = 64;
+            comment_entry = new Gtk.TextView ();
+            comment_entry.buffer.text = album.comment;
+            comment_scroll.add(comment_entry);
 
             grid.attach (event_box, 0, 0, 2, 1);
             grid.attach (title_entry, 0, 1, 2, 1);
             grid.attach (keywords_label, 0, 2);
             grid.attach (keywords_entry, 1, 2);
+            grid.attach (comment_scroll, 0, 3, 2, 1);
 
             content.pack_start (grid, false, false, 0);
 
@@ -110,6 +118,7 @@ namespace ShowMyPictures.Dialogs {
             var new_title = title_entry.text.strip ();
             album.title = new_title;
             album.keywords = keywords_entry.text.strip ();
+            album.comment = comment_entry.buffer.text;
             db_manager.update_album (album);
             this.destroy ();
         }

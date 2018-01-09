@@ -68,6 +68,7 @@ namespace ShowMyPictures.Objects {
         public int rotation { get; private set; default = 1; }
 
         public string keywords { get; set; default = ""; }
+        public string comment { get; set; default = ""; }
         public string hash { get; set; }
 
         public Album? album { get; set; default = null; }

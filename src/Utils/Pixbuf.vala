@@ -51,7 +51,7 @@ namespace ShowMyPictures.Utils {
                 pixbuf = new Gdk.Pixbuf.subpixbuf (pixbuf, 0, dif, pixbuf.width, pixbuf.width);
             }
         }
-        pixbuf = pixbuf.scale_simple (192, 192, Gdk.InterpType.BILINEAR);
+        pixbuf = pixbuf.scale_simple (240, 240, Gdk.InterpType.BILINEAR);
         return pixbuf;
     }
 

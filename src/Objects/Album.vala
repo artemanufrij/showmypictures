@@ -53,6 +53,7 @@ namespace ShowMyPictures.Objects {
         public int day { get; set; default = 0; }
 
         public string keywords { get; set; default = ""; }
+        public string comment { get; set; default = ""; }
 
         GLib.List<Picture> _pictures = null;
         public GLib.List<Picture> pictures {
@@ -152,10 +153,12 @@ namespace ShowMyPictures.Objects {
                     return null;
                 }
                 var picture = pictures.first ().data;
-                try {
-                    set_new_cover_from_picture (picture);
-                } catch (Error err) {
-                    warning (err.message);
+                if (picture != null) {
+                    try {
+                        set_new_cover_from_picture (picture);
+                    } catch (Error err) {
+                        warning (err.message);
+                    }
                 }
                 cover_creating = false;
                 return null;
@@ -174,7 +177,6 @@ namespace ShowMyPictures.Objects {
 
         public void set_new_cover_from_picture (Picture picture) {
             try {
-                var pixbuf = new Gdk.Pixbuf.from_file (picture.path);
                 picture.exclude_exif ();
                 var r = Utils.get_rotation (picture);
                 if (r != Gdk.PixbufRotation.NONE) {

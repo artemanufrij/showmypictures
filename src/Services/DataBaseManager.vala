@@ -76,6 +76,7 @@ namespace ShowMyPictures.Services {
                 month       INT         NOT NULL,
                 day         INT         NOT NULL,
                 keywords    TEXT        NOT NULL,
+                comment     TEXT        NOT NULL,
                 CONSTRAINT unique_box UNIQUE (title, year, month)
                 );""";
             if (db.exec (q, null, out errormsg) != Sqlite.OK) {
@@ -92,6 +93,7 @@ namespace ShowMyPictures.Services {
                 day         INT         NOT NULL,
                 keywords    TEXT        NOT NULL,
                 hash        TEXT        NOT NULL,
+                comment     TEXT        NOT NULL,
                 CONSTRAINT unique_video UNIQUE (path),
                 FOREIGN KEY (album_id) REFERENCES albums (ID)
                     ON DELETE CASCADE
@@ -123,7 +125,7 @@ namespace ShowMyPictures.Services {
             Sqlite.Statement stmt;
 
             string sql = """
-                SELECT id, title, year, month, day, keywords FROM albums ORDER BY year DESC, month DESC, day DESC, title;
+                SELECT id, title, year, month, day, keywords, comment FROM albums ORDER BY year DESC, month DESC, day DESC, title;
             """;
 
             db.prepare_v2 (sql, sql.length, out stmt);
@@ -144,6 +146,7 @@ namespace ShowMyPictures.Services {
             return_value.month = stmt.column_int (3);
             return_value.day = stmt.column_int (4);
             return_value.keywords = stmt.column_text (5);
+            return_value.comment = stmt.column_text (6);
             return return_value;
         }
 
@@ -151,7 +154,7 @@ namespace ShowMyPictures.Services {
             Sqlite.Statement stmt;
 
             string sql = """
-                UPDATE albums SET year=$YEAR, month=$MONTH, day=$DAY, title=$TITLE, keywords=$KEYWORDS WHERE id=$ID;
+                UPDATE albums SET year=$YEAR, month=$MONTH, day=$DAY, title=$TITLE, keywords=$KEYWORDS, comment=$COMMENT WHERE id=$ID;
             """;
 
             db.prepare_v2 (sql, sql.length, out stmt);
@@ -161,6 +164,7 @@ namespace ShowMyPictures.Services {
             set_parameter_int (stmt, sql, "$DAY", album.day);
             set_parameter_str (stmt, sql, "$TITLE", album.title);
             set_parameter_str (stmt, sql, "$KEYWORDS", album.keywords);
+            set_parameter_str (stmt, sql, "$COMMENT", album.comment);
 
             if (stmt.step () != Sqlite.DONE) {
                 warning ("Error: %d: %s", db.errcode (), db.errmsg ());
@@ -172,7 +176,8 @@ namespace ShowMyPictures.Services {
             Sqlite.Statement stmt;
 
             string sql = """
-                INSERT OR IGNORE INTO albums (year, month, day, title, keywords) VALUES ($YEAR, $MONTH, $DAY, $TITLE, $KEYWORDS);
+                INSERT OR IGNORE INTO albums (year, month, day, title, keywords, comment)
+                VALUES ($YEAR, $MONTH, $DAY, $TITLE, $KEYWORDS, $COMMENT);
             """;
 
             db.prepare_v2 (sql, sql.length, out stmt);
@@ -181,6 +186,7 @@ namespace ShowMyPictures.Services {
             set_parameter_int (stmt, sql, "$DAY", album.day);
             set_parameter_str (stmt, sql, "$TITLE", album.title);
             set_parameter_str (stmt, sql, "$KEYWORDS", album.keywords);
+            set_parameter_str (stmt, sql, "$COMMENT", album.comment);
 
             if (stmt.step () != Sqlite.DONE) {
                 warning ("Error: %d: %s", db.errcode (), db.errmsg ());
@@ -250,7 +256,7 @@ namespace ShowMyPictures.Services {
             Sqlite.Statement stmt;
 
             string sql = """
-                SELECT id, path, year, month, day, mime_type, keywords, hash FROM pictures WHERE album_id=$ALBUM_ID ORDER BY year, month, day, path;
+                SELECT id, path, year, month, day, mime_type, keywords, hash, comment FROM pictures WHERE album_id=$ALBUM_ID ORDER BY year, month, day, path;
             """;
 
             db.prepare_v2 (sql, sql.length, out stmt);
@@ -275,6 +281,7 @@ namespace ShowMyPictures.Services {
             return_value.mime_type = stmt.column_text (5);
             return_value.keywords = stmt.column_text (6);
             return_value.hash = stmt.column_text (7);
+            return_value.comment = stmt.column_text (8);
             return return_value;
         }
 
@@ -282,7 +289,8 @@ namespace ShowMyPictures.Services {
             Sqlite.Statement stmt;
 
             string sql = """
-                INSERT OR IGNORE INTO pictures (album_id, path, year, month, day, mime_type, keywords, hash) VALUES ($ALBUM_ID, $PATH, $YEAR, $MONTH, $DAY, $MIME_TYPE, $KEYWORDS, $HASH);
+                INSERT OR IGNORE INTO pictures (album_id, path, year, month, day, mime_type, keywords, hash, comment)
+                VALUES ($ALBUM_ID, $PATH, $YEAR, $MONTH, $DAY, $MIME_TYPE, $KEYWORDS, $HASH, $COMMENT);
             """;
 
             db.prepare_v2 (sql, sql.length, out stmt);
@@ -294,6 +302,7 @@ namespace ShowMyPictures.Services {
             set_parameter_str (stmt, sql, "$MIME_TYPE", picture.mime_type);
             set_parameter_str (stmt, sql, "$KEYWORDS", picture.keywords);
             set_parameter_str (stmt, sql, "$HASH", picture.hash);
+            set_parameter_str (stmt, sql, "$COMMENT", picture.comment);
 
             if (stmt.step () != Sqlite.DONE) {
                 warning ("Error: %d: %s", db.errcode (), db.errmsg ());
