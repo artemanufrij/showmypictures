@@ -38,7 +38,7 @@ namespace ShowMyPictures.Services {
                 return _instance;
             }
         }
-
+        public signal void duplicates_found ();
         public signal void added_new_album (Objects.Album album);
         public signal void removed_album (Objects.Album album);
 

@@ -35,6 +35,7 @@ namespace ShowMyPictures.Widgets {
         public Granite.Widgets.SourceList folders { get; private set; }
         public Granite.Widgets.SourceList.ExpandableItem events_entry;
         public Granite.Widgets.SourceList.ExpandableItem device_entry;
+        public Granite.Widgets.SourceList.ExpandableItem extras_entry;
 
         construct {
             library_manager = ShowMyPictures.Services.LibraryManager.instance;
@@ -43,6 +44,9 @@ namespace ShowMyPictures.Widgets {
                     add_album (album);
                     return false;
                 });
+            });
+            library_manager.duplicates_found.connect (() => {
+
             });
         }
 
@@ -68,6 +72,14 @@ namespace ShowMyPictures.Widgets {
                     }
                 }
             });
+
+            extras_entry = new Granite.Widgets.SourceList.ExpandableItem (_("Extras"));
+            extras_entry.expanded = true;
+            folders.root.add (extras_entry);
+
+            var duplicates_item = new Granite.Widgets.SourceList.Item (_("Duplicates"));
+            duplicates_item.icon = new ThemedIcon ("edit-copy-symbolic");
+            extras_entry.add (duplicates_item);
 
             device_entry = new Granite.Widgets.SourceList.ExpandableItem (_("Devices"));
             device_entry.expanded = true;

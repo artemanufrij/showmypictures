@@ -97,6 +97,7 @@ namespace ShowMyPictures.Objects {
                 }
                 var f = File.new_for_path (path);
                 f.trash_async.begin ();
+                f.dispose ();
             });
         }
 
