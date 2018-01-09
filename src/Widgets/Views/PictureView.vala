@@ -152,6 +152,12 @@ namespace ShowMyPictures.Widgets.Views {
             picture_loaded (current_picture);
         }
 
+        public void reset () {
+            current_picture = null;
+            image.pixbuf = null;
+            this.tooltip_text = "";
+        }
+
         public void set_optimal_zoom () {
             current_width = this.get_allocated_width ();
             current_height = this.get_allocated_height ();

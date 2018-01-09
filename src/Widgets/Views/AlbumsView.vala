@@ -92,6 +92,12 @@ namespace ShowMyPictures.Widgets.Views {
             do_sort ();
         }
 
+        public void reset () {
+            foreach (var child in albums.get_children ()) {
+                child.destroy ();
+            }
+        }
+
         private void do_sort () {
             if (timer_sort != 0) {
                 Source.remove (timer_sort);

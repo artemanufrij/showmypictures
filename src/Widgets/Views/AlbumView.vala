@@ -89,7 +89,7 @@ namespace ShowMyPictures.Widgets.Views {
             current_album.create_pictures_preview ();
         }
 
-        private void reset () {
+        public void reset () {
             foreach (var child in pictures.get_children ()) {
                 child.destroy ();
             }

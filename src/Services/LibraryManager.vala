@@ -104,6 +104,24 @@ namespace ShowMyPictures.Services {
 
         }
 
+        public void reset_library () {
+            db_manager.reset_database ();
+            File directory = File.new_for_path (ShowMyPicturesApp.instance.PREVIEW_FOLDER);
+            try {
+                var children = directory.enumerate_children ("", 0);
+                FileInfo file_info;
+                while ((file_info = children.next_file ()) != null) {
+                     var file = File.new_for_path (GLib.Path.build_filename (ShowMyPicturesApp.instance.PREVIEW_FOLDER, file_info.get_name ()));
+                     file.delete ();
+                }
+                children.close ();
+                children.dispose ();
+            } catch (Error err) {
+                warning (err.message);
+            }
+            directory.dispose ();
+        }
+
         public string? choose_folder () {
             string? return_value = null;
             Gtk.FileChooserDialog chooser = new Gtk.FileChooserDialog (

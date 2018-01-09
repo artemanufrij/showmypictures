@@ -33,6 +33,8 @@ namespace ShowMyPictures {
         Gtk.SearchEntry search_entry;
         Gtk.HeaderBar headerbar;
         Gtk.MenuButton app_menu;
+        Gtk.MenuItem menu_item_reset;
+        Gtk.MenuItem menu_item_resync;
         Gtk.Stack content;
         Gtk.Button navigation_button;
         Gtk.Button rotate_left;
@@ -95,7 +97,9 @@ namespace ShowMyPictures {
             );
 
             load_content_from_database.begin ((obj, res) => {
-                library_manager.sync_library_content.begin ();
+                if (settings.sync_files) {
+                    library_manager.sync_library_content.begin ();
+                }
             });
 
             this.configure_event.connect ((event) => {
@@ -106,9 +110,9 @@ namespace ShowMyPictures {
                 }
                 return false;
             });
-
-            this.destroy.connect (() => {
+            this.delete_event.connect (() => {
                 save_settings ();
+                return false;
             });
         }
 
@@ -143,6 +147,17 @@ namespace ShowMyPictures {
                 }
             });
 
+            menu_item_reset = new Gtk.MenuItem.with_label (_("Reset all views"));
+            menu_item_reset.activate.connect (() => {
+                reset_all_views ();
+                library_manager.reset_library ();
+            });
+
+            menu_item_resync = new Gtk.MenuItem.with_label (_("Resync Library"));
+            menu_item_resync.activate.connect (() => {
+                library_manager.sync_library_content.begin ();
+            });
+
             var menu_item_preferences = new Gtk.MenuItem.with_label (_("Preferences"));
             menu_item_preferences.activate.connect (() => {
                 var preferences = new Dialogs.Preferences (this);
@@ -151,6 +166,9 @@ namespace ShowMyPictures {
 
             settings_menu.append (menu_item_library);
             settings_menu.append (menu_item_import);
+            settings_menu.append (new Gtk.SeparatorMenuItem ());
+            settings_menu.append (menu_item_resync);
+            settings_menu.append (menu_item_reset);
             settings_menu.append (new Gtk.SeparatorMenuItem ());
             settings_menu.append (menu_item_preferences);
             settings_menu.show_all ();
@@ -299,6 +317,14 @@ namespace ShowMyPictures {
             navigation.reveal_child = false;
         }
 
+        private void reset_all_views () {
+            search_entry.text = "";
+            show_welcome ();
+            albums_view.reset ();
+            album_view.reset ();
+            picture_view.reset ();
+        }
+
         private void load_settings () {
             if (settings.window_maximized) {
                 this.maximize ();
@@ -307,12 +333,24 @@ namespace ShowMyPictures {
                 this.set_default_size (settings.window_width, settings.window_height);
             }
 
-            this.window_position = Gtk.WindowPosition.CENTER;
+            if (settings.window_x < 0 || settings.window_y < 0 ) {
+                this.window_position = Gtk.WindowPosition.CENTER;
+            } else {
+                this.move (settings.window_x, settings.window_y);
+            }
+
             Gtk.Settings.get_default ().gtk_application_prefer_dark_theme = settings.use_dark_theme;
         }
 
         private void save_settings () {
             settings.window_maximized = this.is_maximized;
+
+            if (!settings.window_maximized) {
+                int x, y;
+                this.get_position (out x, out y);
+                settings.window_x = x;
+                settings.window_y = y;
+            }
         }
 
         public void back_action () {

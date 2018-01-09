@@ -65,8 +65,19 @@ namespace ShowMyPictures.Dialogs {
                 settings.use_dark_theme = use_dark_theme.active;
             });
 
+            var sync_files_label = new Gtk.Label (_("Sync files on start up"));
+            sync_files_label.halign = Gtk.Align.START;
+            var sync_files = new Gtk.Switch ();
+            sync_files.active = settings.sync_files;
+            sync_files.notify["active"].connect (() => {
+                settings.sync_files = sync_files.active;
+            });
+
             grid.attach (use_dark_theme_label, 0, 0);
             grid.attach (use_dark_theme, 1, 0);
+            grid.attach (new Gtk.Separator (Gtk.Orientation.HORIZONTAL), 0, 1, 2, 1);
+            grid.attach (sync_files_label, 0, 2);
+            grid.attach (sync_files, 1, 2);
 
             content.pack_start (grid, false, false, 0);
 
