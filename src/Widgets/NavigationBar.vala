@@ -63,7 +63,7 @@ namespace ShowMyPictures.Widgets {
             folders.item_selected.connect ((item) => {
                 if (item is Widgets.NavigationAlbum) {
                     album_selected ((item as Widgets.NavigationAlbum).album);
-                } else {
+                } else if (item is Widgets.NavigationDate) {
                     var folder = item as Widgets.NavigationDate;
                     if (folder.parent is Widgets.NavigationDate) {
                         date_selected ((folder.parent as Widgets.NavigationDate).val, folder.val);
