@@ -75,6 +75,7 @@ namespace ShowMyPictures.Widgets {
             var menu_new_cover = new Gtk.MenuItem.with_label (_("Set as Album picture"));
             menu_new_cover.activate.connect (() => {
                 picture.album.set_new_cover_from_picture (picture);
+                ShowMyPicturesApp.instance.mainwindow.send_app_notification (_("Album cover changed"));
             });
             var menu_move_into_trash = new Gtk.MenuItem.with_label (_("Move into Trash"));
             menu_move_into_trash.activate.connect (() => {

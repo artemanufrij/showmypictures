@@ -47,6 +47,8 @@ namespace ShowMyPictures {
         Widgets.Views.PictureView picture_view;
         Widgets.NavigationBar navigation;
 
+        Granite.Widgets.Toast app_notification;
+
         construct {
             settings = ShowMyPictures.Settings.get_default ();
             settings.notify["use-dark-theme"].connect (() => {
@@ -263,7 +265,12 @@ namespace ShowMyPictures {
             });
             grid.attach (navigation, 0, 0);
 
-            this.add (grid);
+            app_notification = new Granite.Widgets.Toast ("");
+            var overlay = new Gtk.Overlay ();
+            overlay.add (grid);
+            overlay.add_overlay (app_notification);
+
+            this.add (overlay);
             this.show_all ();
 
             show_welcome ();
@@ -323,6 +330,11 @@ namespace ShowMyPictures {
             albums_view.reset ();
             album_view.reset ();
             picture_view.reset ();
+        }
+
+        public void send_app_notification (string message) {
+            app_notification.title = message;
+            app_notification.send_notification ();
         }
 
         private void load_settings () {
