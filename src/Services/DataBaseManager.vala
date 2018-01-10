@@ -39,6 +39,7 @@ namespace ShowMyPictures.Services {
 
         public signal void added_new_album (Objects.Album album);
         public signal void removed_album (Objects.Album album);
+        public signal void added_new_picture (Objects.Picture picture);
 
         GLib.List<Objects.Album> _albums = null;
         public GLib.List<Objects.Album> albums {
@@ -319,6 +320,7 @@ namespace ShowMyPictures.Services {
             if (stmt.step () == Sqlite.ROW) {
                 picture.ID = stmt.column_int (0);
                 stdout.printf ("Picture ID: %d - %s\n", picture.ID, picture.album.title);
+                added_new_picture (picture);
             } else {
                 warning ("Error: %d: %s", db.errcode (), db.errmsg ());
             }

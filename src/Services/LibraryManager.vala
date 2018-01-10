@@ -38,7 +38,7 @@ namespace ShowMyPictures.Services {
                 return _instance;
             }
         }
-        public signal void duplicates_found ();
+        public signal void duplicates_found (string hash);
         public signal void added_new_album (Objects.Album album);
         public signal void removed_album (Objects.Album album);
 
@@ -51,7 +51,12 @@ namespace ShowMyPictures.Services {
             }
         }
 
+        static uint duplicates_timer = 0;
+        GLib.List<string> hash_list = null;
+
         construct {
+            hash_list = new GLib.List<string>();
+
             settings = ShowMyPictures.Settings.get_default ();
 
             lf_manager = Services.LocalFilesManager.instance;
@@ -60,14 +65,20 @@ namespace ShowMyPictures.Services {
             db_manager = Services.DataBaseManager.instance;
             db_manager.added_new_album.connect ((album) => { added_new_album (album); });
             db_manager.removed_album.connect ((album) => { removed_album (album); });
+            db_manager.added_new_picture.connect ((picture) => {
+                scan_for_duplicates.begin ();
+            });
+
+            duplicates_found.connect ((hash) => {stdout.printf ("%s\n", hash);});
         }
 
         private LibraryManager () { }
 
-        public async void sync_library_content () {
+        public async void sync_library_content (bool force = false) {
             new Thread <void*> (null, () => {
-                //remove_non_existent_items ();
+                //find_non_existent_items ();
                 scan_local_library_for_new_files (settings.library_location);
+                scan_for_duplicates.begin ();
                 return null;
             });
         }
@@ -100,8 +111,43 @@ namespace ShowMyPictures.Services {
             }
         }
 
-        public void scan_for_duplicates () {
+        public async void scan_for_duplicates () {
+            if (duplicates_timer != 0) {
+                Source.remove (duplicates_timer);
+                duplicates_timer = 0;
+            }
 
+            duplicates_timer = Timeout.add (5000, () => {
+                new Thread<void*> (null, () => {
+                    foreach (var album in albums) {
+                        if (duplicates_timer == 0) {
+                            return null;
+                        }
+                        foreach (var picture in album.pictures) {
+                            if (duplicates_timer == 0) {
+                                return null;
+                            }
+                            check_hash (picture.hash);
+                        }
+                    }
+                    return null;
+                });
+                if (duplicates_timer != 0) {
+                    Source.remove (duplicates_timer);
+                    duplicates_timer = 0;
+                }
+                return false;
+            });
+        }
+
+        private void check_hash (string hash) {
+            hash_list.foreach ((item) => {
+                if (item == hash) {
+                    duplicates_found (hash);
+                }
+                return;
+            });
+            hash_list.append (hash);
         }
 
         public void reset_library () {

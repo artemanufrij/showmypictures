@@ -101,6 +101,8 @@ namespace ShowMyPictures {
             load_content_from_database.begin ((obj, res) => {
                 if (settings.sync_files) {
                     library_manager.sync_library_content.begin ();
+                } else {
+                    library_manager.scan_for_duplicates.begin ();
                 }
             });
 
