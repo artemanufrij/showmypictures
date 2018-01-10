@@ -51,7 +51,7 @@ namespace ShowMyPictures.Services {
             }
         }
 
-        static uint duplicates_timer = 0;
+        uint duplicates_timer = 0;
         GLib.List<string> hash_list = null;
 
         construct {
@@ -111,6 +111,16 @@ namespace ShowMyPictures.Services {
             }
         }
 
+        private void find_non_existent_items () {
+            foreach (var album in albums) {
+                foreach (var picture in album.pictures) {
+                    if (!picture.file_exists ()) {
+                        // TODO:
+                    }
+                }
+            }
+        }
+
         public async void scan_for_duplicates () {
             if (duplicates_timer != 0) {
                 Source.remove (duplicates_timer);
@@ -118,20 +128,17 @@ namespace ShowMyPictures.Services {
             }
 
             duplicates_timer = Timeout.add (5000, () => {
-                new Thread<void*> (null, () => {
-                    foreach (var album in albums) {
-                        if (duplicates_timer == 0) {
-                            return null;
-                        }
-                        foreach (var picture in album.pictures) {
-                            if (duplicates_timer == 0) {
-                                return null;
-                            }
-                            check_hash (picture.hash);
-                        }
+                foreach (var album in albums) {
+                    if (duplicates_timer == 0) {
+                        break;
                     }
-                    return null;
-                });
+                    foreach (var picture in album.pictures) {
+                        if (duplicates_timer == 0) {
+                            break;
+                        }
+                        check_hash (picture.hash);
+                    }
+                }
                 if (duplicates_timer != 0) {
                     Source.remove (duplicates_timer);
                     duplicates_timer = 0;

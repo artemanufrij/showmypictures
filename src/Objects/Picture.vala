@@ -30,6 +30,7 @@ namespace ShowMyPictures.Objects {
 
         public signal void preview_created ();
         public signal void removed ();
+        public signal void file_not_found ();
 
         int _ID = 0;
         public int ID {
@@ -240,6 +241,17 @@ namespace ShowMyPictures.Objects {
                 checksum.update (fbuf, size);
             }
             hash = checksum.get_string ();
+        }
+
+        public bool file_exists () {
+            bool return_value = true;
+            var file = File.new_for_path (this.path);
+            if (!file.query_exists ()) {
+                file_not_found ();
+                return_value = false;
+            }
+            file.dispose ();
+            return return_value;
         }
     }
 }

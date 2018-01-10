@@ -134,7 +134,7 @@ namespace ShowMyPictures {
 
             var settings_menu = new Gtk.Menu ();
 
-            var menu_item_library = new Gtk.MenuItem.with_label(_("Change Video Folder…"));
+            var menu_item_library = new Gtk.MenuItem.with_label(_("Change Picture Folder…"));
             menu_item_library.activate.connect (() => {
                 var folder = library_manager.choose_folder ();
                 if(folder != null) {
@@ -143,7 +143,7 @@ namespace ShowMyPictures {
                 }
             });
 
-            var menu_item_import = new Gtk.MenuItem.with_label (_("Import Videos…"));
+            var menu_item_import = new Gtk.MenuItem.with_label (_("Import Pictures…"));
             menu_item_import.activate.connect (() => {
                 var folder = library_manager.choose_folder ();
                 if(folder != null) {
