@@ -27,8 +27,8 @@
 
 namespace ShowMyPictures {
     public class MainWindow : Gtk.Window {
-        ShowMyPictures.Services.LibraryManager library_manager;
-        ShowMyPictures.Settings settings;
+        Services.LibraryManager library_manager;
+        Settings settings;
 
         Gtk.SearchEntry search_entry;
         Gtk.HeaderBar headerbar;
@@ -45,12 +45,13 @@ namespace ShowMyPictures {
         Widgets.Views.AlbumsView albums_view;
         Widgets.Views.AlbumView album_view;
         Widgets.Views.PictureView picture_view;
+        Widgets.Views.DuplicatesView duplicates_view;
         Widgets.NavigationBar navigation;
 
         Granite.Widgets.Toast app_notification;
 
         construct {
-            settings = ShowMyPictures.Settings.get_default ();
+            settings = Settings.get_default ();
             settings.notify["use-dark-theme"].connect (() => {
                 Gtk.Settings.get_default ().gtk_application_prefer_dark_theme = settings.use_dark_theme;
                 if (settings.use_dark_theme) {
@@ -60,7 +61,7 @@ namespace ShowMyPictures {
                 }
             });
 
-            library_manager = ShowMyPictures.Services.LibraryManager.instance;
+            library_manager = Services.LibraryManager.instance;
             library_manager.added_new_album.connect ((album) => {
                 Idle.add (() => {
                     if (content.visible_child_name == "welcome") {
@@ -115,6 +116,7 @@ namespace ShowMyPictures {
                 return false;
             });
             this.delete_event.connect (() => {
+                duplicates_view.cancel_create_previews_async.begin ();
                 save_settings ();
                 return false;
             });
@@ -248,7 +250,10 @@ namespace ShowMyPictures {
                 spinner.active = false;
             });
 
+            duplicates_view = new Widgets.Views.DuplicatesView ();
+
             content.add_named (welcome, "welcome");
+            content.add_named (duplicates_view, "duplicates");
             content.add_named (albums_view, "albums");
             content.add_named (album_view, "album");
             content.add_named (picture_view, "picture");
@@ -264,6 +269,9 @@ namespace ShowMyPictures {
             navigation.date_selected.connect ((year, month) => {
                 albums_view.date_filter (year, month);
                 show_albums ();
+            });
+            navigation.duplicates_selected.connect (() => {
+                show_duplicates ();
             });
             grid.attach (navigation, 0, 0);
 
@@ -283,6 +291,12 @@ namespace ShowMyPictures {
                 search_entry.grab_focus ();
             }
             return base.key_press_event (e);
+        }
+
+        private void show_duplicates () {
+            content.visible_child_name = "duplicates";
+            rotate_left.hide ();
+            rotate_right.hide ();
         }
 
         private void show_albums () {
@@ -329,9 +343,12 @@ namespace ShowMyPictures {
         private void reset_all_views () {
             search_entry.text = "";
             show_welcome ();
+            duplicates_view.reset ();
             albums_view.reset ();
             album_view.reset ();
             picture_view.reset ();
+            duplicates_view.reset ();
+            navigation.reset ();
         }
 
         public void send_app_notification (string message) {

@@ -53,10 +53,7 @@ namespace ShowMyPictures.Widgets.Views {
         construct {
             library_manager = ShowMyPictures.Services.LibraryManager.instance;
             library_manager.added_new_album.connect ((album) => {
-                Idle.add (() => {
-                    add_album (album);
-                    return false;
-                });
+                add_album (album);
             });
         }
 
@@ -85,11 +82,14 @@ namespace ShowMyPictures.Widgets.Views {
         }
 
         public void add_album (Objects.Album album) {
-            var a = new Widgets.Album (album);
-            lock (albums) {
-                albums.add (a);
-            }
-            do_sort ();
+            Idle.add (() => {
+                var a = new Widgets.Album (album);
+                lock (albums) {
+                    albums.add (a);
+                }
+                return false;
+                do_sort ();
+            });
         }
 
         public void reset () {

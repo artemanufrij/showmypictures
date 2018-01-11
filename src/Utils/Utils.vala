@@ -27,11 +27,14 @@
 
 namespace ShowMyPictures.Utils {
     public static string get_default_album_title (int year, int month, int day) {
-        if (year == 0 || month == 0 || day == 0) {
-            return _("No Date");
+        string return_value = _("No Date");
+
+        if (year > 0 && month > 0 && day > 0) {
+            var date_time = new DateTime.local (year, month, day, 0, 0, 0);
+            return_value = date_time.format ("%e. %b, %Y");
         }
-        var date_time = new DateTime.local (year, month, day, 0, 0, 0);
-        return date_time.format ("%e. %b, %Y");
+
+        return return_value;
     }
 
     public static string get_month_name (int month) {

@@ -31,22 +31,23 @@ namespace ShowMyPictures.Widgets {
 
         public signal void album_selected (Objects.Album album);
         public signal void date_selected (int year, int month);
+        public signal void duplicates_selected ();
 
-        public Granite.Widgets.SourceList folders { get; private set; }
-        public Granite.Widgets.SourceList.ExpandableItem events_entry;
-        public Granite.Widgets.SourceList.ExpandableItem device_entry;
-        public Granite.Widgets.SourceList.ExpandableItem extras_entry;
+        Granite.Widgets.SourceList folders { get; private set; }
+        Granite.Widgets.SourceList.ExpandableItem events_entry;
+        Granite.Widgets.SourceList.ExpandableItem device_entry;
+        Granite.Widgets.SourceList.ExpandableItem extras_entry;
+        Granite.Widgets.SourceList.Item duplicates_item;
+        Granite.Widgets.SourceList.Item not_found_item;
 
         construct {
             library_manager = ShowMyPictures.Services.LibraryManager.instance;
-            library_manager.added_new_album.connect ((album) => {
-                Idle.add (() => {
-                    add_album (album);
-                    return false;
-                });
-            });
-            library_manager.duplicates_found.connect (() => {
-
+            library_manager.added_new_album.connect (add_album);
+            library_manager.duplicate_found.connect (() => {
+                if (!duplicates_item.visible) {
+                    duplicates_item.visible = true;
+                    extras_entry.expanded = true;
+                }
             });
         }
 
@@ -70,6 +71,8 @@ namespace ShowMyPictures.Widgets {
                     } else {
                         date_selected (folder.val, 0);
                     }
+                } else if (item == duplicates_item) {
+                    duplicates_selected ();
                 }
             });
 
@@ -77,9 +80,15 @@ namespace ShowMyPictures.Widgets {
             extras_entry.expanded = true;
             folders.root.add (extras_entry);
 
-            var duplicates_item = new Granite.Widgets.SourceList.Item (_("Duplicates"));
+            duplicates_item = new Granite.Widgets.SourceList.Item (_("Duplicates"));
             duplicates_item.icon = new ThemedIcon ("edit-copy-symbolic");
+            duplicates_item.visible = false;
             extras_entry.add (duplicates_item);
+
+            not_found_item = new Granite.Widgets.SourceList.Item (_("Not Found"));
+            not_found_item.icon = new ThemedIcon ("dialog-error-symbolic");
+            not_found_item.visible = false;
+            extras_entry.add (not_found_item);
 
             device_entry = new Granite.Widgets.SourceList.ExpandableItem (_("Devices"));
             device_entry.expanded = true;
@@ -103,16 +112,25 @@ namespace ShowMyPictures.Widgets {
             this.show_all ();
         }
 
+        public void reset () {
+            duplicates_item.visible = false;
+            not_found_item.visible = false;
+            events_entry.clear ();
+        }
+
         public void add_album (Objects.Album album) {
-            if (album.year == 0) {
+            Idle.add (() => {
+                if (album.year == 0) {
+                    var album_item = new Widgets.NavigationAlbum (album);
+                    events_entry.add (album_item);
+                    return false;
+                }
+                var year = get_folder (album);
+                var month = year.get_subfolder (album);
                 var album_item = new Widgets.NavigationAlbum (album);
-                events_entry.add (album_item);
-                return;
-            }
-            var year = get_folder (album);
-            var month = year.get_subfolder (album);
-            var album_item = new Widgets.NavigationAlbum (album);
-            month.add (album_item);
+                month.add (album_item);
+                return false;
+            });
         }
 
         private Widgets.NavigationDate get_folder (Objects.Album album) {

@@ -86,8 +86,16 @@ namespace ShowMyPictures.Widgets {
             open_with = new Gtk.Menu ();
             menu_open_with.set_submenu (open_with);
 
+            var menu_open_loacation = new Gtk.MenuItem.with_label (_("Open location"));
+            menu_open_loacation.activate.connect (() => {
+                var folder = Path.get_dirname (picture.path);
+                Process.spawn_command_line_async ("xdg-open '%s'".printf (folder));
+            });
+
             menu.add (menu_open_with);
             menu.add (menu_new_cover);
+            menu.add (new Gtk.SeparatorMenuItem ());
+            menu.add (menu_open_loacation);
             menu.add (menu_move_into_trash);
             menu.show_all ();
 

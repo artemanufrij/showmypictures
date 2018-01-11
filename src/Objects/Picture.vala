@@ -38,13 +38,13 @@ namespace ShowMyPictures.Objects {
                 return _ID;
             } set {
                 _ID = value;
-                if (value > 0) {
+                if (ID > 0) {
                     preview_path = GLib.Path.build_filename (ShowMyPicturesApp.instance.PREVIEW_FOLDER, ("picture_%d.png").printf (this.ID));
                 }
             }
         }
 
-        public string preview_path { get; private set; }
+        public string preview_path { get; private set; default = ""; }
 
         string _path = "";
         public string path {
@@ -161,22 +161,31 @@ namespace ShowMyPictures.Objects {
                 exif_data = Exif.Data.new_from_file (path);
             }
             exif_data.foreach_content ((content, user) => {
-                content.foreach_entry ((entry, user) => {
-                    var tag_string  = entry.get_string ();
-                    if (entry.tag == Exif.Tag.DATE_TIME_ORIGINAL) {
-                        var date_string = tag_string.split (" ")[0];
-                        Date date = {};
-                        date.set_parse (date_string);
-                        if (date.valid ()) {
-                            (user as Objects.Picture).year = date.get_year ();
-                            (user as Objects.Picture).month = date.get_month ();
-                            (user as Objects.Picture).day = date.get_day ();
-                        }
-                        date.clear ();
-                    } else if (entry.tag == Exif.Tag.ORIENTATION) {
-                        (user as Objects.Picture).rotation = Exif.Convert.get_short (entry.data, Exif.ByteOrder.INTEL);
+                if (content == null) {
+                    return;
+                }
+
+                var entry_date_time = content.get_entry (Exif.Tag.DATE_TIME_ORIGINAL);
+                if (entry_date_time != null) {
+                    var tag_string = entry_date_time.get_string ();
+                    if (tag_string == null || tag_string.strip () == "") {
+                        return;
                     }
-                }, user);
+                    var date_string = tag_string.split (" ")[0];
+                    Date date = {};
+                    date.set_parse (date_string);
+                    if (date.valid ()) {
+                        (user as Objects.Picture).year = date.get_year ();
+                        (user as Objects.Picture).month = date.get_month ();
+                        (user as Objects.Picture).day = date.get_day ();
+                    }
+                    date.clear ();
+                }
+
+                var entry_orientation = content.get_entry (Exif.Tag.ORIENTATION);
+                if (entry_orientation != null) {
+                    (user as Objects.Picture).rotation = Exif.Convert.get_short (entry_orientation.data, Exif.ByteOrder.INTEL);
+                }
             }, this);
         }
 

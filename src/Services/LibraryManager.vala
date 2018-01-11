@@ -38,7 +38,7 @@ namespace ShowMyPictures.Services {
                 return _instance;
             }
         }
-        public signal void duplicates_found (string hash);
+        public signal void duplicate_found (string hash);
         public signal void added_new_album (Objects.Album album);
         public signal void removed_album (Objects.Album album);
 
@@ -51,11 +51,12 @@ namespace ShowMyPictures.Services {
             }
         }
 
-        uint duplicates_timer = 0;
+        GLib.List<uint> duplicates_timer = null;
         GLib.List<string> hash_list = null;
 
         construct {
             hash_list = new GLib.List<string>();
+            duplicates_timer = new GLib.List<uint> ();
 
             settings = ShowMyPictures.Settings.get_default ();
 
@@ -68,8 +69,6 @@ namespace ShowMyPictures.Services {
             db_manager.added_new_picture.connect ((picture) => {
                 scan_for_duplicates.begin ();
             });
-
-            duplicates_found.connect ((hash) => {stdout.printf ("%s\n", hash);});
         }
 
         private LibraryManager () { }
@@ -122,35 +121,31 @@ namespace ShowMyPictures.Services {
         }
 
         public async void scan_for_duplicates () {
-            if (duplicates_timer != 0) {
-                Source.remove (duplicates_timer);
-                duplicates_timer = 0;
-            }
-
-            duplicates_timer = Timeout.add (5000, () => {
+            reset_duplicates_timer ();
+            var timer = Timeout.add (5000, () => {
                 foreach (var album in albums) {
-                    if (duplicates_timer == 0) {
-                        break;
-                    }
                     foreach (var picture in album.pictures) {
-                        if (duplicates_timer == 0) {
-                            break;
-                        }
                         check_hash (picture.hash);
                     }
                 }
-                if (duplicates_timer != 0) {
-                    Source.remove (duplicates_timer);
-                    duplicates_timer = 0;
-                }
+                reset_duplicates_timer ();
                 return false;
             });
+            duplicates_timer.append (timer);
+        }
+
+        private void reset_duplicates_timer () {
+            while (duplicates_timer.first () != null) {
+                var first = duplicates_timer.first ().data;
+                duplicates_timer.remove (first);
+                Source.remove (first);
+            }
         }
 
         private void check_hash (string hash) {
             hash_list.foreach ((item) => {
                 if (item == hash) {
-                    duplicates_found (hash);
+                    duplicate_found (hash);
                 }
                 return;
             });
