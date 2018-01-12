@@ -385,10 +385,14 @@ namespace ShowMyPictures {
         }
 
         public void back_action () {
-            if (content.visible_child_name == "picture") {
-                show_album ();
-            } else if (content.visible_child_name == "album") {
-                show_albums ();
+            switch (content.visible_child_name) {
+                case "picture":
+                    show_album ();
+                    break;
+                case "album":
+                case "duplicates":
+                    show_albums ();
+                    break;
             }
         }
 
