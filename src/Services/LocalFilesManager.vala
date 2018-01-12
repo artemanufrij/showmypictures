@@ -44,11 +44,11 @@ namespace ShowMyPictures.Services {
 
         public void scan (string path) {
             scan_started ();
-            scan_local_files (path);
+            scan_local_files.begin (path);
         }
 
-        private void scan_local_files (string path) {
-            new Thread<void*> (null, () => {
+        private async void scan_local_files (string path) {
+            new Thread<void*> ("scan_local_files", () => {
                 File directory = File.new_for_path (path);
                 try {
                     var children = directory.enumerate_children (FileAttribute.STANDARD_CONTENT_TYPE + "," + FileAttribute.STANDARD_IS_HIDDEN + "," + FileAttribute.STANDARD_IS_SYMLINK + "," + FileAttribute.STANDARD_SYMLINK_TARGET, GLib.FileQueryInfoFlags.NONE);

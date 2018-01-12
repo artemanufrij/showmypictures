@@ -51,13 +51,10 @@ namespace ShowMyPictures.Services {
             }
         }
 
-        GLib.List<uint> duplicates_timer = null;
+        uint duplicates_timer = 0;
         GLib.List<string> hash_list = null;
 
         construct {
-            hash_list = new GLib.List<string>();
-            duplicates_timer = new GLib.List<uint> ();
-
             settings = ShowMyPictures.Settings.get_default ();
 
             lf_manager = Services.LocalFilesManager.instance;
@@ -74,7 +71,7 @@ namespace ShowMyPictures.Services {
         private LibraryManager () { }
 
         public async void sync_library_content (bool force = false) {
-            new Thread <void*> (null, () => {
+            new Thread <void*> ("sync_library_content", () => {
                 //find_non_existent_items ();
                 scan_local_library_for_new_files (settings.library_location);
                 scan_for_duplicates.begin ();
@@ -94,14 +91,14 @@ namespace ShowMyPictures.Services {
 
         private void insert_picture_file (string path, string mime_type) {
             var picture = new Objects.Picture ();
-            picture.path = path;
             picture.mime_type = mime_type;
+            picture.path = path;
 
             var album = new Objects.Album ("");
             album.year = picture.year;
             album.month = picture.month;
             album.day = picture.day;
-            album.title = Utils.get_default_album_title (album.year, album.month, album.day);
+            album.create_default_title ();
 
             album = db_manager.insert_album_if_not_exists (album);
 
@@ -121,24 +118,29 @@ namespace ShowMyPictures.Services {
         }
 
         public async void scan_for_duplicates () {
-            reset_duplicates_timer ();
-            var timer = Timeout.add (5000, () => {
-                foreach (var album in albums) {
-                    foreach (var picture in album.pictures) {
-                        check_hash (picture.hash);
-                    }
+            if (hash_list != null) {
+                return;
+            }
+            lock (duplicates_timer) {
+                if (duplicates_timer != 0) {
+                    Source.remove (duplicates_timer);
+                    duplicates_timer = 0;
                 }
-                reset_duplicates_timer ();
-                return false;
-            });
-            duplicates_timer.append (timer);
-        }
 
-        private void reset_duplicates_timer () {
-            while (duplicates_timer.first () != null) {
-                var first = duplicates_timer.first ().data;
-                duplicates_timer.remove (first);
-                Source.remove (first);
+                duplicates_timer = Timeout.add (5000, () => {
+                    hash_list = new GLib.List<string>();
+                    foreach (var album in albums) {
+                        foreach (var picture in album.pictures) {
+                            check_hash (picture.hash);
+                        }
+                    }
+                    if (duplicates_timer != 0) {
+                        Source.remove (duplicates_timer);
+                        duplicates_timer = 0;
+                    }
+                    hash_list = null;
+                    return false;
+                });
             }
         }
 

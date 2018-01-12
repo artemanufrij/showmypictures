@@ -29,7 +29,7 @@ namespace ShowMyPictures.Objects {
     public class Album : GLib.Object {
         ShowMyPictures.Services.DataBaseManager db_manager;
 
-        public signal void picture_added (Picture picture);
+        public signal void picture_added (Picture picture, uint new_count);
         public signal void picture_removed (Picture picture);
         public signal void cover_created ();
         public signal void removed ();
@@ -99,7 +99,7 @@ namespace ShowMyPictures.Objects {
 
         public void add_picture_if_not_exists (Picture new_picture) {
             lock (_pictures) {
-                foreach (var picture in pictures) {
+                foreach (var picture in _pictures) {
                     if (picture.path == new_picture.path) {
                        return;
                     }
@@ -109,7 +109,7 @@ namespace ShowMyPictures.Objects {
                 this._pictures.insert_sorted_with_data (new_picture, (a, b) => {
                     return a.path.collate (b.path);
                 });
-                picture_added (new_picture);
+                picture_added (new_picture, this._pictures.length ());
                 create_cover.begin ();
             }
         }
@@ -135,7 +135,7 @@ namespace ShowMyPictures.Objects {
                 return;
             }
 
-            new Thread<void*> (null, () => {
+            new Thread<void*> ("create_cover", () => {
                 cover_creating = true;
                 if (GLib.FileUtils.test (cover_path, GLib.FileTest.EXISTS)) {
                     try {
@@ -191,13 +191,22 @@ namespace ShowMyPictures.Objects {
 
         public void create_pictures_preview () {
             pictures_preview_creating = true;
-            new Thread<void*> (null, () => {
+            new Thread<void*> ("create_pictures_preview", () => {
                 foreach (var picture in pictures) {
                     picture.create_preview ();
                 }
                 pictures_preview_creating = false;
                 return null;
             });
+        }
+
+        public void create_default_title () {
+            if (year > 0 && month > 0 && day > 0) {
+                var date_time = new DateTime.local (year, month, day, 0, 0, 0);
+                title = date_time.format ("%e. %b, %Y");
+            } else {
+                title = _("No Date");
+            }
         }
     }
 }

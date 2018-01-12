@@ -87,8 +87,8 @@ namespace ShowMyPictures.Widgets.Views {
                 lock (albums) {
                     albums.add (a);
                 }
-                return false;
                 do_sort ();
+                return false;
             });
         }
 
@@ -99,18 +99,20 @@ namespace ShowMyPictures.Widgets.Views {
         }
 
         private void do_sort () {
-            if (timer_sort != 0) {
-                Source.remove (timer_sort);
-                timer_sort = 0;
-            }
+            lock (timer_sort) {
+                if (timer_sort != 0) {
+                    Source.remove (timer_sort);
+                    timer_sort = 0;
+                }
 
-            timer_sort = Timeout.add (500, () => {
-                albums.set_sort_func (albums_sort_func);
-                albums.set_sort_func (null);
-                Source.remove (timer_sort);
-                timer_sort = 0;
-                return false;
-            });
+                timer_sort = Timeout.add (500, () => {
+                    albums.set_sort_func (albums_sort_func);
+                    albums.set_sort_func (null);
+                    Source.remove (timer_sort);
+                    timer_sort = 0;
+                    return false;
+                });
+            }
         }
 
         public void date_filter (int year, int month) {

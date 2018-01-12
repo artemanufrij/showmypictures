@@ -70,7 +70,7 @@ namespace ShowMyPictures.Objects {
 
         public string keywords { get; set; default = ""; }
         public string comment { get; set; default = ""; }
-        public string hash { get; set; }
+        public string hash { get; set; default = ""; }
 
         public Album? album { get; set; default = null; }
 
@@ -82,11 +82,13 @@ namespace ShowMyPictures.Objects {
                 if (_preview != value) {
                     _preview = value;
                 }
-                preview_created ();
+                if (_preview != null) {
+                    preview_created ();
+                }
             }
         }
 
-        public Exif.Data exif_data { get; private set; default = null; }
+        public Exif.Data? exif_data { get; private set; default = null; }
 
         bool preview_creating = false;
         bool exif_excluded = false;
@@ -104,10 +106,6 @@ namespace ShowMyPictures.Objects {
 
         public Picture (Album? album = null) {
             this.album = album;
-        }
-
-        public string get_default_album_title () {
-            return Utils.get_default_album_title (year, month, day);
         }
 
         public async void create_preview_async () {
@@ -157,8 +155,14 @@ namespace ShowMyPictures.Objects {
             if (exif_excluded) {
                 return;
             }
+            if (!file_exists ()) {
+                return;
+            }
             if (exif_data == null) {
                 exif_data = Exif.Data.new_from_file (path);
+            }
+            if (exif_data == null) {
+                return;
             }
             exif_data.foreach_content ((content, user) => {
                 if (content == null) {
@@ -223,6 +227,9 @@ namespace ShowMyPictures.Objects {
         }
 
         private void exclude_creation_date () {
+            if (!file_exists ()) {
+                return;
+            }
             var f = File.new_for_path (path);
             var info = f.query_info ("time::*", 0);
             f.dispose ();
@@ -232,7 +239,7 @@ namespace ShowMyPictures.Objects {
             }
             info.dispose ();
 
-            if (output != null) {
+            if (output != null && output != "") {
                 var date = new DateTime.from_unix_local (int64.parse (output));
                 year = date.get_year ();
                 month = date.get_month ();

@@ -57,9 +57,9 @@ namespace ShowMyPictures.Widgets {
                     return false;
                 });
             });
-            this.album.picture_added.connect ((picture) => {
+            this.album.picture_added.connect ((picture, new_count) => {
                 Idle.add (() => {
-                    counter.label = _("%u Pictures").printf (album.pictures.length ());
+                    counter.label = _("%u Pictures").printf (new_count);
                     return false;
                 });
             });

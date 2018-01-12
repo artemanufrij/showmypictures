@@ -37,10 +37,7 @@ namespace ShowMyPictures.Widgets.Views {
         construct {
             library_manager = Services.LibraryManager.instance;
             library_manager.duplicate_found.connect ((hash) => {
-                Idle.add (() => {
-                    add_duplicate (hash);
-                    return false;
-                });
+                add_duplicate (hash);
             });
         }
 
@@ -69,39 +66,44 @@ namespace ShowMyPictures.Widgets.Views {
         }
 
         private void add_duplicate (string hash) {
-            lock (duplicates) {
-                foreach (var item in duplicates.get_children ()) {
-                    if ((item as Widgets.DuplicateRow).hash == hash) {
-                        return;
+            Idle.add (() => {
+                lock (duplicates) {
+                    foreach (var item in duplicates.get_children ()) {
+                        if ((item as Widgets.DuplicateRow).hash == hash) {
+                            return false;
+                        }
                     }
+                    var row = new Widgets.DuplicateRow (hash);
+                    duplicates.pack_start (row);
+                    create_previews.begin ();
                 }
-                var row = new Widgets.DuplicateRow (hash);
-                duplicates.pack_start (row);
-                create_previews.begin ();
-            }
+                return false;
+            });
         }
 
         private async void create_previews () {
-            if (timer_preview != 0 ){
-                Source.remove (timer_preview);
-                timer_preview = 0;
-            }
-            timer_preview = Timeout.add (1000, () => {
-                new Thread<void*> (null, () => {
-                    foreach (var item in duplicates.get_children ()) {
-                        var row = (item as Widgets.DuplicateRow);
-                        row.create_previews ();
-                        if (cance_preview) {
-                            cance_preview = false;
-                            return null;
+            lock (timer_preview) {
+                if (timer_preview != 0 ){
+                    Source.remove (timer_preview);
+                    timer_preview = 0;
+                }
+                timer_preview = Timeout.add (1000, () => {
+                    new Thread<void*> (null, () => {
+                        foreach (var item in duplicates.get_children ()) {
+                            var row = (item as Widgets.DuplicateRow);
+                            row.create_previews ();
+                            if (cance_preview) {
+                                cance_preview = false;
+                                return null;
+                            }
                         }
-                    }
-                    return null;
+                        return null;
+                    });
+                    Source.remove (timer_preview);
+                    timer_preview = 0;
+                    return false;
                 });
-                Source.remove (timer_preview);
-                timer_preview = 0;
-                return false;
-            });
+            }
         }
 
         public async void cancel_create_previews_async () {
