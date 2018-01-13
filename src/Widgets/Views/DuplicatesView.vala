@@ -36,8 +36,8 @@ namespace ShowMyPictures.Widgets.Views {
 
         construct {
             library_manager = Services.LibraryManager.instance;
-            library_manager.duplicate_found.connect ((hash) => {
-                add_duplicate (hash);
+            library_manager.duplicates_found.connect ((hash_list) => {
+                add_duplicate (hash_list);
             });
         }
 
@@ -65,16 +65,18 @@ namespace ShowMyPictures.Widgets.Views {
             }
         }
 
-        private void add_duplicate (string hash) {
+        private void add_duplicate (GLib.List<string> hash_list) {
             Idle.add (() => {
                 lock (duplicates) {
                     foreach (var item in duplicates.get_children ()) {
-                        if ((item as Widgets.DuplicateRow).hash == hash) {
-                            return false;
-                        }
+                        duplicates.remove (item);
+                        item.destroy ();
                     }
-                    var row = new Widgets.DuplicateRow (hash);
-                    duplicates.pack_start (row);
+                    foreach (var hash in hash_list) {
+                        stdout.printf ("%s\n", hash);
+                        var row = new Widgets.DuplicateRow (hash);
+                        duplicates.pack_start (row);
+                    }
                     create_previews.begin ();
                 }
                 return false;

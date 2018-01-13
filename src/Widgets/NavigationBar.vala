@@ -43,7 +43,7 @@ namespace ShowMyPictures.Widgets {
         construct {
             library_manager = ShowMyPictures.Services.LibraryManager.instance;
             library_manager.added_new_album.connect (add_album);
-            library_manager.duplicate_found.connect (() => {
+            library_manager.duplicates_found.connect (() => {
                 if (!duplicates_item.visible) {
                     duplicates_item.visible = true;
                     extras_entry.expanded = true;

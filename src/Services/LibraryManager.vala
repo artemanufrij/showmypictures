@@ -38,7 +38,7 @@ namespace ShowMyPictures.Services {
                 return _instance;
             }
         }
-        public signal void duplicate_found (string hash);
+        public signal void duplicates_found (GLib.List<string> hash_list);
         public signal void added_new_album (Objects.Album album);
         public signal void removed_album (Objects.Album album);
 
@@ -53,6 +53,7 @@ namespace ShowMyPictures.Services {
 
         uint duplicates_timer = 0;
         GLib.List<string> hash_list = null;
+        GLib.List<string> duplicates = null;
 
         construct {
             settings = ShowMyPictures.Settings.get_default ();
@@ -129,11 +130,16 @@ namespace ShowMyPictures.Services {
 
                 duplicates_timer = Timeout.add (5000, () => {
                     hash_list = new GLib.List<string>();
+                    duplicates = new GLib.List<string> ();
                     foreach (var album in albums) {
                         foreach (var picture in album.pictures) {
-                            check_hash (picture.hash);
+                            string hash = picture.hash;
+                            if (check_hash (hash)) {
+                                duplicates.append (hash);
+                            }
                         }
                     }
+                    duplicates_found (duplicates);
                     if (duplicates_timer != 0) {
                         Source.remove (duplicates_timer);
                         duplicates_timer = 0;
@@ -144,14 +150,16 @@ namespace ShowMyPictures.Services {
             }
         }
 
-        private void check_hash (string hash) {
+        private bool check_hash (string hash) {
+            bool return_value = false;
             hash_list.foreach ((item) => {
                 if (item == hash) {
-                    duplicate_found (hash);
+                    return_value = true;
+                    return;
                 }
-                return;
             });
             hash_list.append (hash);
+            return return_value;
         }
 
         public void reset_library () {

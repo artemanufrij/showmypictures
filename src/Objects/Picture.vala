@@ -89,6 +89,7 @@ namespace ShowMyPictures.Objects {
         }
 
         public Exif.Data? exif_data { get; private set; default = null; }
+        GExiv2.Metadata? exiv_data { get; private set; default = null; }
 
         bool preview_creating = false;
         bool exif_excluded = false;
@@ -149,6 +150,14 @@ namespace ShowMyPictures.Objects {
                 warning (err.message);
             }
             preview_creating = false;
+        }
+
+        public void exclude_exiv () {
+            //GExiv2.Metadata metadata = new GExiv2.Metadata();
+            //var i =  new GExiv2.ImageFactory ();
+            /*if (exiv_data.open_path (this.path)) {
+                stdout.printf ("%d\n", exiv_data.get_metadata_pixel_height ());
+            }*/
         }
 
         public void exclude_exif () {
