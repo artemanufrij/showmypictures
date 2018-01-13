@@ -92,29 +92,42 @@ namespace ShowMyPictures.Objects {
                         db_manager.remove_album (this);
                     }
                 });
+            removed.connect (
+                () => {
+                    var f = File.new_for_path (cover_path);
+                    f.trash_async.begin ();
+                    f.dispose ();
+                });
         }
 
         public Album (string title) {
             this.title = title;
         }
 
+        public Album.based_on_picture (Picture picture) {
+            year = picture.year;
+            month = picture.month;
+            day = picture.day;
+            create_default_title ();
+        }
+
         public void add_picture_if_not_exists (Picture new_picture) {
             lock (_pictures) {
-                foreach (var picture in _pictures) {
+                foreach (var picture in pictures) {
                     if (picture.path == new_picture.path) {
                         return;
                     }
                 }
                 new_picture.album = this;
                 db_manager.insert_picture (new_picture);
-                this._pictures.insert_sorted_with_data (
+                _pictures.insert_sorted_with_data (
                     new_picture,
                     (a, b) => {
                         return a.path.collate (b.path);
                     });
-                picture_added (new_picture, this._pictures.length ());
-                create_cover.begin ();
+                picture_added (new_picture, _pictures.length ());
             }
+            create_cover.begin ();
         }
 
         public Picture ? get_next_picture (Picture current) {

@@ -55,7 +55,8 @@ namespace ShowMyPictures.Services {
         string errormsg;
 
         construct {
-            removed_album.connect ((album) => {
+            removed_album.connect (
+                (album) => {
                 _albums.remove (album);
                 album.removed ();
             });
@@ -177,7 +178,7 @@ namespace ShowMyPictures.Services {
             Sqlite.Statement stmt;
 
             string sql = """
-                INSERT OR IGNORE INTO albums (year, month, day, title, keywords, comment)
+                INSERT INTO albums (year, month, day, title, keywords, comment)
                 VALUES ($YEAR, $MONTH, $DAY, $TITLE, $KEYWORDS, $COMMENT);
             """;
 
@@ -205,9 +206,9 @@ namespace ShowMyPictures.Services {
 
             if (stmt.step () == Sqlite.ROW) {
                 album.ID = stmt.column_int (0);
-                stdout.printf ("Album ID: %d - %s\n", album.ID, album.title);
                 _albums.append (album);
                 added_new_album (album);
+                stdout.printf ("Album ID: %d - %s\n", album.ID, album.title);
             } else {
                 warning ("Error: %d: %s", db.errcode (), db.errmsg ());
             }
@@ -290,7 +291,7 @@ namespace ShowMyPictures.Services {
             Sqlite.Statement stmt;
 
             string sql = """
-                INSERT OR IGNORE INTO pictures (album_id, path, year, month, day, mime_type, keywords, hash, comment)
+                INSERT INTO pictures (album_id, path, year, month, day, mime_type, keywords, hash, comment)
                 VALUES ($ALBUM_ID, $PATH, $YEAR, $MONTH, $DAY, $MIME_TYPE, $KEYWORDS, $HASH, $COMMENT);
             """;
 
@@ -320,7 +321,7 @@ namespace ShowMyPictures.Services {
             if (stmt.step () == Sqlite.ROW) {
                 picture.ID = stmt.column_int (0);
                 stdout.printf ("Picture ID: %d - %s\n", picture.ID, picture.album.title);
-                added_new_picture (picture);
+                //added_new_picture (picture);
             } else {
                 warning ("Error: %d: %s", db.errcode (), db.errmsg ());
             }

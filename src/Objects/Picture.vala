@@ -102,6 +102,10 @@ namespace ShowMyPictures.Objects {
                     var f = File.new_for_path (path);
                     f.trash_async.begin ();
                     f.dispose ();
+
+                    f = File.new_for_path (preview_path);
+                    f.trash_async.begin ();
+                    f.dispose ();
                 });
         }
 

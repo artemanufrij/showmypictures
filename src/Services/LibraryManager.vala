@@ -41,7 +41,7 @@ namespace ShowMyPictures.Services {
 
         public signal void sync_started ();
         public signal void sync_finished ();
-        public signal void non_exists_pictures_found ();
+        public signal void picture_not_found (Objects.Picture picture);
         public signal void duplicates_found (GLib.List<string> hash_list);
         public signal void added_new_album (Objects.Album album);
         public signal void removed_album (Objects.Album album);
@@ -80,13 +80,12 @@ namespace ShowMyPictures.Services {
                 });
         }
 
-        public async void sync_library_content_async (bool force = false) {
+        public async void sync_library_content_async () {
             new Thread <void*> (
                 "sync_library_content",
                 () => {
                     find_non_existent_items ();
                     scan_local_library_for_new_files (settings.library_location);
-                    scan_for_duplicates_async.begin ();
                     return null;
                 });
         }
@@ -104,6 +103,7 @@ namespace ShowMyPictures.Services {
 
         public void scan_local_library_for_new_files (string path) {
             lf_manager.scan (path);
+            scan_for_duplicates_async.begin ();
         }
 
         private void insert_picture_file (string path, string mime_type) {
@@ -111,12 +111,7 @@ namespace ShowMyPictures.Services {
             picture.mime_type = mime_type;
             picture.path = path;
 
-            var album = new Objects.Album ("");
-            album.year = picture.year;
-            album.month = picture.month;
-            album.day = picture.day;
-            album.create_default_title ();
-
+            var album = new Objects.Album.based_on_picture (picture);
             album = db_manager.insert_album_if_not_exists (album);
 
             if (album.ID > 0) {
@@ -133,7 +128,7 @@ namespace ShowMyPictures.Services {
             foreach (var album in albums) {
                 foreach (var picture in album.pictures) {
                     if (!picture.file_exists ()) {
-                        non_exists_pictures_found ();
+                        picture_not_found (picture);
                     }
                 }
             }
@@ -148,7 +143,7 @@ namespace ShowMyPictures.Services {
                 }
 
                 duplicates_timer = Timeout.add (
-                    5000,
+                    3000,
                     () => {
                         hash_list = new GLib.List<string>();
                         duplicates = new GLib.List<string> ();

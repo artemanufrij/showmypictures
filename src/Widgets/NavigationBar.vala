@@ -29,6 +29,7 @@ namespace ShowMyPictures.Widgets {
     public class NavigationBar : Gtk.Revealer {
         ShowMyPictures.Services.LibraryManager library_manager;
 
+        public signal void remove_all_not_found_items ();
         public signal void album_selected (Objects.Album album);
         public signal void date_selected (int year, int month);
         public signal void duplicates_selected ();
@@ -39,19 +40,20 @@ namespace ShowMyPictures.Widgets {
         Granite.Widgets.SourceList.ExpandableItem device_entry;
         Granite.Widgets.SourceList.ExpandableItem extras_entry;
         Granite.Widgets.SourceList.Item duplicates_item;
-        Granite.Widgets.SourceList.Item not_found_item;
+        Widgets.NavigationNotFound not_found_item;
 
         construct {
             library_manager = ShowMyPictures.Services.LibraryManager.instance;
             library_manager.added_new_album.connect (add_album);
             library_manager.duplicates_found.connect (
-                () => {
+                (hash_list) => {
                     if (!duplicates_item.visible) {
                         duplicates_item.visible = true;
+                        duplicates_item.badge = hash_list.length ().to_string ();
                         extras_entry.expanded = true;
                     }
                 });
-            library_manager.non_exists_pictures_found.connect (
+            library_manager.picture_not_found.connect (
                 () => {
                     not_found_item.visible = true;
                     extras_entry.expanded = true;
@@ -77,7 +79,7 @@ namespace ShowMyPictures.Widgets {
                         if (folder.parent is Widgets.NavigationDate) {
                             date_selected ((folder.parent as Widgets.NavigationDate).val, folder.val);
                         } else {
-                            date_selected (folder.val, 0);
+                            date_selected (folder.val,                                    0);
                         }
                     } else if (item == duplicates_item) {
                         duplicates_selected ();
@@ -95,9 +97,13 @@ namespace ShowMyPictures.Widgets {
             duplicates_item.visible = false;
             extras_entry.add (duplicates_item);
 
-            not_found_item = new Granite.Widgets.SourceList.Item (_ ("Not Found"));
+            not_found_item = new Widgets.NavigationNotFound (_ ("Not Found"));
             not_found_item.icon = new ThemedIcon ("dialog-error-symbolic");
             not_found_item.visible = false;
+            not_found_item.remove_all_not_found_items.connect (
+                () =>{
+                    remove_all_not_found_items ();
+                });
             extras_entry.add (not_found_item);
 
             device_entry = new Granite.Widgets.SourceList.ExpandableItem (_ ("Devices"));
@@ -127,6 +133,7 @@ namespace ShowMyPictures.Widgets {
             duplicates_item.visible = false;
             not_found_item.visible = false;
             events_entry.clear ();
+            folders.selected = null;
         }
 
         public void add_album (Objects.Album album) {
@@ -141,6 +148,7 @@ namespace ShowMyPictures.Widgets {
                     var month = year.get_subfolder (album);
                     var album_item = new Widgets.NavigationAlbum (album);
                     month.add (album_item);
+                    folders.refilter ();
                     return false;
                 });
         }
@@ -158,6 +166,10 @@ namespace ShowMyPictures.Widgets {
             var new_child = new Widgets.NavigationDate (album.year.to_string (), album.year);
             events_entry.add (new_child);
             return new_child;
+        }
+
+        public void hide_not_found_item () {
+            not_found_item.visible = false;
         }
     }
 }

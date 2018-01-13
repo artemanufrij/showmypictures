@@ -26,77 +26,82 @@
  */
 
 namespace ShowMyPictures.Widgets.Views {
-    public class DuplicatesView : Gtk.Grid {
+    public class NotFoundView : Gtk.Grid {
         Services.LibraryManager library_manager;
 
-        Gtk.Box duplicates;
+        public signal void items_cleared ();
+
+        Gtk.FlowBox pictures;
 
         uint timer_preview = 0;
         bool cance_preview = false;
 
         construct {
             library_manager = Services.LibraryManager.instance;
-            library_manager.duplicates_found.connect (add_duplicate);
+            library_manager.picture_not_found.connect (add_picture);
         }
 
-        public DuplicatesView () {
+        public NotFoundView () {
             build_ui ();
         }
 
         private void build_ui () {
-            duplicates = new Gtk.Box (Gtk.Orientation.VERTICAL, 12);
-            duplicates.margin = 24;
+            pictures = new Gtk.FlowBox ();
+            pictures.homogeneous = false;
+            pictures.margin = 24;
+            pictures.row_spacing = 12;
+            pictures.column_spacing = 12;
+            pictures.valign = Gtk.Align.START;
+            pictures.remove.connect (
+                () => {
+                    if (pictures.get_children ().length () == 0) {
+                        items_cleared ();
+                    }
+                });
 
             var scroll = new Gtk.ScrolledWindow (null, null);
             scroll.expand = true;
-            scroll.add (duplicates);
+            scroll.add (pictures);
 
             this.add (scroll);
             this.show_all ();
         }
 
-        public void reset () {
-            if (timer_preview != 0) {
-                cancel_create_previews_async.begin ();
-                cancel_preview_timer ();
-            }
-            foreach (var item in duplicates.get_children ()) {
-                duplicates.remove (item);
-                item.destroy ();
-            }
-        }
-
-        private void add_duplicate (GLib.List<string> hash_list) {
+        private void add_picture (Objects.Picture picture) {
             Idle.add (
                 () => {
-                    lock (duplicates) {
-                        foreach (var item in duplicates.get_children ()) {
-                            duplicates.remove (item);
-                            item.destroy ();
-                        }
-                        foreach (var hash in hash_list) {
-                            stdout.printf ("%s\n", hash);
-                            var row = new Widgets.DuplicateRow (hash);
-                            duplicates.pack_start (row);
-                        }
-                    }
+                    var item = new Widgets.Picture (picture);
+                    this.pictures.add (item);
                     create_previews.begin ();
                     return false;
                 });
         }
 
+        public void remove_all () {
+            cancel_create_previews_async.begin ();
+            new Thread<void*> (
+                "not_found_view_remove_all",
+                () => {
+                    foreach (var child in pictures.get_children ()) {
+                        var picture = (child as Widgets.Picture).picture;
+                        library_manager.db_manager.remove_picture (picture);
+                    }
+                    return null;
+                });
+        }
+
         private async void create_previews () {
             lock (timer_preview) {
-                cancel_preview_timer ();
+                        cancel_preview_timer ();
                 timer_preview = Timeout.add (
                     1000,
                     () => {
                         new Thread<void*> (
-                            "duplicates_view_create_previews",
+                            "not_found_view_create_previews",
                             () => {
-                                foreach (var item in duplicates.get_children ()) {
-                                    var row = (item as Widgets.DuplicateRow);
-                                    row.create_previews ();
+                                foreach (var child in pictures.get_children ()) {
+                                    var picture = (child as Widgets.Picture).picture;
+                                    picture.create_preview ();
                                     if (cance_preview) {
                                         cance_preview = false;
                                         return null;

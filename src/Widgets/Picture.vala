@@ -78,9 +78,6 @@ namespace ShowMyPictures.Widgets {
 
             content.attach (preview, 0, 0);
 
-            var album_title = new Gtk.Label ("%d - %s".printf (picture.album.ID, picture.album.title));
-            content.attach (album_title, 0, 1);
-
             menu = new Gtk.Menu ();
             var menu_new_cover = new Gtk.MenuItem.with_label (_ ("Set as Album picture"));
             menu_new_cover.activate.connect (

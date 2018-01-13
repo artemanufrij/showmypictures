@@ -46,6 +46,7 @@ namespace ShowMyPictures {
         Widgets.Views.AlbumView album_view;
         Widgets.Views.PictureView picture_view;
         Widgets.Views.DuplicatesView duplicates_view;
+        Widgets.Views.NotFoundView not_found_view;
         Widgets.NavigationBar navigation;
 
         Granite.Widgets.Toast app_notification;
@@ -108,7 +109,7 @@ namespace ShowMyPictures {
             load_content_from_database.begin ((obj, res) => {
                 if (settings.sync_files) {
                     library_manager.sync_library_content_async.begin ();
-                } else {
+                } else if (library_manager.albums.length () > 0) {
                     library_manager.find_non_existent_items_async.begin ();
                     library_manager.scan_for_duplicates_async.begin ();
                 }
@@ -146,7 +147,7 @@ namespace ShowMyPictures {
             var menu_item_library = new Gtk.MenuItem.with_label(_("Change Picture Folder…"));
             menu_item_library.activate.connect (() => {
                 var folder = library_manager.choose_folder ();
-                if(folder != null) {
+                if (folder != null) {
                     settings.library_location = folder;
                     library_manager.scan_local_library_for_new_files (folder);
                 }
@@ -155,7 +156,7 @@ namespace ShowMyPictures {
             var menu_item_import = new Gtk.MenuItem.with_label (_("Import Pictures…"));
             menu_item_import.activate.connect (() => {
                 var folder = library_manager.choose_folder ();
-                if(folder != null) {
+                if (folder != null) {
                     library_manager.scan_local_library_for_new_files (folder);
                 }
             });
@@ -259,8 +260,15 @@ namespace ShowMyPictures {
 
             duplicates_view = new Widgets.Views.DuplicatesView ();
 
+            not_found_view = new Widgets.Views.NotFoundView ();
+            not_found_view.items_cleared.connect ( () => {
+                back_action ();
+                navigation.hide_not_found_item ();
+            });
+
             content.add_named (welcome, "welcome");
             content.add_named (duplicates_view, "duplicates");
+            content.add_named (not_found_view, "not_found");
             content.add_named (albums_view, "albums");
             content.add_named (album_view, "album");
             content.add_named (picture_view, "picture");
@@ -279,6 +287,12 @@ namespace ShowMyPictures {
             });
             navigation.duplicates_selected.connect (() => {
                 show_duplicates ();
+            });
+            navigation.not_found_selected.connect (() => {
+                show_not_found ();
+            });
+            navigation.remove_all_not_found_items.connect (() => {
+                not_found_view.remove_all ();
             });
             grid.attach (navigation, 0, 0);
 
@@ -304,6 +318,14 @@ namespace ShowMyPictures {
             content.visible_child_name = "duplicates";
             rotate_left.hide ();
             rotate_right.hide ();
+            navigation_button.show ();
+        }
+
+        private void show_not_found () {
+            content.visible_child_name = "not_found";
+            rotate_left.hide ();
+            rotate_right.hide ();
+            navigation_button.show ();
         }
 
         private void show_albums () {
@@ -396,6 +418,7 @@ namespace ShowMyPictures {
                 case "picture":
                     show_album ();
                     break;
+                case "not_found":
                 case "album":
                 case "duplicates":
                     show_albums ();

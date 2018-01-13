@@ -100,6 +100,9 @@ namespace ShowMyPictures.Widgets.Views {
         }
 
         private void add_picture (Objects.Picture picture, bool from_signal = false) {
+            if (!picture.file_exists ()) {
+                return;
+            }
             Idle.add (() => {
                 var item = new Widgets.Picture (picture);
                 this.pictures.add (item);
