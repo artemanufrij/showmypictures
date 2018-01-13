@@ -27,7 +27,6 @@
 
 namespace ShowMyPictures.Objects {
     public class Picture : GLib.Object {
-
         public signal void preview_created ();
         public signal void removed ();
         public signal void file_not_found ();
@@ -72,10 +71,10 @@ namespace ShowMyPictures.Objects {
         public string comment { get; set; default = ""; }
         public string hash { get; set; default = ""; }
 
-        public Album? album { get; set; default = null; }
+        public Album ? album { get; set; default = null; }
 
-        Gdk.Pixbuf? _preview = null;
-        public Gdk.Pixbuf? preview {
+        Gdk.Pixbuf ? _preview = null;
+        public Gdk.Pixbuf ? preview {
             get {
                 return _preview;
             } private set {
@@ -88,24 +87,25 @@ namespace ShowMyPictures.Objects {
             }
         }
 
-        public Exif.Data? exif_data { get; private set; default = null; }
-        GExiv2.Metadata? exiv_data { get; private set; default = null; }
+        public Exif.Data ? exif_data { get; private set; default = null; }
+        GExiv2.Metadata ? exiv_data { get; private set; default = null; }
 
         bool preview_creating = false;
         bool exif_excluded = false;
 
         construct {
-            removed.connect (() => {
-                if (album != null) {
-                    album.picture_removed (this);
-                }
-                var f = File.new_for_path (path);
-                f.trash_async.begin ();
-                f.dispose ();
-            });
+            removed.connect (
+                () => {
+                    if (album != null) {
+                        album.picture_removed (this);
+                    }
+                    var f = File.new_for_path (path);
+                    f.trash_async.begin ();
+                    f.dispose ();
+                });
         }
 
-        public Picture (Album? album = null) {
+        public Picture (Album ? album = null) {
             this.album = album;
         }
 
@@ -113,10 +113,12 @@ namespace ShowMyPictures.Objects {
             if (preview_creating) {
                 return;
             }
-            new Thread<void*> (null, () => {
-                create_preview ();
-                return null;
-            });
+            new Thread<void*> (
+                "picture_create_preview_async",
+                () => {
+                    create_preview ();
+                    return null;
+                });
         }
 
         public void create_preview () {
@@ -153,11 +155,11 @@ namespace ShowMyPictures.Objects {
         }
 
         public void exclude_exiv () {
-            //GExiv2.Metadata metadata = new GExiv2.Metadata();
+            //var metadata = new GExiv2.Metadata ("");
             //var i =  new GExiv2.ImageFactory ();
             /*if (exiv_data.open_path (this.path)) {
                 stdout.printf ("%d\n", exiv_data.get_metadata_pixel_height ());
-            }*/
+               }*/
         }
 
         public void exclude_exif () {
@@ -173,64 +175,67 @@ namespace ShowMyPictures.Objects {
             if (exif_data == null) {
                 return;
             }
-            exif_data.foreach_content ((content, user) => {
-                if (content == null) {
-                    return;
-                }
-
-                var entry_date_time = content.get_entry (Exif.Tag.DATE_TIME_ORIGINAL);
-                if (entry_date_time != null) {
-                    var tag_string = entry_date_time.get_string ();
-                    if (tag_string == null || tag_string.strip () == "") {
+            exif_data.foreach_content (
+                (content, user) => {
+                    if (content == null) {
                         return;
                     }
-                    var date_string = tag_string.split (" ")[0];
-                    Date date = {};
-                    date.set_parse (date_string);
-                    if (date.valid ()) {
-                        (user as Objects.Picture).year = date.get_year ();
-                        (user as Objects.Picture).month = date.get_month ();
-                        (user as Objects.Picture).day = date.get_day ();
-                    }
-                    date.clear ();
-                }
 
-                var entry_orientation = content.get_entry (Exif.Tag.ORIENTATION);
-                if (entry_orientation != null) {
-                    (user as Objects.Picture).rotation = Exif.Convert.get_short (entry_orientation.data, Exif.ByteOrder.INTEL);
-                }
-            }, this);
+                    var entry_date_time = content.get_entry (Exif.Tag.DATE_TIME_ORIGINAL);
+                    if (entry_date_time != null) {
+                        var tag_string = entry_date_time.get_string ();
+                        if (tag_string == null || tag_string.strip () == "") {
+                            return;
+                        }
+                        var date_string = tag_string.split (" ")[0];
+                        Date date = { };
+                        date.set_parse (date_string);
+                        if (date.valid ()) {
+                            (user as Objects.Picture).year = date.get_year ();
+                            (user as Objects.Picture).month = date.get_month ();
+                            (user as Objects.Picture).day = date.get_day ();
+                        }
+                        date.clear ();
+                    }
+
+                    var entry_orientation = content.get_entry (Exif.Tag.ORIENTATION);
+                    if (entry_orientation != null) {
+                        (user as Objects.Picture).rotation = Exif.Convert.get_short (entry_orientation.data, Exif.ByteOrder.INTEL);
+                    }
+                }, this);
         }
 
         public bool rotate_left_exif () {
             if (exif_data == null) {
                 exif_data = Exif.Data.new_from_file (path);
             }
-            exif_data.foreach_content ((content, user) => {
-                content.foreach_entry ((entry, user) => {
-                    if (entry.tag == Exif.Tag.ORIENTATION) {
-                    stdout.printf ("%d\n", (user as Objects.Picture).rotation);
-                        switch ((user as Objects.Picture).rotation) {
-                            case 1:
-                                Exif.Convert.set_short (entry.data, Exif.ByteOrder.INTEL, 6);
-                                (user as Objects.Picture).exif_data.save_data (&entry.data, &entry.size);
-                                break;
-                            case 6:
-                                Exif.Convert.set_short (entry.data, Exif.ByteOrder.INTEL, 3);
-                                (user as Objects.Picture).exif_data.save_data (&entry.data, &entry.size);
-                                break;
-                            case 3:
-                                Exif.Convert.set_short (entry.data, Exif.ByteOrder.INTEL, 8);
-                                (user as Objects.Picture).exif_data.save_data (&entry.data, &entry.size);
-                                break;
-                            case 8:
-                                Exif.Convert.set_short (entry.data, Exif.ByteOrder.INTEL, 1);
-                                (user as Objects.Picture).exif_data.save_data (&entry.data, &entry.size);
-                                break;
-                        }
-                    }
-                }, user);
-            }, this);
+            exif_data.foreach_content (
+                (content, user) => {
+                    content.foreach_entry (
+                        (entry, user) => {
+                            if (entry.tag == Exif.Tag.ORIENTATION) {
+                                stdout.printf ("%d\n", (user as Objects.Picture).rotation);
+                                switch ((user as Objects.Picture).rotation) {
+                                case 1 :
+                                    Exif.Convert.set_short (entry.data, Exif.ByteOrder.INTEL, 6);
+                                    (user as Objects.Picture).exif_data.save_data (&entry.data, &entry.size);
+                                    break;
+                                case 6 :
+                                    Exif.Convert.set_short (entry.data, Exif.ByteOrder.INTEL, 3);
+                                    (user as Objects.Picture).exif_data.save_data (&entry.data, &entry.size);
+                                    break;
+                                case 3 :
+                                    Exif.Convert.set_short (entry.data, Exif.ByteOrder.INTEL, 8);
+                                    (user as Objects.Picture).exif_data.save_data (&entry.data, &entry.size);
+                                    break;
+                                case 8 :
+                                    Exif.Convert.set_short (entry.data, Exif.ByteOrder.INTEL, 1);
+                                    (user as Objects.Picture).exif_data.save_data (&entry.data, &entry.size);
+                                    break;
+                                }
+                            }
+                        }, user);
+                }, this);
 
             return false;
         }
@@ -240,7 +245,13 @@ namespace ShowMyPictures.Objects {
                 return;
             }
             var f = File.new_for_path (path);
-            var info = f.query_info ("time::*", 0);
+            FileInfo info = null;
+            try {
+                info = f.query_info ("time::*", 0);
+            } catch (Error err) {
+                warning (err.message);
+                return;
+            }
             f.dispose ();
             var output = info.get_attribute_as_string (FileAttribute.TIME_CREATED);
             if (output == null) {

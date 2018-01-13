@@ -47,7 +47,7 @@ namespace ShowMyPictures.Objects {
         }
 
         public string cover_path { get; private set; }
-        public string title { get; set; default="";}
+        public string title { get; set; default=""; }
         public int year { get; set; default = 0; }
         public int month { get; set; default = 0; }
         public int day { get; set; default = 0; }
@@ -65,8 +65,8 @@ namespace ShowMyPictures.Objects {
             }
         }
 
-        Gdk.Pixbuf? _cover = null;
-        public Gdk.Pixbuf? cover {
+        Gdk.Pixbuf ? _cover = null;
+        public Gdk.Pixbuf ? cover {
             get {
                 if (_cover == null) {
                     create_cover.begin ();
@@ -85,12 +85,13 @@ namespace ShowMyPictures.Objects {
 
         construct {
             db_manager = ShowMyPictures.Services.DataBaseManager.instance;
-            picture_removed.connect ((track) => {
-                this._pictures.remove (track);
-                if (this.pictures.length () == 0) {
-                    db_manager.remove_album (this);
-                }
-            });
+            picture_removed.connect (
+                (track) => {
+                    this._pictures.remove (track);
+                    if (this.pictures.length () == 0) {
+                        db_manager.remove_album (this);
+                    }
+                });
         }
 
         public Album (string title) {
@@ -101,20 +102,22 @@ namespace ShowMyPictures.Objects {
             lock (_pictures) {
                 foreach (var picture in _pictures) {
                     if (picture.path == new_picture.path) {
-                       return;
+                        return;
                     }
                 }
                 new_picture.album = this;
                 db_manager.insert_picture (new_picture);
-                this._pictures.insert_sorted_with_data (new_picture, (a, b) => {
-                    return a.path.collate (b.path);
-                });
+                this._pictures.insert_sorted_with_data (
+                    new_picture,
+                    (a, b) => {
+                        return a.path.collate (b.path);
+                    });
                 picture_added (new_picture, this._pictures.length ());
                 create_cover.begin ();
             }
         }
 
-        public Picture? get_next_picture (Picture current) {
+        public Picture ? get_next_picture (Picture current) {
             int i = _pictures.index (current) + 1;
             if (i < _pictures.length ()) {
                 return _pictures.nth_data (i);
@@ -122,9 +125,9 @@ namespace ShowMyPictures.Objects {
             return null;
         }
 
-        public Picture? get_prev_picture (Picture current) {
+        public Picture ? get_prev_picture (Picture current) {
             int i = _pictures.index (current) - 1;
-            if (i > - 1) {
+            if (i > -1) {
                 return _pictures.nth_data (i);
             }
             return null;
@@ -135,34 +138,32 @@ namespace ShowMyPictures.Objects {
                 return;
             }
 
-            new Thread<void*> ("create_cover", () => {
-                cover_creating = true;
-                if (GLib.FileUtils.test (cover_path, GLib.FileTest.EXISTS)) {
-                    try {
-                        cover = new Gdk.Pixbuf.from_file (cover_path);
-                    } catch (Error err) {
-                        warning (err.message);
+            new Thread<void*> (
+                "create_cover",
+                () => {
+                    cover_creating = true;
+                    if (GLib.FileUtils.test (cover_path, GLib.FileTest.EXISTS)) {
+                        try {
+                            cover = new Gdk.Pixbuf.from_file (cover_path);
+                        } catch (Error err) {
+                            warning (err.message);
+                        }
                     }
-                }
-                if (cover != null) {
-                    cover_creating = false;
-                    return null;
-                }
-                if (pictures.length () == 0) {
-                    cover_creating = false;
-                    return null;
-                }
-                var picture = pictures.first ().data;
-                if (picture != null) {
-                    try {
+                    if (cover != null) {
+                        cover_creating = false;
+                        return null;
+                    }
+                    if (pictures.length () == 0) {
+                        cover_creating = false;
+                        return null;
+                    }
+                    var picture = pictures.first ().data;
+                    if (picture != null) {
                         set_new_cover_from_picture (picture);
-                    } catch (Error err) {
-                        warning (err.message);
                     }
-                }
-                cover_creating = false;
-                return null;
-            });
+                    cover_creating = false;
+                    return null;
+                });
         }
 
         public void set_new_cover (Gdk.Pixbuf pixbuf) {
@@ -191,13 +192,15 @@ namespace ShowMyPictures.Objects {
 
         public void create_pictures_preview () {
             pictures_preview_creating = true;
-            new Thread<void*> ("create_pictures_preview", () => {
-                foreach (var picture in pictures) {
-                    picture.create_preview ();
-                }
-                pictures_preview_creating = false;
-                return null;
-            });
+            new Thread<void*> (
+                "create_pictures_preview",
+                () => {
+                    foreach (var picture in pictures) {
+                        picture.create_preview ();
+                    }
+                    pictures_preview_creating = false;
+                    return null;
+                });
         }
 
         public void create_default_title () {
@@ -205,7 +208,7 @@ namespace ShowMyPictures.Objects {
                 var date_time = new DateTime.local (year, month, day, 0, 0, 0);
                 title = date_time.format ("%e. %b, %Y");
             } else {
-                title = _("No Date");
+                title = _ ("No Date");
             }
         }
     }

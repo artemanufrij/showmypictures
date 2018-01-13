@@ -63,10 +63,10 @@ namespace ShowMyPictures.Services {
                             var symlink = File.new_for_path (target);
                             var file_type = symlink.query_file_type (0);
                             if (file_type == FileType.DIRECTORY) {
-                                scan_local_files (target);
+                                scan_local_files.begin (target);
                             }
                         } else if (file_info.get_file_type () == FileType.DIRECTORY) {
-                            scan_local_files (GLib.Path.build_filename (path, file_info.get_name ()));
+                            scan_local_files.begin (GLib.Path.build_filename (path, file_info.get_name ()));
                         } else {
                             string mime_type = file_info.get_content_type ();
                             bool valid_file = !file_info.get_is_hidden () && (mime_type.has_prefix ("image/png") || mime_type.has_prefix ("image/jpeg"));

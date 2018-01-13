@@ -79,6 +79,12 @@ namespace ShowMyPictures {
                     }
                 }
             });
+            library_manager.sync_started.connect (() => {
+                spinner.active = true;
+            });
+            library_manager.sync_finished.connect (() => {
+                spinner.active = false;
+            });
         }
 
         public MainWindow () {
@@ -101,9 +107,10 @@ namespace ShowMyPictures {
 
             load_content_from_database.begin ((obj, res) => {
                 if (settings.sync_files) {
-                    library_manager.sync_library_content.begin ();
+                    library_manager.sync_library_content_async.begin ();
                 } else {
-                    library_manager.scan_for_duplicates.begin ();
+                    library_manager.find_non_existent_items_async.begin ();
+                    library_manager.scan_for_duplicates_async.begin ();
                 }
             });
 
@@ -161,7 +168,7 @@ namespace ShowMyPictures {
 
             menu_item_resync = new Gtk.MenuItem.with_label (_("Resync Library"));
             menu_item_resync.activate.connect (() => {
-                library_manager.sync_library_content.begin ();
+                library_manager.sync_library_content_async.begin ();
             });
 
             var menu_item_preferences = new Gtk.MenuItem.with_label (_("Preferences"));

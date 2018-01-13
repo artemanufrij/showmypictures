@@ -36,9 +36,7 @@ namespace ShowMyPictures.Widgets.Views {
 
         construct {
             library_manager = Services.LibraryManager.instance;
-            library_manager.duplicates_found.connect ((hash_list) => {
-                add_duplicate (hash_list);
-            });
+            library_manager.duplicates_found.connect (add_duplicate);
         }
 
         public DuplicatesView () {
@@ -58,7 +56,10 @@ namespace ShowMyPictures.Widgets.Views {
         }
 
         public void reset () {
-            cancel_create_previews_async.begin ();
+            if (timer_preview != 0) {
+                cancel_create_previews_async.begin ();
+                cancel_preview_timer ();
+            }
             foreach (var item in duplicates.get_children ()) {
                 duplicates.remove (item);
                 item.destroy ();
@@ -66,50 +67,61 @@ namespace ShowMyPictures.Widgets.Views {
         }
 
         private void add_duplicate (GLib.List<string> hash_list) {
-            Idle.add (() => {
-                lock (duplicates) {
-                    foreach (var item in duplicates.get_children ()) {
-                        duplicates.remove (item);
-                        item.destroy ();
-                    }
-                    foreach (var hash in hash_list) {
-                        stdout.printf ("%s\n", hash);
-                        var row = new Widgets.DuplicateRow (hash);
-                        duplicates.pack_start (row);
+            Idle.add (
+                () => {
+                    lock (duplicates) {
+                        foreach (var item in duplicates.get_children ()) {
+                            duplicates.remove (item);
+                            item.destroy ();
+                        }
+                        foreach (var hash in hash_list) {
+                            stdout.printf ("%s\n", hash);
+                            var row = new Widgets.DuplicateRow (hash);
+                            duplicates.pack_start (row);
+                        }
                     }
                     create_previews.begin ();
-                }
-                return false;
-            });
+                    return false;
+                });
         }
 
         private async void create_previews () {
             lock (timer_preview) {
-                if (timer_preview != 0 ){
-                    Source.remove (timer_preview);
-                    timer_preview = 0;
-                }
-                timer_preview = Timeout.add (1000, () => {
-                    new Thread<void*> (null, () => {
-                        foreach (var item in duplicates.get_children ()) {
-                            var row = (item as Widgets.DuplicateRow);
-                            row.create_previews ();
-                            if (cance_preview) {
-                                cance_preview = false;
+                cancel_preview_timer ();
+                timer_preview = Timeout.add (
+                    1000,
+                    () => {
+                        new Thread<void*> (
+                            "duplicates_view_create_previews",
+                            () => {
+                                foreach (var item in duplicates.get_children ()) {
+                                    var row = (item as Widgets.DuplicateRow);
+                                    stdout.printf ("HASH %s %s\n", row.hash, cance_preview.to_string ());
+                                    row.create_previews ();
+                                    if (cance_preview) {
+                                        cance_preview = false;
+                                        return null;
+                                    }
+                                }
                                 return null;
-                            }
-                        }
-                        return null;
+                            });
+                        cancel_preview_timer ();
+                        return false;
                     });
-                    Source.remove (timer_preview);
-                    timer_preview = 0;
-                    return false;
-                });
             }
         }
 
         public async void cancel_create_previews_async () {
             cance_preview = true;
+        }
+
+        private void cancel_preview_timer () {
+            lock (timer_preview) {
+                if (timer_preview != 0 ) {
+                    Source.remove (timer_preview);
+                    timer_preview = 0;
+                }
+            }
         }
     }
 }

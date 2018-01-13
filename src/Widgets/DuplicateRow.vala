@@ -58,12 +58,13 @@ namespace ShowMyPictures.Widgets {
                         var pic = new Widgets.Picture (picture);
                         duplicates.add (pic);
                         duplicates.min_children_per_line = duplicates.get_children ().length ();
-                        picture.removed.connect (() =>{
-                                                     duplicates.remove (pic);
-                                                     if (duplicates.get_children ().length () < 2) {
-                                                         this.destroy ();
-                                                     }
-                                                 });
+                        picture.removed.connect (
+                            () => {
+                                duplicates.remove (pic);
+                                if (duplicates.get_children ().length () < 2) {
+                                    this.destroy ();
+                                }
+                            });
                     }
                 }
             }
