@@ -39,6 +39,13 @@ namespace ShowMyPictures.Objects {
                 _ID = value;
                 if (ID > 0) {
                     preview_path = GLib.Path.build_filename (ShowMyPicturesApp.instance.PREVIEW_FOLDER, ("picture_%d.png").printf (this.ID));
+                    if (_preview != null) {
+                        try {
+                            preview.save (preview_path, "png");
+                        } catch (Error err) {
+                            warning (err.message);
+                        }
+                    }
                 }
             }
         }
@@ -76,6 +83,9 @@ namespace ShowMyPictures.Objects {
         Gdk.Pixbuf ? _preview = null;
         public Gdk.Pixbuf ? preview {
             get {
+                if (_preview == null) {
+                    create_preview.begin ();
+                }
                 return _preview;
             } private set {
                 if (_preview != value) {
@@ -113,19 +123,10 @@ namespace ShowMyPictures.Objects {
             this.album = album;
         }
 
-        public async void create_preview_async () {
-            if (preview_creating) {
+        private async void create_preview () {
+            if (preview_creating || _preview != null) {
                 return;
             }
-            new Thread<void*> (
-                "picture_create_preview_async",
-                () => {
-                    create_preview ();
-                    return null;
-                });
-        }
-
-        public void create_preview () {
             preview_creating = true;
 
             if (preview != null) {
@@ -140,22 +141,30 @@ namespace ShowMyPictures.Objects {
                     warning (err.message);
                 }
             }
-            if (preview != null) {
-                preview_creating = false;
-                return;
+            if (preview == null && file_exists ()) {
+                create_preview_from_path (path);
             }
+            preview_creating = false;
+        }
+
+        private void create_preview_from_path (string source_path) {
             try {
-                var pixbuf = new Gdk.Pixbuf.from_file (path);
+                var pixbuf = new Gdk.Pixbuf.from_file_at_scale (source_path, -1, 256, true);
                 exclude_exif ();
-                pixbuf = pixbuf.rotate_simple (Utils.get_rotation (this));
-                pixbuf = Utils.align_and_scale_pixbuf_for_preview (pixbuf);
-                pixbuf.save (preview_path, "png");
+                var r = Utils.get_rotation (this);
+                if (r != Gdk.PixbufRotation.NONE) {
+                    pixbuf = pixbuf.rotate_simple (r);
+                }
+
+                if (preview_path != "") {
+                    pixbuf.save (preview_path, "png");
+                }
                 preview = pixbuf;
                 pixbuf.dispose ();
+                pixbuf = null;
             } catch (Error err) {
                 warning (err.message);
             }
-            preview_creating = false;
         }
 
         public void exclude_exiv () {
@@ -274,23 +283,49 @@ namespace ShowMyPictures.Objects {
 
         private void calculate_hash () {
             Checksum checksum = new Checksum (ChecksumType.MD5);
-            FileStream stream = FileStream.open (path, "r");
+
+            checksum.update (path.data, path.length);
+            var path_hash = checksum.get_string ();
+            var tmp_path = Path.build_filename (Environment.get_tmp_dir (), path_hash + "." + Utils.get_file_extention (path));
+
+            var source_file = File.new_for_path (path);
+            var dest_file = File.new_for_path (tmp_path);
+
+            try {
+                source_file.copy (dest_file, FileCopyFlags.OVERWRITE);
+            } catch (Error err) {
+                warning (err.message);
+                return;
+            }
+
+            checksum = new Checksum (ChecksumType.MD5);
+
+            FileStream stream = FileStream.open (tmp_path, "r");
             uint8 fbuf[100];
             size_t size;
             while ((size = stream.read (fbuf)) > 0) {
                 checksum.update (fbuf, size);
             }
             hash = checksum.get_string ();
+            new Thread<void*> (
+                "calculate_hash",
+                () => {
+                    create_preview_from_path (tmp_path);
+                    try {
+                        dest_file.delete ();
+                    } catch (Error err) {
+                        warning (err.message);
+                    }
+                    return null;
+                });
         }
 
         public bool file_exists () {
             bool return_value = true;
-            var file = File.new_for_path (this.path);
-            if (!file.query_exists ()) {
+            if (!GLib.FileUtils.test (path, GLib.FileTest.EXISTS)) {
                 file_not_found ();
                 return_value = false;
             }
-            file.dispose ();
             return return_value;
         }
     }

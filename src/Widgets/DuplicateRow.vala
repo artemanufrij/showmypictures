@@ -70,13 +70,6 @@ namespace ShowMyPictures.Widgets {
             }
         }
 
-        public void create_previews () {
-            foreach (var picture in duplicates.get_children ()) {
-                var pic = (picture as Widgets.Picture).picture;
-                pic.create_preview ();
-            }
-        }
-
         private int pictures_sort_func (Gtk.FlowBoxChild child1, Gtk.FlowBoxChild child2) {
             var item1 = (Widgets.Picture)child1;
             var item2 = (Widgets.Picture)child2;

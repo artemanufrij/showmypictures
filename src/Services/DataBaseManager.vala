@@ -39,7 +39,6 @@ namespace ShowMyPictures.Services {
 
         public signal void added_new_album (Objects.Album album);
         public signal void removed_album (Objects.Album album);
-        public signal void added_new_picture (Objects.Picture picture);
 
         GLib.List<Objects.Album> _albums = null;
         public GLib.List<Objects.Album> albums {
@@ -321,7 +320,6 @@ namespace ShowMyPictures.Services {
             if (stmt.step () == Sqlite.ROW) {
                 picture.ID = stmt.column_int (0);
                 stdout.printf ("Picture ID: %d - %s\n", picture.ID, picture.album.title);
-                //added_new_picture (picture);
             } else {
                 warning ("Error: %d: %s", db.errcode (), db.errmsg ());
             }
@@ -349,7 +347,7 @@ namespace ShowMyPictures.Services {
 
 // UTILITIES REGION
         public bool picture_file_exists (string path) {
-            bool file_exists = false;
+            bool return_value = false;
             Sqlite.Statement stmt;
 
             string sql = """
@@ -360,13 +358,33 @@ namespace ShowMyPictures.Services {
             set_parameter_str (stmt, sql, "$PATH", path);
 
             if (stmt.step () == Sqlite.ROW) {
-                file_exists = stmt.column_int (0) > 0;
+                return_value = stmt.column_int (0) > 0;
             } else {
                 warning ("Error: %d: %s", db.errcode (), db.errmsg ());
             }
             stmt.reset ();
 
-            return file_exists;
+            return return_value;
+        }
+
+        public GLib.List<string> get_hash_duplicates () {
+            GLib.List<string> return_value = new GLib.List<string> ();
+            Sqlite.Statement stmt;
+
+            string sql = """
+                SELECT hash FROM pictures
+                GROUP BY hash HAVING COUNT (hash) > 1
+                ORDER BY MIN (path);
+            """;
+
+            db.prepare_v2 (sql, sql.length, out stmt);
+
+            while (stmt.step () == Sqlite.ROW) {
+                return_value.append (stmt.column_text (0));
+            }
+            stmt.reset ();
+
+            return return_value;
         }
 
 // PARAMENTER REGION

@@ -55,6 +55,7 @@ namespace ShowMyPictures.Widgets {
                 () => {
                     Idle.add (
                         () => {
+                            //this.parent.remove (this);
                             this.destroy ();
                             return false;
                         });
@@ -69,6 +70,7 @@ namespace ShowMyPictures.Widgets {
             spinner = new Gtk.Spinner ();
 
             var content = new Gtk.Grid ();
+            content.halign = Gtk.Align.CENTER;
             event_box.add (content);
 
             preview = new Gtk.Image ();

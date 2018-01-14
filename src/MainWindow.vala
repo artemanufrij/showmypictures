@@ -82,9 +82,13 @@ namespace ShowMyPictures {
             });
             library_manager.sync_started.connect (() => {
                 spinner.active = true;
+                menu_item_resync.sensitive = false;
+                menu_item_reset.sensitive = false;
             });
             library_manager.sync_finished.connect (() => {
                 spinner.active = false;
+                menu_item_resync.sensitive = true;
+                menu_item_reset.sensitive = true;
             });
         }
 
@@ -112,6 +116,7 @@ namespace ShowMyPictures {
                 } else if (library_manager.albums.length () > 0) {
                     library_manager.find_non_existent_items_async.begin ();
                     library_manager.scan_for_duplicates_async.begin ();
+                    library_manager.sync_started ();
                 }
             });
 
@@ -124,7 +129,6 @@ namespace ShowMyPictures {
                 return false;
             });
             this.delete_event.connect (() => {
-                duplicates_view.cancel_create_previews_async.begin ();
                 save_settings ();
                 return false;
             });
@@ -259,11 +263,19 @@ namespace ShowMyPictures {
             });
 
             duplicates_view = new Widgets.Views.DuplicatesView ();
+            duplicates_view.counter_changed.connect ((counter) => {
+                if (counter == 0) {
+                    back_action ();
+                }
+                navigation.set_duplicates_counter (counter);
+            });
 
             not_found_view = new Widgets.Views.NotFoundView ();
-            not_found_view.items_cleared.connect ( () => {
-                back_action ();
-                navigation.hide_not_found_item ();
+            not_found_view.counter_changed.connect ((counter) => {
+                if (counter == 0) {
+                    back_action ();
+                }
+                navigation.set_not_found_counter (counter);
             });
 
             content.add_named (welcome, "welcome");
@@ -292,7 +304,7 @@ namespace ShowMyPictures {
                 show_not_found ();
             });
             navigation.remove_all_not_found_items.connect (() => {
-                not_found_view.remove_all ();
+                not_found_view.remove_all.begin ();
             });
             grid.attach (navigation, 0, 0);
 

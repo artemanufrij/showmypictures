@@ -52,9 +52,14 @@ namespace ShowMyPictures.Widgets.Views {
 
         construct {
             library_manager = ShowMyPictures.Services.LibraryManager.instance;
-            library_manager.added_new_album.connect ((album) => {
-                add_album (album);
-            });
+            library_manager.added_new_album.connect (
+                (album) => {
+                    Idle.add (
+                        () => {
+                            add_album (album);
+                            return false;
+                        });
+                });
         }
 
         public AlbumsView () {
@@ -70,9 +75,10 @@ namespace ShowMyPictures.Widgets.Views {
             albums.max_children_per_line = 99;
             albums.row_spacing = 24;
             albums.column_spacing = 24;
-            albums.child_activated.connect ((child) => {
-                album_selected ((child as Widgets.Album).album);
-            });
+            albums.child_activated.connect (
+                (child) => {
+                    album_selected ((child as Widgets.Album).album);
+                });
 
             var scroll = new Gtk.ScrolledWindow (null, null);
             scroll.expand = true;
@@ -82,14 +88,11 @@ namespace ShowMyPictures.Widgets.Views {
         }
 
         public void add_album (Objects.Album album) {
-            Idle.add (() => {
-                var a = new Widgets.Album (album);
-                lock (albums) {
-                    albums.add (a);
-                }
-                do_sort ();
-                return false;
-            });
+            var a = new Widgets.Album (album);
+            lock (albums) {
+                albums.add (a);
+            }
+            do_sort ();
         }
 
         public void reset () {
@@ -105,13 +108,15 @@ namespace ShowMyPictures.Widgets.Views {
                     timer_sort = 0;
                 }
 
-                timer_sort = Timeout.add (500, () => {
-                    albums.set_sort_func (albums_sort_func);
-                    albums.set_sort_func (null);
-                    Source.remove (timer_sort);
-                    timer_sort = 0;
-                    return false;
-                });
+                timer_sort = Timeout.add (
+                    500,
+                    () => {
+                        albums.set_sort_func (albums_sort_func);
+                        albums.set_sort_func (null);
+                        Source.remove (timer_sort);
+                        timer_sort = 0;
+                        return false;
+                    });
             }
         }
 

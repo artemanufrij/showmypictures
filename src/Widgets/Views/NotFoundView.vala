@@ -29,12 +29,9 @@ namespace ShowMyPictures.Widgets.Views {
     public class NotFoundView : Gtk.Grid {
         Services.LibraryManager library_manager;
 
-        public signal void items_cleared ();
+        public signal void counter_changed (uint new_count);
 
         Gtk.FlowBox pictures;
-
-        uint timer_preview = 0;
-        bool cance_preview = false;
 
         construct {
             library_manager = Services.LibraryManager.instance;
@@ -52,11 +49,9 @@ namespace ShowMyPictures.Widgets.Views {
             pictures.row_spacing = 12;
             pictures.column_spacing = 12;
             pictures.valign = Gtk.Align.START;
-            pictures.remove.connect (
+            pictures.remove.connect_after (
                 () => {
-                    if (pictures.get_children ().length () == 0) {
-                        items_cleared ();
-                    }
+                    counter_changed (pictures.get_children ().length ());
                 });
 
             var scroll = new Gtk.ScrolledWindow (null, null);
@@ -71,60 +66,16 @@ namespace ShowMyPictures.Widgets.Views {
             Idle.add (
                 () => {
                     var item = new Widgets.Picture (picture);
-                    this.pictures.add (item);
-                    create_previews.begin ();
+                    pictures.add (item);
+                    counter_changed (pictures.get_children ().length ());
                     return false;
                 });
         }
 
-        public void remove_all () {
-            cancel_create_previews_async.begin ();
-            new Thread<void*> (
-                "not_found_view_remove_all",
-                () => {
-                    foreach (var child in pictures.get_children ()) {
-                        var picture = (child as Widgets.Picture).picture;
-                        library_manager.db_manager.remove_picture (picture);
-                    }
-                    return null;
-                });
-        }
-
-        private async void create_previews () {
-            lock (timer_preview) {
-                        cancel_preview_timer ();
-                timer_preview = Timeout.add (
-                    1000,
-                    () => {
-                        new Thread<void*> (
-                            "not_found_view_create_previews",
-                            () => {
-                                foreach (var child in pictures.get_children ()) {
-                                    var picture = (child as Widgets.Picture).picture;
-                                    picture.create_preview ();
-                                    if (cance_preview) {
-                                        cance_preview = false;
-                                        return null;
-                                    }
-                                }
-                                return null;
-                            });
-                        cancel_preview_timer ();
-                        return false;
-                    });
-            }
-        }
-
-        public async void cancel_create_previews_async () {
-            cance_preview = true;
-        }
-
-        private void cancel_preview_timer () {
-            lock (timer_preview) {
-                if (timer_preview != 0 ) {
-                    Source.remove (timer_preview);
-                    timer_preview = 0;
-                }
+        public async void remove_all () {
+            foreach (var child in pictures.get_children ()) {
+                var picture = (child as Widgets.Picture).picture;
+                library_manager.db_manager.remove_picture (picture);
             }
         }
     }

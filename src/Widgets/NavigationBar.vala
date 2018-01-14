@@ -45,19 +45,6 @@ namespace ShowMyPictures.Widgets {
         construct {
             library_manager = ShowMyPictures.Services.LibraryManager.instance;
             library_manager.added_new_album.connect (add_album);
-            library_manager.duplicates_found.connect (
-                (hash_list) => {
-                    if (!duplicates_item.visible) {
-                        duplicates_item.visible = true;
-                        duplicates_item.badge = hash_list.length ().to_string ();
-                        extras_entry.expanded = true;
-                    }
-                });
-            library_manager.picture_not_found.connect (
-                () => {
-                    not_found_item.visible = true;
-                    extras_entry.expanded = true;
-                });
         }
 
         public NavigationBar () {
@@ -101,7 +88,7 @@ namespace ShowMyPictures.Widgets {
             not_found_item.icon = new ThemedIcon ("dialog-error-symbolic");
             not_found_item.visible = false;
             not_found_item.remove_all_not_found_items.connect (
-                () =>{
+                () => {
                     remove_all_not_found_items ();
                 });
             extras_entry.add (not_found_item);
@@ -117,6 +104,7 @@ namespace ShowMyPictures.Widgets {
                     if (!events_entry.expanded) {
                         date_selected (0, 0);
                         events_entry.expanded = true;
+                        folders.selected = null;
                     }
                 });
             folders.root.add (events_entry);
@@ -168,8 +156,26 @@ namespace ShowMyPictures.Widgets {
             return new_child;
         }
 
-        public void hide_not_found_item () {
-            not_found_item.visible = false;
+        public void set_not_found_counter (uint counter) {
+            if (counter > 0) {
+                not_found_item.badge = counter.to_string ();
+                not_found_item.visible = true;
+                extras_entry.expanded = true;
+            } else {
+                not_found_item.badge = "";
+                not_found_item.visible = false;
+            }
+        }
+
+        public void set_duplicates_counter (uint counter) {
+            if (counter > 0) {
+                duplicates_item.badge = counter.to_string ();
+                duplicates_item.visible = true;
+                extras_entry.expanded = true;
+            } else {
+                duplicates_item.badge = "";
+                duplicates_item.visible = false;
+            }
         }
     }
 }

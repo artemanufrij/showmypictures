@@ -58,7 +58,6 @@ namespace ShowMyPictures.Services {
         int insert_queue = 0;
 
         uint duplicates_timer = 0;
-        GLib.List<string> hash_list = null;
         GLib.List<string> duplicates = null;
 
         construct {
@@ -74,13 +73,10 @@ namespace ShowMyPictures.Services {
         }
 
         private LibraryManager () {
-            sync_started.connect (
-                () => {
-                    reset_duplicate_timer ();
-                });
         }
 
         public async void sync_library_content_async () {
+            sync_started ();
             new Thread <void*> (
                 "sync_library_content",
                 () => {
@@ -92,6 +88,7 @@ namespace ShowMyPictures.Services {
 
         public void found_local_image_file (string path, string mime_type) {
             if (!db_manager.picture_file_exists (path)) {
+                reset_duplicate_timer ();
                 insert_queue++;
                 insert_picture_file (path, mime_type);
                 insert_queue--;
@@ -120,11 +117,15 @@ namespace ShowMyPictures.Services {
         }
 
         public async void find_non_existent_items_async () {
-            find_non_existent_items ();
+            new Thread<void*> (
+                "find_non_existent_items_async",
+                () => {
+                    find_non_existent_items ();
+                    return null;
+                });
         }
 
         private void find_non_existent_items () {
-            sync_started ();
             foreach (var album in albums) {
                 foreach (var picture in album.pictures) {
                     if (!picture.file_exists ()) {
@@ -138,28 +139,14 @@ namespace ShowMyPictures.Services {
             lock (duplicates_timer) {
                 reset_duplicate_timer ();
 
-                if (hash_list != null) {
-                    return;
-                }
-
                 duplicates_timer = Timeout.add (
                     3000,
                     () => {
-                        hash_list = new GLib.List<string>();
-                        duplicates = new GLib.List<string> ();
-                        foreach (var album in albums) {
-                            foreach (var picture in album.pictures) {
-                                string hash = picture.hash;
-                                if (check_hash (hash)) {
-                                    duplicates.append (hash);
-                                }
-                            }
-                        }
+                        duplicates = db_manager.get_hash_duplicates ();
                         if (duplicates.length () > 0) {
                             duplicates_found (duplicates);
                         }
                         reset_duplicate_timer ();
-                        hash_list = null;
                         sync_finished ();
                         return false;
                     });
@@ -173,23 +160,6 @@ namespace ShowMyPictures.Services {
                     duplicates_timer = 0;
                 }
             }
-        }
-
-        private bool check_hash (string hash) {
-            bool return_value = false;
-            lock (hash_list) {
-                hash_list.foreach (
-                    (item) => {
-                        if (item == hash) {
-                            return_value = true;
-                            return;
-                        }
-                    }) ;
-                if (!return_value) {
-                    hash_list.append (hash);
-                }
-            }
-            return return_value;
         }
 
         public void reset_library () {

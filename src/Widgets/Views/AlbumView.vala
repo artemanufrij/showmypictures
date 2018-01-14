@@ -75,7 +75,7 @@ namespace ShowMyPictures.Widgets.Views {
             }
 
             if (current_album != null) {
-                current_album.picture_added.disconnect (add_picture_from_signal);
+                current_album.picture_added.disconnect (add_picture);
                 current_album.removed.disconnect (album_removed);
             }
             current_album = album;
@@ -84,9 +84,8 @@ namespace ShowMyPictures.Widgets.Views {
             foreach (var picture in current_album.pictures) {
                 add_picture (picture);
             }
-            current_album.picture_added.connect (add_picture_from_signal);
+            current_album.picture_added.connect (add_picture);
             current_album.removed.disconnect (album_removed);
-            current_album.create_pictures_preview ();
         }
 
         public void reset () {
@@ -95,20 +94,13 @@ namespace ShowMyPictures.Widgets.Views {
             }
         }
 
-        private void add_picture_from_signal (Objects.Picture picture) {
-            add_picture (picture, true);
-        }
-
-        private void add_picture (Objects.Picture picture, bool from_signal = false) {
+        private void add_picture (Objects.Picture picture) {
             if (!picture.file_exists ()) {
                 return;
             }
             Idle.add (() => {
                 var item = new Widgets.Picture (picture);
                 this.pictures.add (item);
-                if (from_signal) {
-                    picture.create_preview_async.begin ();
-                }
                 do_sort ();
                 return false;
             });

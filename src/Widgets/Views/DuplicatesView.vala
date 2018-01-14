@@ -29,10 +29,9 @@ namespace ShowMyPictures.Widgets.Views {
     public class DuplicatesView : Gtk.Grid {
         Services.LibraryManager library_manager;
 
-        Gtk.Box duplicates;
+        public signal void counter_changed (uint new_count);
 
-        uint timer_preview = 0;
-        bool cance_preview = false;
+        Gtk.Box duplicates;
 
         construct {
             library_manager = Services.LibraryManager.instance;
@@ -46,6 +45,10 @@ namespace ShowMyPictures.Widgets.Views {
         private void build_ui () {
             duplicates = new Gtk.Box (Gtk.Orientation.VERTICAL, 12);
             duplicates.margin = 24;
+            duplicates.remove.connect_after (
+                () => {
+                    counter_changed (duplicates.get_children ().length ());
+                });
 
             var scroll = new Gtk.ScrolledWindow (null, null);
             scroll.expand = true;
@@ -56,10 +59,6 @@ namespace ShowMyPictures.Widgets.Views {
         }
 
         public void reset () {
-            if (timer_preview != 0) {
-                cancel_create_previews_async.begin ();
-                cancel_preview_timer ();
-            }
             foreach (var item in duplicates.get_children ()) {
                 duplicates.remove (item);
                 item.destroy ();
@@ -75,52 +74,13 @@ namespace ShowMyPictures.Widgets.Views {
                             item.destroy ();
                         }
                         foreach (var hash in hash_list) {
-                            stdout.printf ("%s\n", hash);
                             var row = new Widgets.DuplicateRow (hash);
                             duplicates.pack_start (row);
                         }
                     }
-                    create_previews.begin ();
+                    counter_changed (hash_list.length ());
                     return false;
                 });
-        }
-
-        private async void create_previews () {
-            lock (timer_preview) {
-                cancel_preview_timer ();
-                timer_preview = Timeout.add (
-                    1000,
-                    () => {
-                        new Thread<void*> (
-                            "duplicates_view_create_previews",
-                            () => {
-                                foreach (var item in duplicates.get_children ()) {
-                                    var row = (item as Widgets.DuplicateRow);
-                                    row.create_previews ();
-                                    if (cance_preview) {
-                                        cance_preview = false;
-                                        return null;
-                                    }
-                                }
-                                return null;
-                            });
-                        cancel_preview_timer ();
-                        return false;
-                    });
-            }
-        }
-
-        public async void cancel_create_previews_async () {
-            cance_preview = true;
-        }
-
-        private void cancel_preview_timer () {
-            lock (timer_preview) {
-                if (timer_preview != 0 ) {
-                    Source.remove (timer_preview);
-                    timer_preview = 0;
-                }
-            }
         }
     }
 }

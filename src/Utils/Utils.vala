@@ -30,4 +30,12 @@ namespace ShowMyPictures.Utils {
         var date_time = new DateTime.local (1, month, 1, 0, 0, 0);
         return date_time.format ("%B");
     }
+
+    public static string get_file_extention (string path) {
+        var split = path.split (".");
+        if (split.length > 0) {
+            return split [split.length - 1];
+        }
+        return "";
+    }
 }

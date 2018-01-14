@@ -203,19 +203,6 @@ namespace ShowMyPictures.Objects {
             }
         }
 
-        public void create_pictures_preview () {
-            pictures_preview_creating = true;
-            new Thread<void*> (
-                "create_pictures_preview",
-                () => {
-                    foreach (var picture in pictures) {
-                        picture.create_preview ();
-                    }
-                    pictures_preview_creating = false;
-                    return null;
-                });
-        }
-
         public void create_default_title () {
             if (year > 0 && month > 0 && day > 0) {
                 var date_time = new DateTime.local (year, month, day, 0, 0, 0);
