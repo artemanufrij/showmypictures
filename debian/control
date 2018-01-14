@@ -8,7 +8,7 @@ Build-Depends: cmake (>= 2.8),
                libgranite-dev,
                libsqlite3-dev,
                libexif-dev,
-               libexiv2-dev,
+               libgexiv2-dev,
                valac (>= 0.26)
 Standards-Version: 3.9.3
 

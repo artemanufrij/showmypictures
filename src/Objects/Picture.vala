@@ -154,6 +154,7 @@ namespace ShowMyPictures.Objects {
                 var r = Utils.get_rotation (this);
                 if (r != Gdk.PixbufRotation.NONE) {
                     pixbuf = pixbuf.rotate_simple (r);
+                    pixbuf = Utils.align_and_scale_pixbuf_for_preview (pixbuf);
                 }
 
                 if (preview_path != "") {

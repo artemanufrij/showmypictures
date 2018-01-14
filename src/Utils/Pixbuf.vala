@@ -26,45 +26,44 @@
  */
 
 namespace ShowMyPictures.Utils {
-    public static Gdk.Pixbuf? align_and_scale_pixbuf_for_preview (Gdk.Pixbuf p) {
-        Gdk.Pixbuf? pixbuf = p;
-
+    public static Gdk.Pixbuf ? align_and_scale_pixbuf_for_preview (Gdk.Pixbuf p) {
         int dest_height = 256;
         int dest_width = 0;
 
-        int height = pixbuf.height;
-        int width = pixbuf.width;
+        int height = p.height;
+        int width = p.width;
 
         dest_width = (int)(width * ((double)dest_height / height));
-        pixbuf = pixbuf.scale_simple (dest_width, dest_height, Gdk.InterpType.BILINEAR);
-        return pixbuf;
+
+        return p.scale_simple (dest_width, dest_height, Gdk.InterpType.BILINEAR);
     }
 
-    public Gdk.Pixbuf? align_and_scale_pixbuf_for_cover (Gdk.Pixbuf p) {
-        Gdk.Pixbuf? pixbuf = p;
-        if (pixbuf.width != pixbuf.height) {
-            if (pixbuf.width > pixbuf.height) {
-                int dif = (pixbuf.width - pixbuf.height) / 2;
-                pixbuf = new Gdk.Pixbuf.subpixbuf (pixbuf, dif, 0, pixbuf.height, pixbuf.height);
+    public Gdk.Pixbuf ? align_and_scale_pixbuf_for_cover (Gdk.Pixbuf p) {
+        Gdk.Pixbuf pixbuf;
+        if (p.width != p.height) {
+            if (p.width > p.height) {
+                int dif = (p.width - p.height) / 2;
+                pixbuf = new Gdk.Pixbuf.subpixbuf (p, dif, 0, p.height, p.height);
             } else {
-                int dif = (pixbuf.height - pixbuf.width) / 2;
-                pixbuf = new Gdk.Pixbuf.subpixbuf (pixbuf, 0, dif, pixbuf.width, pixbuf.width);
+                int dif = (p.height - p.width) / 2;
+                pixbuf = new Gdk.Pixbuf.subpixbuf (p, 0, dif, p.width, p.width);
             }
+            return pixbuf.scale_simple (240, 240, Gdk.InterpType.BILINEAR);
+        } else {
+            return p.scale_simple (240, 240, Gdk.InterpType.BILINEAR);
         }
-        pixbuf = pixbuf.scale_simple (240, 240, Gdk.InterpType.BILINEAR);
-        return pixbuf;
     }
 
     public static Gdk.PixbufRotation get_rotation (Objects.Picture picture) {
         switch (picture.rotation) {
-            case 3: //180
-                return Gdk.PixbufRotation.UPSIDEDOWN;
-            case 6: //270
-                return Gdk.PixbufRotation.CLOCKWISE;
-            case 8: //90
-                return Gdk.PixbufRotation.COUNTERCLOCKWISE;
-            default:
-                return Gdk.PixbufRotation.NONE;
+        case 3 :        //180
+            return Gdk.PixbufRotation.UPSIDEDOWN;
+        case 6 :        //270
+            return Gdk.PixbufRotation.CLOCKWISE;
+        case 8 :        //90
+            return Gdk.PixbufRotation.COUNTERCLOCKWISE;
+        default :
+            return Gdk.PixbufRotation.NONE;
         }
     }
 }
