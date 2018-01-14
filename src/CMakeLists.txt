@@ -32,7 +32,7 @@ PACKAGES
     gtk+-3.0
     sqlite3
     libexif
-    gexiv2
+#    gexiv2
 OPTIONS
     --vapidir=${CMAKE_SOURCE_DIR}/vapi
     --target-glib=2.32

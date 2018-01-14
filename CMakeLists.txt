@@ -21,7 +21,7 @@ pkg_check_modules (DEPS REQUIRED
     granite
     sqlite3
     libexif
-    exiv2
+ #   exiv2
 )
 
 # Comment this out to enable C compiler warnings

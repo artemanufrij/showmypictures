@@ -98,7 +98,6 @@ namespace ShowMyPictures.Objects {
         }
 
         public Exif.Data ? exif_data { get; private set; default = null; }
-        GExiv2.Metadata ? exiv_data { get; private set; default = null; }
 
         bool preview_creating = false;
         bool exif_excluded = false;

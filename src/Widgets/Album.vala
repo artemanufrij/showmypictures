@@ -41,6 +41,7 @@ namespace ShowMyPictures.Widgets {
 
         public Album (Objects.Album album) {
             this.album = album;
+            this.draw.connect (first_draw);
             build_ui ();
             this.album.notify["title"].connect (() => {
                 title.label = this.album.title;
@@ -65,6 +66,19 @@ namespace ShowMyPictures.Widgets {
             });
         }
 
+        private bool first_draw () {
+            this.draw.disconnect (first_draw);
+            if (album.cover != null) {
+                cover.pixbuf = album.cover;
+            } else {
+                cover.set_from_icon_name ("image-x-generic-symbolic", Gtk.IconSize.DIALOG);
+                cover.height_request = 240;
+                cover.width_request = 240;
+            }
+            counter.label = _("%u Pictures").printf (album.pictures.length ());
+            return false;
+        }
+
         private void build_ui () {
             var event_box = new Gtk.EventBox ();
             event_box.button_press_event.connect (show_context_menu);
@@ -82,7 +96,7 @@ namespace ShowMyPictures.Widgets {
 
             title = new Gtk.Label (album.title);
             title.get_style_context ().add_class ("h3");
-            counter = new Gtk.Label (_("%u Pictures").printf (album.pictures.length ()));
+            counter = new Gtk.Label ("");
             counter.margin_bottom = 6;
 
             menu = new Gtk.Menu ();
@@ -99,14 +113,6 @@ namespace ShowMyPictures.Widgets {
 
             this.add (event_box);
             this.show_all ();
-
-            if (album.cover != null) {
-                cover.pixbuf = album.cover;
-            } else {
-                cover.set_from_icon_name ("image-x-generic-symbolic", Gtk.IconSize.DIALOG);
-                cover.height_request = 240;
-                cover.width_request = 240;
-            }
         }
 
         private bool show_context_menu (Gtk.Widget sender, Gdk.EventButton evt) {

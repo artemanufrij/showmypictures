@@ -34,7 +34,6 @@ namespace ShowMyPictures.Widgets {
         Gtk.Image preview;
         Gtk.Menu menu;
         Gtk.Menu open_with;
-        Gtk.Spinner spinner;
 
         construct {
             library_manager = ShowMyPictures.Services.LibraryManager.instance;
@@ -42,6 +41,7 @@ namespace ShowMyPictures.Widgets {
 
         public Picture (Objects.Picture picture) {
             this.picture = picture;
+            this.draw.connect (first_draw);
             build_ui ();
             this.picture.preview_created.connect (
                 () => {
@@ -55,19 +55,26 @@ namespace ShowMyPictures.Widgets {
                 () => {
                     Idle.add (
                         () => {
-                            //this.parent.remove (this);
                             this.destroy ();
                             return false;
                         });
                 });
         }
 
+        private bool first_draw () {
+            this.draw.disconnect (first_draw);
+            if (picture.preview != null) {
+                preview.pixbuf = picture.preview;
+            } else {
+                preview.set_from_icon_name ("image-x-generic-symbolic", Gtk.IconSize.DIALOG);
+            }
+            return false;
+        }
+
         private void build_ui () {
             this.tooltip_text = picture.path;
             var event_box = new Gtk.EventBox ();
             event_box.button_press_event.connect (show_context_menu);
-
-            spinner = new Gtk.Spinner ();
 
             var content = new Gtk.Grid ();
             content.halign = Gtk.Align.CENTER;
@@ -104,7 +111,7 @@ namespace ShowMyPictures.Widgets {
                     try {
                         Process.spawn_command_line_async ("xdg-open '%s'".printf (folder));
                     } catch (Error err) {
-                        warning (err.message);
+                                warning (err.message);
                     }
                 });
 
@@ -117,12 +124,6 @@ namespace ShowMyPictures.Widgets {
 
             this.add (event_box);
             this.show_all ();
-
-            if (picture.preview != null) {
-                preview.pixbuf = picture.preview;
-            } else {
-                preview.set_from_icon_name ("image-x-generic-symbolic", Gtk.IconSize.DIALOG);
-            }
         }
 
         private bool show_context_menu (Gtk.Widget sender, Gdk.EventButton evt) {
