@@ -439,7 +439,7 @@ namespace ShowMyPictures {
         }
 
         public void forward_action () {
-            if (content.visible_child_name == "album" && picture_view.current_picture != null) {
+            if (content.visible_child_name == "album" && picture_view.current_picture != null && picture_view.current_picture.album == album_view.current_album) {
                 show_picture ();
             } else if (content.visible_child_name == "albums" && album_view.current_album != null) {
                 show_album ();
