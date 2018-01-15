@@ -8,7 +8,7 @@
     <img src="https://appcenter.elementary.io/badge.svg" alt="Get it on AppCenter">
   </a>
   <p align="center">
-    <img src="Screenshot.png"/>
+    <img src="screenshots/Screenshot.png"/>
   </p>
 </p>
 
