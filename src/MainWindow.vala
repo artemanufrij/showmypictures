@@ -121,6 +121,10 @@ namespace ShowMyPictures {
             });
 
             this.configure_event.connect ((event) => {
+                if (settings.window_width == event.width || settings.window_height == event.height) {
+                    return false;
+                }
+
                 settings.window_width = event.width;
                 settings.window_height = event.height;
                 if (content.visible_child_name == "picture") {

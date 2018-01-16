@@ -72,8 +72,6 @@ namespace ShowMyPictures.Widgets {
                 cover.pixbuf = album.cover;
             } else {
                 cover.set_from_icon_name ("image-x-generic-symbolic", Gtk.IconSize.DIALOG);
-                cover.height_request = 240;
-                cover.width_request = 240;
             }
             counter.label = _("%u Pictures").printf (album.pictures.length ());
             return false;
@@ -93,6 +91,8 @@ namespace ShowMyPictures.Widgets {
 
             cover = new Gtk.Image ();
             cover.margin = 6;
+            cover.height_request = 240;
+            cover.width_request = 240;
 
             title = new Gtk.Label (album.title);
             title.get_style_context ().add_class ("h3");

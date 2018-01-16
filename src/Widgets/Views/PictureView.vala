@@ -36,11 +36,12 @@ namespace ShowMyPictures.Widgets.Views {
 
         Gdk.Pixbuf current_pixbuf = null;
 
-        Gtk.Image image;
         Gtk.ScrolledWindow scroll;
+        Gtk.DrawingArea drawing_area;
         Gtk.Menu menu;
 
         double zoom = 1;
+        double optimal_zoom = 1;
 
         int current_width = 1;
         int current_height = 1;
@@ -96,38 +97,56 @@ namespace ShowMyPictures.Widgets.Views {
 
             scroll = new Gtk.ScrolledWindow (null, null);
             scroll.expand = true;
-            scroll.scroll_event.connect ((key_event) => {
-                if (Gdk.ModifierType.CONTROL_MASK in key_event.state) {
-                    if (key_event.delta_y < 0) {
-                        zoom_in ();
-                    } else {
-                        zoom_out ();
+            scroll.scroll_event.connect (
+                (key_event) => {
+                    if (Gdk.ModifierType.CONTROL_MASK in key_event.state) {
+                        if (key_event.delta_y < 0) {
+                            zoom_in ();
+                        } else {
+                            zoom_out ();
+                        }
+                        return true;
                     }
-                    return true;
-                }
-                return false;
-            });
+                    return false;
+                });
+
+            drawing_area = new Gtk.DrawingArea ();
+            drawing_area.halign = Gtk.Align.CENTER;
+            drawing_area.valign = Gtk.Align.CENTER;
+            drawing_area.draw.connect (on_draw);
+            scroll.add (drawing_area);
             event_box.add (scroll);
 
-            image = new Gtk.Image ();
-            image.get_style_context ().add_class ("card");
-            scroll.add (image);
-
             menu = new Gtk.Menu ();
-            var menu_new_cover = new Gtk.MenuItem.with_label (_("Set as Album picture"));
-            menu_new_cover.activate.connect (() => {
-                current_picture.album.set_new_cover_from_picture (current_picture);
-                ShowMyPicturesApp.instance.mainwindow.send_app_notification (_("Album cover changed"));
-            });
-            var menu_move_into_trash = new Gtk.MenuItem.with_label (_("Move into Trash"));
-            menu_move_into_trash.activate.connect (() => {
-                library_manager.db_manager.remove_picture (current_picture);
-            });
+            var menu_new_cover = new Gtk.MenuItem.with_label (_ ("Set as Album picture"));
+            menu_new_cover.activate.connect (
+                () => {
+                    current_picture.album.set_new_cover_from_picture (current_picture);
+                    ShowMyPicturesApp.instance.mainwindow.send_app_notification (_ ("Album cover changed"));
+                });
+            var menu_move_into_trash = new Gtk.MenuItem.with_label (_ ("Move into Trash"));
+            menu_move_into_trash.activate.connect (
+                () => {
+                    library_manager.db_manager.remove_picture (current_picture);
+                });
             menu.add (menu_new_cover);
             menu.add (menu_move_into_trash);
             menu.show_all ();
 
             this.add (event_box);
+        }
+
+        public bool on_draw (Cairo.Context cr) {
+            stdout.printf ("draw\n");
+            if (current_picture == null) {
+                return true;
+            }
+
+            cr.scale (zoom, zoom);
+            Gdk.cairo_set_source_pixbuf (cr, current_pixbuf, 0, 0);
+            cr.paint ();
+
+            return true;
         }
 
         public void show_picture (Objects.Picture picture) {
@@ -155,7 +174,6 @@ namespace ShowMyPictures.Widgets.Views {
 
         public void reset () {
             current_picture = null;
-            image.pixbuf = null;
             this.tooltip_text = "";
         }
 
@@ -176,6 +194,8 @@ namespace ShowMyPictures.Widgets.Views {
                 zoom = (double)current_height / (double)current_pixbuf.height;
             }
 
+            optimal_zoom = zoom;
+
             if (zoom > 1) {
                 zoom = 1;
             } else if (zoom < 0.1) {
@@ -185,17 +205,27 @@ namespace ShowMyPictures.Widgets.Views {
         }
 
         public void zoom_in () {
-            if (zoom < 1) {
-                zoom += 0.1;
-                do_zoom ();
+            if (zoom == 1) {
+                return;
             }
+
+            zoom += 0.1;
+            if (zoom > 1) {
+                zoom = 1;
+            }
+            do_zoom ();
         }
 
         public void zoom_out () {
-            if (zoom >= 0.2) {
-                zoom -= 0.1;
-                do_zoom ();
+            if ( zoom == optimal_zoom) {
+                return;
             }
+
+            zoom -= 0.1;
+            if (zoom < optimal_zoom) {
+                zoom = optimal_zoom;
+            }
+            do_zoom ();
         }
 
         private void do_zoom () {
@@ -204,12 +234,31 @@ namespace ShowMyPictures.Widgets.Views {
                 zoom_timer = 0;
             }
 
-            zoom_timer = Timeout.add (100, () => {
-                image.pixbuf = current_pixbuf.scale_simple ((int)(current_pixbuf.width * zoom), (int)(current_pixbuf.height * zoom), Gdk.InterpType.BILINEAR);
-                Source.remove (zoom_timer);
-                zoom_timer = 0;
-                return false;
-            });
+            zoom_timer = Timeout.add (
+                100,
+                () => {
+                    drawing_area.set_size_request ((int)(current_pixbuf.get_width ()*zoom), (int)(current_pixbuf.get_height ()*zoom));
+                    drawing_area.queue_draw ();
+                    center_scrollbars ();
+                    Source.remove (zoom_timer);
+                    zoom_timer = 0;
+                    return false;
+                });
+        }
+
+        private void center_scrollbars () {
+            var va = scroll.get_vadjustment ();
+            var ha = scroll.get_hadjustment ();
+
+            va.changed.connect (
+                () => {
+                    va.set_value ((va.upper - va.page_size)/2);
+                });
+
+            ha.changed.connect (
+                () => {
+                    ha.set_value ((ha.upper - ha.page_size)/2);
+                });
         }
 
         private bool show_context_menu (Gtk.Widget sender, Gdk.EventButton evt) {
