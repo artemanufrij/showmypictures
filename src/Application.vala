@@ -75,6 +75,24 @@ namespace ShowMyPictures {
                 }
             });
 
+            var action_rotate_right = new SimpleAction ("rotate-right-action", null);
+            add_action (action_rotate_right);
+            add_accelerator ("<Ctrl>Right", "app.rotate-right-action", null);
+            action_rotate_right.activate.connect (() => {
+                if (mainwindow != null) {
+                    mainwindow.rotate_right_action ();
+                }
+            });
+
+            var action_rotate_left = new SimpleAction ("rotate-left-action", null);
+            add_action (action_rotate_left);
+            add_accelerator ("<Ctrl>Left", "app.rotate-left-action", null);
+            action_rotate_left.activate.connect (() => {
+                if (mainwindow != null) {
+                    mainwindow.rotate_left_action ();
+                }
+            });
+
             var action_forward = new SimpleAction ("forward-action", null);
             add_action (action_forward);
             add_accelerator ("<Alt>Right", "app.forward-action", null);
