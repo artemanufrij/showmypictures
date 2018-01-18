@@ -245,12 +245,14 @@ namespace ShowMyPictures {
 
             headerbar.pack_start (navigation_button);
 
-            rotate_left = new Gtk.Button.from_icon_name ("object-rotate-left-symbolic", Gtk.IconSize.LARGE_TOOLBAR);
+            rotate_left = new Gtk.Button.from_icon_name ("object-rotate-left-symbolic", Gtk.IconSize.SMALL_TOOLBAR );
+            rotate_left.tooltip_text = _("Rotate left");
             rotate_left.clicked.connect (
                 () => {
                     rotate_left_action ();
                 });
-            rotate_right = new Gtk.Button.from_icon_name ("object-rotate-right-symbolic", Gtk.IconSize.LARGE_TOOLBAR);
+            rotate_right = new Gtk.Button.from_icon_name ("object-rotate-right-symbolic", Gtk.IconSize.SMALL_TOOLBAR );
+            rotate_right.tooltip_text = _("Rotate right");
             rotate_right.clicked.connect (
                 () => {
                     rotate_right_action ();
