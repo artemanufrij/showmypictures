@@ -156,7 +156,7 @@ namespace ShowMyPictures.Widgets.Views {
             picture_loading ();
 
             current_picture = picture;
-            current_picture.exclude_exif ();
+            current_picture.exclude_exiv ();
             try {
                 current_pixbuf = new Gdk.Pixbuf.from_file (current_picture.path);
                 var r = Utils.get_rotation (current_picture);
@@ -267,6 +267,22 @@ namespace ShowMyPictures.Widgets.Views {
                 return true;
             }
             return false;
+        }
+
+        public void rotate_left () {
+            if (current_picture.rotate_left_exiv ()) {
+                var p = current_picture;
+                current_picture = null;
+                show_picture (p);
+            }
+        }
+
+        public void rotate_right () {
+            if (current_picture.rotate_right_exiv ()) {
+                var p = current_picture;
+                current_picture = null;
+                show_picture (p);
+            }
         }
     }
 }

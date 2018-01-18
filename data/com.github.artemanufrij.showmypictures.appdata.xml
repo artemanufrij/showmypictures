@@ -18,7 +18,7 @@
         <value key="x-appcenter-suggested-price">1</value>
     </custom>
     <developer_name>Artem Anufrij</developer_name>
-    <url type="homepage">https://github.com/artemanufrij/showmypictures</url>
+    <url type="homepage">https://artemanufrij.github.io</url>
     <url type="bugtracker">https://github.com/artemanufrij/showmypictures/issues</url>
     <url type="help">https://github.com/artemanufrij/showmypictures/issues</url>
     <update_contact>artem.anufrij@live.de</update_contact>
@@ -31,9 +31,17 @@
     <releases>
         <release version="0.1.1" date="2018-01-20">
             <description>
+                <p>New:</p>
+                <ul>
+                    <li>Rotation in "Picture View"</li>
+                </ul>
                 <p>Fix:</p>
                 <ul>
                     <li>Screenshot for AppCenter</li>
+                </ul>
+                <p>Changes:</p>
+                <ul>
+                    <li>Move to Exiv2</li>
                 </ul>
             </description>
         </release>

@@ -192,7 +192,7 @@ namespace ShowMyPictures.Objects {
         public void set_new_cover_from_picture (Picture picture) {
             try {
                 var pixbuf = new Gdk.Pixbuf.from_file (picture.path);
-                picture.exclude_exif ();
+                picture.exclude_exiv ();
                 var r = Utils.get_rotation (picture);
                 if (r != Gdk.PixbufRotation.NONE) {
                     pixbuf = pixbuf.rotate_simple (r);

@@ -22,6 +22,7 @@ vala_precompile (VALA_C ${CMAKE_PROJECT_NAME}
     Services/LibraryManager.vala
     Utils/Utils.vala
     Utils/Pixbuf.vala
+    Utils/Exiv2.vala
     Dialogs/Preferences.vala
     Dialogs/AlbumEditor.vala
     Settings.vala
@@ -31,10 +32,8 @@ PACKAGES
     granite
     gtk+-3.0
     sqlite3
-    libexif
-#    gexiv2
+    gexiv2
 OPTIONS
-    --vapidir=${CMAKE_SOURCE_DIR}/vapi
     --target-glib=2.32
     --thread
 )

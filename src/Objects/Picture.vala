@@ -59,7 +59,8 @@ namespace ShowMyPictures.Objects {
             } set {
                 _path = value;
                 if (ID == 0) {
-                    exclude_exif ();
+                    //exclude_exif ();
+                    exclude_exiv ();
                     if (year == 0) {
                         exclude_creation_date ();
                     }
@@ -97,10 +98,10 @@ namespace ShowMyPictures.Objects {
             }
         }
 
-        public Exif.Data ? exif_data { get; private set; default = null; }
+        GExiv2.Metadata ? exiv_data = null;
 
         bool preview_creating = false;
-        bool exif_excluded = false;
+        bool exiv_excluded = false;
 
         construct {
             removed.connect (
@@ -149,7 +150,7 @@ namespace ShowMyPictures.Objects {
         private void create_preview_from_path (string source_path) {
             try {
                 var pixbuf = new Gdk.Pixbuf.from_file_at_scale (source_path, -1, 256, true);
-                exclude_exif ();
+                exclude_exiv ();
                 var r = Utils.get_rotation (this);
                 if (r != Gdk.PixbufRotation.NONE) {
                     pixbuf = pixbuf.rotate_simple (r);
@@ -168,89 +169,73 @@ namespace ShowMyPictures.Objects {
         }
 
         public void exclude_exiv () {
-            //var metadata = new GExiv2.Metadata ("");
-            //var i =  new GExiv2.ImageFactory ();
-            /*if (exiv_data.open_path (this.path)) {
-                stdout.printf ("%d\n", exiv_data.get_metadata_pixel_height ());
-               }*/
+            if (exiv_excluded || !open_exiv ()) {
+                return;
+            }
+
+            rotation = Utils.Exiv2.convert_rotation_from_exiv (exiv_data.get_orientation ());
+
+            var date_original = exiv_data.get_tag_string ("Exif.Photo.DateTimeOriginal");
+            if (date_original != null) {
+                var date_string = date_original.split (" ")[0];
+                Date date = { };
+                date.set_parse (date_string);
+                if (date.valid ()) {
+                    year = date.get_year ();
+                    month = date.get_month ();
+                    day = date.get_day ();
+                }
+                date.clear ();
+            }
+            exiv_excluded = true;
         }
 
-        public void exclude_exif () {
-            if (exif_excluded) {
-                return;
+        public bool rotate_left_exiv () {
+            if (!open_exiv ()) {
+                return false;
             }
-            if (!file_exists ()) {
-                return;
+            exiv_data.set_orientation (Utils.Exiv2.rotate_left (Utils.Exiv2.convert_rotation_to_exiv (rotation)));
+            if (exiv_data.save_file (path)) {
+                rotation = Utils.Exiv2.convert_rotation_from_exiv (exiv_data.get_orientation ());
+                return true;
             }
-            if (exif_data == null) {
-                exif_data = Exif.Data.new_from_file (path);
-            }
-            if (exif_data == null) {
-                return;
-            }
-            exif_data.foreach_content (
-                (content, user) => {
-                    if (content == null) {
-                        return;
-                    }
-
-                    var entry_date_time = content.get_entry (Exif.Tag.DATE_TIME_ORIGINAL);
-                    if (entry_date_time != null) {
-                        var tag_string = entry_date_time.get_string ();
-                        if (tag_string == null || tag_string.strip () == "") {
-                            return;
-                        }
-                        var date_string = tag_string.split (" ")[0];
-                        Date date = { };
-                        date.set_parse (date_string);
-                        if (date.valid ()) {
-                            (user as Objects.Picture).year = date.get_year ();
-                            (user as Objects.Picture).month = date.get_month ();
-                            (user as Objects.Picture).day = date.get_day ();
-                        }
-                        date.clear ();
-                    }
-
-                    var entry_orientation = content.get_entry (Exif.Tag.ORIENTATION);
-                    if (entry_orientation != null) {
-                        (user as Objects.Picture).rotation = Exif.Convert.get_short (entry_orientation.data, Exif.ByteOrder.INTEL);
-                    }
-                }, this);
-        }
-
-        public bool rotate_left_exif () {
-            if (exif_data == null) {
-                exif_data = Exif.Data.new_from_file (path);
-            }
-            exif_data.foreach_content (
-                (content, user) => {
-                    content.foreach_entry (
-                        (entry, user) => {
-                            if (entry.tag == Exif.Tag.ORIENTATION) {
-                                stdout.printf ("%d\n", (user as Objects.Picture).rotation);
-                                switch ((user as Objects.Picture).rotation) {
-                                case 1 :
-                                    Exif.Convert.set_short (entry.data, Exif.ByteOrder.INTEL, 6);
-                                    (user as Objects.Picture).exif_data.save_data (&entry.data, &entry.size);
-                                    break;
-                                case 6 :
-                                    Exif.Convert.set_short (entry.data, Exif.ByteOrder.INTEL, 3);
-                                    (user as Objects.Picture).exif_data.save_data (&entry.data, &entry.size);
-                                    break;
-                                case 3 :
-                                    Exif.Convert.set_short (entry.data, Exif.ByteOrder.INTEL, 8);
-                                    (user as Objects.Picture).exif_data.save_data (&entry.data, &entry.size);
-                                    break;
-                                case 8 :
-                                    Exif.Convert.set_short (entry.data, Exif.ByteOrder.INTEL, 1);
-                                    (user as Objects.Picture).exif_data.save_data (&entry.data, &entry.size);
-                                    break;
-                                }
-                            }
-                        }, user);
-                }, this);
-
             return false;
+        }
+
+        public bool rotate_right_exiv () {
+            if (!open_exiv ()) {
+                return false;
+            }
+            exiv_data.set_orientation (Utils.Exiv2.rotate_right (Utils.Exiv2.convert_rotation_to_exiv (rotation)));
+            if (exiv_data.save_file (path)) {
+                rotation = Utils.Exiv2.convert_rotation_from_exiv (exiv_data.get_orientation ());
+                return true;
+            }
+            return false;
+        }
+
+        private bool open_exiv () {
+            if (!file_exists ()) {
+                return false;
+            }
+            if (exiv_data == null) {
+                exiv_data = new GExiv2.Metadata ();
+            }
+            if (exiv_data == null) {
+                return false;
+            }
+
+            try {
+                if (!exiv_data.open_path (this.path)) {
+                    return false;
+                }
+            }
+            catch (Error err) {
+                warning (err.message);
+                return false;
+            }
+
+            return true;
         }
 
         private void exclude_creation_date () {

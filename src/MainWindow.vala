@@ -234,12 +234,14 @@ namespace ShowMyPictures {
             rotate_left = new Gtk.Button.from_icon_name ("object-rotate-left-symbolic", Gtk.IconSize.LARGE_TOOLBAR);
             rotate_left.clicked.connect (() => {
                 if (content.visible_child_name == "picture") {
-                    picture_view.current_picture.rotate_left_exif ();
+                    picture_view.rotate_left ();
                 }
             });
             rotate_right = new Gtk.Button.from_icon_name ("object-rotate-right-symbolic", Gtk.IconSize.LARGE_TOOLBAR);
             rotate_right.clicked.connect (() => {
-
+                if (content.visible_child_name == "picture") {
+                    picture_view.rotate_right ();
+                }
             });
 
             headerbar.pack_start (rotate_left);
