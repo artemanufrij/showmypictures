@@ -35,6 +35,10 @@
                 <ul>
                     <li>Open external files</li>
                 </ul>
+                <p>Improved:</p>
+                <ul>
+                    <li>Start up speed</li>
+                </ul>
             </description>
         </release>
         <release version="0.1.1" date="2018-01-19">
