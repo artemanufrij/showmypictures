@@ -574,6 +574,8 @@ namespace ShowMyPictures {
                 navigation.add_album (album);
             }
 
+            navigation.auto_refilter = true;
+
             library_manager.sync_library_content_async.begin ();
         }
     }

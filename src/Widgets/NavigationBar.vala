@@ -35,16 +35,25 @@ namespace ShowMyPictures.Widgets {
         public signal void duplicates_selected ();
         public signal void not_found_selected ();
 
-        Granite.Widgets.SourceList folders { get; private set; }
+        Granite.Widgets.SourceList folders { get; set; }
         Granite.Widgets.SourceList.ExpandableItem events_entry;
         Granite.Widgets.SourceList.ExpandableItem device_entry;
         Granite.Widgets.SourceList.ExpandableItem extras_entry;
         Granite.Widgets.SourceList.Item duplicates_item;
         Widgets.NavigationNotFound not_found_item;
 
+        public bool auto_refilter { get; set; default = false; }
+
         construct {
             library_manager = ShowMyPictures.Services.LibraryManager.instance;
-            library_manager.added_new_album.connect (add_album);
+            library_manager.added_new_album.connect (
+                (album) => {
+                    Idle.add (
+                        () => {
+                            add_album (album);
+                            return false;
+                        });
+                });
         }
 
         public NavigationBar () {
@@ -125,20 +134,18 @@ namespace ShowMyPictures.Widgets {
         }
 
         public void add_album (Objects.Album album) {
-            Idle.add (
-                () => {
-                    if (album.year == 0) {
-                        var album_item = new Widgets.NavigationAlbum (album);
-                        events_entry.add (album_item);
-                        return false;
-                    }
-                    var year = get_folder (album);
-                    var month = year.get_subfolder (album);
-                    var album_item = new Widgets.NavigationAlbum (album);
-                    month.add (album_item);
-                    folders.refilter ();
-                    return false;
-                });
+            if (album.year == 0) {
+                var album_item = new Widgets.NavigationAlbum (album);
+                events_entry.add (album_item);
+                return;
+            }
+            var year = get_folder (album);
+            var month = year.get_subfolder (album);
+            var album_item = new Widgets.NavigationAlbum (album);
+            month.add (album_item);
+            if (auto_refilter) {
+                folders.refilter ();
+            }
         }
 
         private Widgets.NavigationDate get_folder (Objects.Album album) {
