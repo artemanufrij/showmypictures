@@ -98,7 +98,7 @@ namespace ShowMyPictures {
                 });
         }
 
-        public MainWindow () {
+        public MainWindow (bool open_files) {
             this.events |= Gdk.EventMask.POINTER_MOTION_MASK;
             this.events |= Gdk.EventMask.KEY_RELEASE_MASK;
 
@@ -116,16 +116,9 @@ namespace ShowMyPictures {
                 Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
                 );
 
-            load_content_from_database.begin (
-                (obj, res) => {
-                    if (settings.sync_files) {
-                        library_manager.sync_library_content_async.begin ();
-                    } else if (library_manager.albums.length () > 0) {
-                        library_manager.find_non_existent_items_async.begin ();
-                        library_manager.scan_for_duplicates_async.begin ();
-                        library_manager.sync_started ();
-                    }
-                });
+            if (!open_files) {
+                load_content_from_database.begin ();
+            }
 
             this.configure_event.connect (
                 (event) => {
@@ -172,12 +165,13 @@ namespace ShowMyPictures {
                 });
 
             var menu_item_import = new Gtk.MenuItem.with_label (_ ("Import Pictures…"));
-            menu_item_import.activate.connect (() => {
-                                                   var folder = library_manager.choose_folder ();
-                                                   if (folder != null) {
-                                                       library_manager.scan_local_library_for_new_files (folder);
-                                                   }
-                                               });
+            menu_item_import.activate.connect (
+                () => {
+                    var folder = library_manager.choose_folder ();
+                    if (folder != null) {
+                        library_manager.scan_local_library_for_new_files (folder);
+                    }
+                });
 
             menu_item_reset = new Gtk.MenuItem.with_label (_ ("Reset all views"));
             menu_item_reset.activate.connect (
@@ -506,6 +500,8 @@ namespace ShowMyPictures {
                     show_picture ();
                 }
             }
+
+            load_content_from_database.begin ();
         }
 
         public void back_action () {
@@ -570,12 +566,20 @@ namespace ShowMyPictures {
         }
 
         private async void load_content_from_database () {
-            if (library_manager.albums.length () > 0) {
+            if (library_manager.albums.length () > 0 && content.visible_child_name != "picture") {
                 show_albums ();
             }
             foreach (var album in library_manager.albums) {
                 albums_view.add_album (album);
                 navigation.add_album (album);
+            }
+
+            if (settings.sync_files) {
+                library_manager.sync_library_content_async.begin ();
+            } else if (library_manager.albums.length () > 0) {
+                library_manager.find_non_existent_items_async.begin ();
+                library_manager.scan_for_duplicates_async.begin ();
+                library_manager.sync_started ();
             }
         }
     }

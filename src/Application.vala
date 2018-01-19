@@ -155,16 +155,21 @@ namespace ShowMyPictures {
         public MainWindow mainwindow { get; private set; default = null; }
 
         protected override void activate () {
-            if (mainwindow == null) {
-                mainwindow = new MainWindow ();
-                mainwindow.application = this;
-            }
+            create_instance ();
             mainwindow.present ();
         }
 
         public override void open (File[] files, string hint) {
-            activate ();
+            create_instance (true);
+            mainwindow.present ();
             mainwindow.open_files (files);
+        }
+
+        private void create_instance (bool open_files = false) {
+            if (mainwindow == null) {
+                mainwindow = new MainWindow (open_files);
+                mainwindow.application = this;
+            }
         }
     }
 }
