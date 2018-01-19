@@ -501,12 +501,7 @@ namespace ShowMyPictures {
                 }
             }
 
-            Timeout.add (
-                250,
-                () => {
-                    load_content_from_database.begin ();
-                    return false;
-                });
+            load_content_from_database.begin ();
         }
 
         public void back_action () {
@@ -579,13 +574,7 @@ namespace ShowMyPictures {
                 navigation.add_album (album);
             }
 
-            if (settings.sync_files) {
-                library_manager.sync_library_content_async.begin ();
-            } else if (library_manager.albums.length () > 0) {
-                library_manager.find_non_existent_items_async.begin ();
-                library_manager.scan_for_duplicates_async.begin ();
-                library_manager.sync_started ();
-            }
+            library_manager.sync_library_content_async.begin ();
         }
     }
 }

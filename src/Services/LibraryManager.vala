@@ -82,7 +82,11 @@ namespace ShowMyPictures.Services {
                 "sync_library_content",
                 () => {
                     find_non_existent_items ();
-                    scan_local_library_for_new_files (settings.library_location);
+                    if (settings.sync_files) {
+                        scan_local_library_for_new_files (settings.library_location);
+                    } else {
+                        scan_for_duplicates_async.begin ();
+                    }
                     return null;
                 });
         }
@@ -115,15 +119,6 @@ namespace ShowMyPictures.Services {
             if (album.ID > 0) {
                 album.add_picture_if_not_exists (picture);
             }
-        }
-
-        public async void find_non_existent_items_async () {
-            new Thread<void*> (
-                "find_non_existent_items_async",
-                () => {
-                    find_non_existent_items ();
-                    return null;
-                });
         }
 
         private void find_non_existent_items () {
