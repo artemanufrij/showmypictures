@@ -501,7 +501,12 @@ namespace ShowMyPictures {
                 }
             }
 
-            load_content_from_database.begin ();
+            Timeout.add (
+                250,
+                () => {
+                    load_content_from_database.begin ();
+                    return false;
+                });
         }
 
         public void back_action () {
