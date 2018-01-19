@@ -35,7 +35,7 @@ namespace ShowMyPictures.Widgets.Views {
 
         construct {
             library_manager = Services.LibraryManager.instance;
-            library_manager.picture_not_found.connect (add_picture);
+            library_manager.pictures_not_found.connect (add_pictures);
         }
 
         public NotFoundView () {
@@ -62,11 +62,13 @@ namespace ShowMyPictures.Widgets.Views {
             this.show_all ();
         }
 
-        private void add_picture (Objects.Picture picture) {
+        private void add_pictures (GLib.List<Objects.Picture> missed_pictures) {
             Idle.add (
                 () => {
-                    var item = new Widgets.Picture (picture);
-                    pictures.add (item);
+                    foreach (var picture in missed_pictures) {
+                        var item = new Widgets.Picture (picture);
+                        pictures.add (item);
+                    }
                     counter_changed (pictures.get_children ().length ());
                     return false;
                 });

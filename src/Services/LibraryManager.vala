@@ -41,7 +41,7 @@ namespace ShowMyPictures.Services {
 
         public signal void sync_started ();
         public signal void sync_finished ();
-        public signal void picture_not_found (Objects.Picture picture);
+        public signal void pictures_not_found (GLib.List<Objects.Picture> pictures);
         public signal void duplicates_found (GLib.List<string> hash_list);
         public signal void added_new_album (Objects.Album album);
         public signal void removed_album (Objects.Album album);
@@ -59,6 +59,7 @@ namespace ShowMyPictures.Services {
 
         uint duplicates_timer = 0;
         GLib.List<string> duplicates = null;
+        GLib.List<Objects.Picture> not_found = null;
 
         construct {
             settings = ShowMyPictures.Settings.get_default ();
@@ -126,12 +127,16 @@ namespace ShowMyPictures.Services {
         }
 
         private void find_non_existent_items () {
+            not_found = new GLib.List<Objects.Picture> ();
             foreach (var album in albums) {
                 foreach (var picture in album.pictures) {
                     if (!picture.file_exists ()) {
-                        picture_not_found (picture);
+                        not_found.append (picture);
                     }
                 }
+            }
+            if (not_found.length () > 0) {
+                pictures_not_found (not_found);
             }
         }
 

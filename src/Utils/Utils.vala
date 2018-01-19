@@ -38,4 +38,8 @@ namespace ShowMyPictures.Utils {
         }
         return "";
     }
+
+    public static bool is_valid_mime_type (string mime_type) {
+        return mime_type.has_prefix ("image/png") || mime_type.has_prefix ("image/jpeg");
+    }
 }

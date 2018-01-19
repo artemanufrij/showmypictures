@@ -164,6 +164,7 @@ namespace ShowMyPictures {
 
         public override void open (File[] files, string hint) {
             activate ();
+            mainwindow.open_files (files);
         }
     }
 }

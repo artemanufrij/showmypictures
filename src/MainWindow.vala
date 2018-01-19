@@ -66,18 +66,19 @@ namespace ShowMyPictures {
             library_manager = Services.LibraryManager.instance;
             library_manager.added_new_album.connect (
                 (album) => {
-                    Idle.add (() => {
-                                  if (content.visible_child_name == "welcome") {
-                                      show_albums ();
-                                  }
-                                  return false;
-                              });
+                    Idle.add (
+                        () => {
+                            if (content.visible_child_name == "welcome") {
+                                show_albums ();
+                            }
+                            return false;
+                        });
                 });
             library_manager.removed_album.connect (
                 (album) => {
                     if ((content.visible_child_name == "album" && album_view.current_album == album) || (content.visible_child_name == "picture" && picture_view.current_picture.album == album)) {
                         if (library_manager.albums.length () > 0) {
-                                      show_albums ();
+                                show_albums ();
                         } else {
                             show_welcome ();
                         }
@@ -245,14 +246,14 @@ namespace ShowMyPictures {
 
             headerbar.pack_start (navigation_button);
 
-            rotate_left = new Gtk.Button.from_icon_name ("object-rotate-left-symbolic", Gtk.IconSize.SMALL_TOOLBAR );
-            rotate_left.tooltip_text = _("Rotate left");
+            rotate_left = new Gtk.Button.from_icon_name ("object-rotate-left-symbolic", Gtk.IconSize.SMALL_TOOLBAR);
+            rotate_left.tooltip_text = _ ("Rotate left");
             rotate_left.clicked.connect (
                 () => {
                     rotate_left_action ();
                 });
-            rotate_right = new Gtk.Button.from_icon_name ("object-rotate-right-symbolic", Gtk.IconSize.SMALL_TOOLBAR );
-            rotate_right.tooltip_text = _("Rotate right");
+            rotate_right = new Gtk.Button.from_icon_name ("object-rotate-right-symbolic", Gtk.IconSize.SMALL_TOOLBAR);
+            rotate_right.tooltip_text = _ ("Rotate right");
             rotate_right.clicked.connect (
                 () => {
                     rotate_right_action ();
@@ -456,15 +457,70 @@ namespace ShowMyPictures {
             }
         }
 
+        public void open_file (File file) {
+            File directory = file.get_parent ();
+
+            var album = new Objects.Album ("Files");
+
+            try {
+                var children = directory.enumerate_children (FileAttribute.STANDARD_CONTENT_TYPE, GLib.FileQueryInfoFlags.NONE);
+                FileInfo file_info;
+
+                while ((file_info = children.next_file ()) != null) {
+                    string mime_type = file_info.get_content_type ();
+                    if (Utils.is_valid_mime_type (mime_type)) {
+                        var picture = new Objects.Picture (album);
+                        picture.path = GLib.Path.build_filename (directory.get_path (), file_info.get_name ());
+                        album.add_picture (picture);
+                    }
+                }
+
+                children.close ();
+                children.dispose ();
+            }
+            catch (Error err) {
+                warning (err.message);
+            }
+            directory.dispose ();
+
+            var picture = album.get_picture_by_path (file.get_path ());
+            if (picture != null) {
+                picture_view.show_picture (picture);
+                show_picture ();
+            }
+        }
+
+        public void open_files (File[] files) {
+            if (files.length == 1 && files[0].query_exists ()) {
+                open_file (files[0]);
+            } else {
+                var album = new Objects.Album ("Files");
+                foreach (var file in files) {
+                    var picture = new Objects.Picture (album);
+                    picture.path = file.get_path ();
+                    album.add_picture (picture);
+                }
+                var picture = album.get_first_picture ();
+                if (picture != null) {
+                    picture_view.show_picture (picture);
+                    show_picture ();
+                }
+            }
+        }
+
         public void back_action () {
             switch (content.visible_child_name) {
             case "picture" :
-                show_album ();
+                if (album_view.current_album != null) {
+                    show_album ();
+                } else {
+                    show_albums ();
+                }
                 break;
             case "not_found" :
             case "album" :
             case "duplicates" :
-                show_albums ();
+                    show_albums ();
                 break;
             }
         }

@@ -111,6 +111,16 @@ namespace ShowMyPictures.Objects {
             create_default_title ();
         }
 
+        public void add_picture (Picture picture) {
+            lock (_pictures) {
+                _pictures.insert_sorted_with_data (
+                    picture,
+                    (a, b) => {
+                        return a.path.collate (b.path);
+                    });
+            }
+        }
+
         public void add_picture_if_not_exists (Picture new_picture) {
             lock (_pictures) {
                 foreach (var picture in pictures) {
@@ -120,14 +130,14 @@ namespace ShowMyPictures.Objects {
                 }
                 new_picture.album = this;
                 db_manager.insert_picture (new_picture);
-                _pictures.insert_sorted_with_data (
-                    new_picture,
-                    (a, b) => {
-                        return a.path.collate (b.path);
-                    });
+                add_picture (new_picture);
                 picture_added (new_picture, _pictures.length ());
             }
             create_cover.begin ();
+        }
+
+        public Picture ? get_first_picture () {
+            return this.pictures.first ().data;
         }
 
         public Picture ? get_next_picture (Picture current) {
@@ -142,6 +152,15 @@ namespace ShowMyPictures.Objects {
             int i = _pictures.index (current) - 1;
             if (i > -1) {
                 return _pictures.nth_data (i);
+            }
+            return null;
+        }
+
+        public Picture? get_picture_by_path (string path) {
+            foreach (var picture in pictures) {
+                if (picture.path == path) {
+                    return picture;
+                }
             }
             return null;
         }
