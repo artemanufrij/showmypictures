@@ -157,8 +157,8 @@ namespace ShowMyPictures.Widgets {
                             });
                         open_with.add (item);
                     }
+                    open_with.show_all ();
                 }
-                open_with.show_all ();
 
                 (this.parent as Gtk.FlowBox).select_child (this);
                 menu.popup (null, null, null, evt.button, evt.time);

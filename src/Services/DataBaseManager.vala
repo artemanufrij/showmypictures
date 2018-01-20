@@ -95,6 +95,8 @@ namespace ShowMyPictures.Services {
                 keywords    TEXT        NOT NULL,
                 hash        TEXT        NOT NULL,
                 comment     TEXT        NOT NULL,
+                stars       INT         NULL,
+                color       TEXT        NULL,
                 CONSTRAINT unique_video UNIQUE (path),
                 FOREIGN KEY (album_id) REFERENCES albums (ID)
                     ON DELETE CASCADE
