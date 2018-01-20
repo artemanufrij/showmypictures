@@ -369,7 +369,7 @@ namespace ShowMyPictures {
         }
 
         public override bool key_press_event (Gdk.EventKey e) {
-            if (!search_entry.is_focus && e.str.strip ().length > 0) {
+            if (!search_entry.is_focus && e.str.strip ().length > 0 && content.visible_child_name != "picture") {
                 search_entry.grab_focus ();
             }
             return base.key_press_event (e);

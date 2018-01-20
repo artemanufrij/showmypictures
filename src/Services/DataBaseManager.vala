@@ -328,6 +328,28 @@ namespace ShowMyPictures.Services {
             stmt.reset ();
         }
 
+        public void update_picture (Objects.Picture picture) {
+            Sqlite.Statement stmt;
+
+            string sql = """
+                UPDATE pictures SET keywords=$KEYWORDS, comment=$COMMENT, stars=$STARS, colors=$COLORS WHERE id=$ID;
+            """;
+
+            db.prepare_v2 (sql, sql.length, out stmt);
+            set_parameter_int (stmt, sql, "$ID", picture.ID);
+            set_parameter_str (stmt, sql, "$KEYWORDS", picture.keywords);
+            set_parameter_str (stmt, sql, "$COMMENT", picture.comment);
+            set_parameter_int (stmt, sql, "$STARS", picture.stars);
+            set_parameter_str (stmt, sql, "$COLORS", picture.colors);
+
+            if (stmt.step () != Sqlite.DONE) {
+                warning ("Error: %d: %s", db.errcode (), db.errmsg ());
+            } else {
+                picture.updated ();
+            }
+            stmt.reset ();
+        }
+
         public void remove_picture (Objects.Picture picture) {
             Sqlite.Statement stmt;
 

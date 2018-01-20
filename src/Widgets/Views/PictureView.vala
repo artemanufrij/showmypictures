@@ -195,7 +195,7 @@ namespace ShowMyPictures.Widgets.Views {
             } catch (Error err) {
                 warning (err.message);
             }
-            this.tooltip_text = current_picture.path;
+            drawing_area.tooltip_text = current_picture.path;
 
             set_optimal_zoom ();
             picture_details.show_picture (current_picture);

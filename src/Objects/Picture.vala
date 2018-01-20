@@ -29,6 +29,7 @@ namespace ShowMyPictures.Objects {
     public class Picture : GLib.Object {
         public signal void preview_created ();
         public signal void removed ();
+        public signal void updated ();
         public signal void file_not_found ();
 
         int _ID = 0;
@@ -81,6 +82,8 @@ namespace ShowMyPictures.Objects {
         public string keywords { get; set; default = ""; }
         public string comment { get; set; default = ""; }
         public string hash { get; set; default = ""; }
+        public string colors { get; set; default = ""; }
+        public int stars { get; set; default = 0; }
 
         public Album ? album { get; set; default = null; }
 

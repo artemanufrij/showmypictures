@@ -27,11 +27,18 @@
 
 namespace ShowMyPictures.Widgets.Views {
     public class PictureDetails : Gtk.Revealer {
+        Services.DataBaseManager db_manager;
+        Objects.Picture current_picture;
 
         Gtk.Label title;
         Gtk.Label date_size_resolution;
         Gtk.Label location;
+        Gtk.Entry keywords_entry;
+        Gtk.TextView comment_entry;
 
+        construct {
+            db_manager = Services.DataBaseManager.instance;
+        }
 
         public PictureDetails () {
             build_ui ();
@@ -43,7 +50,7 @@ namespace ShowMyPictures.Widgets.Views {
             var content = new Gtk.Grid ();
 
             var scroll = new Gtk.ScrolledWindow (null, null);
-            scroll.set_size_request (256 ,-1);
+            scroll.set_size_request (256,-1);
 
             var box = new Gtk.Box (Gtk.Orientation.VERTICAL, 12);
             box.margin = 12;
@@ -57,6 +64,14 @@ namespace ShowMyPictures.Widgets.Views {
             date_size_resolution = new Gtk.Label ("");
             date_size_resolution.halign = Gtk.Align.START;
 
+            keywords_entry = new Gtk.Entry ();
+            keywords_entry.placeholder_text = _ ("Keywords comma separated");
+
+            var comment_scroll = new Gtk.ScrolledWindow (null, null);
+            comment_scroll.height_request = 64;
+            comment_entry = new Gtk.TextView ();
+            comment_scroll.add (comment_entry);
+
             location = new Gtk.Label ("");
             location.xalign = 0;
             location.wrap = true;
@@ -66,6 +81,8 @@ namespace ShowMyPictures.Widgets.Views {
             content.attach (scroll, 1, 0);
 
             box.pack_start (date_size_resolution, false, false);
+            box.pack_start (keywords_entry, false, false);
+            box.pack_start (comment_scroll, false, false);
             box.pack_start (location, false, false);
 
             this.add (content);
@@ -73,11 +90,34 @@ namespace ShowMyPictures.Widgets.Views {
         }
 
         public void show_picture (Objects.Picture picture) {
-            if (picture.date == null) {
-                picture.exclude_creation_date ();
+            if (current_picture == picture) {
+                return;
             }
-            date_size_resolution.label = "%s\n%d × %d".printf (picture.date, picture.width, picture.height);
-            location.label = picture.path;
+
+            if (current_picture != null) {
+                save_changes ();
+            }
+
+            current_picture = picture;
+
+            if (current_picture.date == null) {
+                current_picture.exclude_creation_date ();
+            }
+            date_size_resolution.label = "%s\n%d × %d".printf (current_picture.date, current_picture.width, current_picture.height);
+            location.label = current_picture.path;
+            keywords_entry.text = current_picture.keywords;
+            comment_entry.buffer.text = current_picture.comment;
+        }
+
+        private void save_changes () {
+            var new_keywords = keywords_entry.text.strip ();
+            var new_comment = comment_entry.buffer.text.strip ();
+            if (new_keywords!=current_picture.keywords || new_comment!=current_picture.comment) {
+                current_picture.keywords = new_keywords;
+                current_picture.comment = new_comment;
+
+                db_manager.update_picture (current_picture);
+            }
         }
     }
 }
