@@ -39,7 +39,11 @@ namespace ShowMyPictures {
         Gtk.Button navigation_button;
         Gtk.Button rotate_left;
         Gtk.Button rotate_right;
+        Gtk.Button show_details;
         Gtk.Spinner spinner;
+
+        Gtk.Image pane_show;
+        Gtk.Image pane_hide;
 
         Widgets.Views.Welcome welcome;
         Widgets.Views.AlbumsView albums_view;
@@ -60,6 +64,14 @@ namespace ShowMyPictures {
                         app_menu.set_image (new Gtk.Image.from_icon_name ("open-menu-symbolic", Gtk.IconSize.LARGE_TOOLBAR));
                     } else {
                         app_menu.set_image (new Gtk.Image.from_icon_name ("open-menu", Gtk.IconSize.LARGE_TOOLBAR));
+                    }
+                });
+            settings.notify["show-picture-details"].connect (
+                () => {
+                    if (settings.show_picture_details) {
+                        show_details.set_image (pane_hide);
+                    } else {
+                        show_details.set_image (pane_show);
                     }
                 });
 
@@ -222,6 +234,16 @@ namespace ShowMyPictures {
                 });
             headerbar.pack_end (search_entry);
 
+            pane_show = new Gtk.Image.from_icon_name ("pane-show-symbolic", Gtk.IconSize.LARGE_TOOLBAR);
+            pane_hide = new Gtk.Image.from_icon_name ("pane-hide-symbolic", Gtk.IconSize.LARGE_TOOLBAR);
+
+            show_details = new Gtk.Button ();
+            show_details.clicked.connect (
+                () => {
+                    toggle_details_action ();
+                });
+            headerbar.pack_end (show_details);
+
             spinner = new Gtk.Spinner ();
             headerbar.pack_end (spinner);
 
@@ -237,17 +259,18 @@ namespace ShowMyPictures {
                 () => {
                     back_action ();
                 });
-
             headerbar.pack_start (navigation_button);
 
             rotate_left = new Gtk.Button.from_icon_name ("object-rotate-left-symbolic", Gtk.IconSize.SMALL_TOOLBAR);
             rotate_left.tooltip_text = _ ("Rotate left");
+            rotate_left.valign = Gtk.Align.CENTER;
             rotate_left.clicked.connect (
                 () => {
                     rotate_left_action ();
                 });
             rotate_right = new Gtk.Button.from_icon_name ("object-rotate-right-symbolic", Gtk.IconSize.SMALL_TOOLBAR);
             rotate_right.tooltip_text = _ ("Rotate right");
+            rotate_right.valign = Gtk.Align.CENTER;
             rotate_right.clicked.connect (
                 () => {
                     rotate_right_action ();
@@ -357,6 +380,7 @@ namespace ShowMyPictures {
             rotate_left.hide ();
             rotate_right.hide ();
             navigation_button.show ();
+            show_details.hide ();
         }
 
         private void show_not_found () {
@@ -364,6 +388,7 @@ namespace ShowMyPictures {
             rotate_left.hide ();
             rotate_right.hide ();
             navigation_button.show ();
+            show_details.hide ();
         }
 
         private void show_albums () {
@@ -375,6 +400,7 @@ namespace ShowMyPictures {
             search_entry.show ();
             search_entry.text = albums_view.filter;
             navigation.reveal_child = true;
+            show_details.hide ();
         }
 
         private void show_album () {
@@ -386,6 +412,7 @@ namespace ShowMyPictures {
             search_entry.show ();
             search_entry.text = album_view.filter;
             navigation.reveal_child = true;
+            show_details.hide ();
         }
 
         private void show_picture () {
@@ -395,6 +422,12 @@ namespace ShowMyPictures {
             rotate_right.show ();
             search_entry.hide ();
             navigation.reveal_child = false;
+            if (settings.show_picture_details) {
+                show_details.set_image (pane_hide);
+            } else {
+                show_details.set_image (pane_show);
+            }
+            show_details.show ();
         }
 
         private void show_welcome () {
@@ -405,6 +438,7 @@ namespace ShowMyPictures {
             rotate_right.hide ();
             search_entry.hide ();
             navigation.reveal_child = false;
+            show_details.hide ();
         }
 
         private void reset_all_views () {
@@ -416,6 +450,7 @@ namespace ShowMyPictures {
             picture_view.reset ();
             duplicates_view.reset ();
             navigation.reset ();
+            show_details.hide ();
         }
 
         public void send_app_notification (string message) {
@@ -538,6 +573,12 @@ namespace ShowMyPictures {
         public void delete_action () {
             if (content.visible_child_name == "picture") {
                 picture_view.delete_current_picture ();
+            }
+        }
+
+        public void toggle_details_action () {
+            if (content.visible_child_name == "picture") {
+                picture_view.toggle_picture_details ();
             }
         }
 

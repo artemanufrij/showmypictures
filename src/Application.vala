@@ -66,6 +66,15 @@ namespace ShowMyPictures {
                 }
             });
 
+            var toggle_details_reset = new SimpleAction ("toggle-details-action", null);
+            add_action (toggle_details_reset);
+            add_accelerator ("F4", "app.toggle-details-action", null);
+            toggle_details_reset.activate.connect (() => {
+                if (mainwindow != null) {
+                    mainwindow.toggle_details_action ();
+                }
+            });
+
             var action_back = new SimpleAction ("back-action", null);
             add_action (action_back);
             add_accelerator ("<Alt>Left", "app.back-action", null);

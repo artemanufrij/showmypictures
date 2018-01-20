@@ -15,6 +15,7 @@ vala_precompile (VALA_C ${CMAKE_PROJECT_NAME}
     Widgets/Views/AlbumView.vala
     Widgets/Views/Welcome.vala
     Widgets/Views/PictureView.vala
+    Widgets/Views/PictureDetails.vala
     Widgets/Views/DuplicatesView.vala
     Widgets/Views/NotFoundView.vala
     Services/DataBaseManager.vala

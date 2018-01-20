@@ -74,6 +74,9 @@ namespace ShowMyPictures.Objects {
         public int month { get; set; default = 0; }
         public int day { get; set; default = 0; }
         public int rotation { get; private set; default = 1; }
+        public int width { get; private set; default = 0; }
+        public int height { get; private set; default = 0; }
+        public string date { get; private set; default = ""; }
 
         public string keywords { get; set; default = ""; }
         public string comment { get; set; default = ""; }
@@ -174,18 +177,20 @@ namespace ShowMyPictures.Objects {
             }
 
             rotation = Utils.Exiv2.convert_rotation_from_exiv (exiv_data.get_orientation ());
+            width = exiv_data.get_pixel_width ();
+            height = exiv_data.get_pixel_height ();
+            comment = exiv_data.get_comment ();
 
-            var date_original = exiv_data.get_tag_string ("Exif.Photo.DateTimeOriginal");
-            if (date_original != null) {
-                var date_string = date_original.split (" ")[0];
-                Date date = { };
-                date.set_parse (date_string);
-                if (date.valid ()) {
-                    year = date.get_year ();
-                    month = date.get_month ();
-                    day = date.get_day ();
+            date = exiv_data.get_tag_string ("Exif.Photo.DateTimeOriginal");
+            if (date != null && date != "") {
+                var date_time = Utils.get_datetime_from_string (date);
+                if (date_time != null) {
+                    year = date_time.get_year ();
+                    month = date_time.get_month ();
+                    day = date_time.get_day_of_month ();
+                    date = date_time.format ("%e. %b, %Y - %T").strip ();
                 }
-                date.clear ();
+                date_time = null;
             }
             exiv_excluded = true;
         }
@@ -238,7 +243,7 @@ namespace ShowMyPictures.Objects {
             return true;
         }
 
-        private void exclude_creation_date () {
+        public void exclude_creation_date () {
             if (!file_exists ()) {
                 return;
             }
@@ -258,11 +263,14 @@ namespace ShowMyPictures.Objects {
             info.dispose ();
 
             if (output != null && output != "") {
-                var date = new DateTime.from_unix_local (int64.parse (output));
-                year = date.get_year ();
-                month = date.get_month ();
-                day = date.get_day_of_month ();
-                date = null;
+                var datetime = new DateTime.from_unix_local (int64.parse (output));
+                date = datetime.format ("%e. %b, %Y - %T").strip ();
+                if (year == 0 || month == 0 || day == 0) {
+                    year = datetime.get_year ();
+                    month = datetime.get_month ();
+                    day = datetime.get_day_of_month ();
+                }
+                datetime = null;
             }
         }
 

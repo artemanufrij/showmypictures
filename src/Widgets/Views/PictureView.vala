@@ -27,7 +27,8 @@
 
 namespace ShowMyPictures.Widgets.Views {
     public class PictureView : Gtk.Grid {
-        ShowMyPictures.Services.LibraryManager library_manager;
+        Services.LibraryManager library_manager;
+        Settings settings;
 
         public Objects.Picture current_picture { get; private set; default = null; }
 
@@ -38,6 +39,7 @@ namespace ShowMyPictures.Widgets.Views {
 
         Gtk.ScrolledWindow scroll;
         Gtk.DrawingArea drawing_area;
+        Widgets.Views.PictureDetails picture_details;
         Gtk.Menu menu;
 
         double zoom = 1;
@@ -49,7 +51,8 @@ namespace ShowMyPictures.Widgets.Views {
         uint zoom_timer = 0;
 
         construct {
-            library_manager = ShowMyPictures.Services.LibraryManager.instance;
+            library_manager = Services.LibraryManager.instance;
+            settings = Settings.get_default ();
         }
 
         public PictureView () {
@@ -133,7 +136,10 @@ namespace ShowMyPictures.Widgets.Views {
             menu.add (menu_move_into_trash);
             menu.show_all ();
 
-            this.add (event_box);
+            picture_details = new Widgets.Views.PictureDetails ();
+            picture_details.reveal_child = settings.show_picture_details;
+            this.attach (event_box, 0, 0);
+            this.attach (picture_details, 1, 0);
         }
 
         public bool on_draw (Cairo.Context cr) {
@@ -169,6 +175,7 @@ namespace ShowMyPictures.Widgets.Views {
             this.tooltip_text = current_picture.path;
 
             set_optimal_zoom ();
+            picture_details.show_picture (current_picture);
             picture_loaded (current_picture);
         }
 
@@ -178,8 +185,8 @@ namespace ShowMyPictures.Widgets.Views {
         }
 
         public void set_optimal_zoom () {
-            current_width = this.get_allocated_width ();
-            current_height = this.get_allocated_height ();
+            current_width = scroll.get_allocated_width ();
+            current_height = scroll.get_allocated_height ();
 
             if (current_width == 1 && current_height == 1) {
                 return;
@@ -259,6 +266,11 @@ namespace ShowMyPictures.Widgets.Views {
                 () => {
                     ha.set_value ((ha.upper - ha.page_size)/2);
                 });
+        }
+
+        public void toggle_picture_details () {
+            picture_details.reveal_child = !picture_details.reveal_child;
+            settings.show_picture_details = picture_details.reveal_child;
         }
 
         private bool show_context_menu (Gtk.Widget sender, Gdk.EventButton evt) {

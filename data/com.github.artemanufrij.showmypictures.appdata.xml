@@ -34,9 +34,11 @@
                 <p>New:</p>
                 <ul>
                     <li>Open external files</li>
+                    <li>[F4] Show basic photo details (Exif)</li>
                 </ul>
                 <p>Improved:</p>
                 <ul>
+                    <li>Clean up context menu for missing files</li>
                     <li>Start up speed</li>
                 </ul>
             </description>

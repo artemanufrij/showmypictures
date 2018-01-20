@@ -43,6 +43,7 @@ namespace ShowMyPictures {
         public string library_location { get; set; }
         public bool use_dark_theme { get; set; }
         public bool sync_files { get; set; }
+        public bool show_picture_details { get; set; }
 
         private Settings () {
             base ("com.github.artemanufrij.showmypictures");

@@ -42,4 +42,23 @@ namespace ShowMyPictures.Utils {
     public static bool is_valid_mime_type (string mime_type) {
         return mime_type.has_prefix ("image/png") || mime_type.has_prefix ("image/jpeg");
     }
+
+    public static DateTime? get_datetime_from_string (string input) {
+        var split = input.split (" ");
+        if (split.length == 2) {
+            int Y = 0;
+            int M = 0;
+            int D = 0;
+            int h = 0;
+            int m = 0;
+            int s = 0;
+
+            split [0].scanf ("%d:%d:%d", &Y, &M, &D);
+            split [1].scanf ("%d:%d:%d", &h, &m, &s);
+
+            return new DateTime.local (Y, M, D, h, m, s);
+        }
+
+        return null;
+    }
 }
