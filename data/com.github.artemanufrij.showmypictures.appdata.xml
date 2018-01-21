@@ -34,6 +34,7 @@
                 <p>New:</p>
                 <ul>
                     <li>Merge Albums</li>
+                    <li>Copy Image into Clipboard by press [Ctrl+c]</li>
                 </ul>
             </description>
         </release>

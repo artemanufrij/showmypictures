@@ -77,6 +77,12 @@ namespace ShowMyPictures.Widgets.Views {
                         }
                         show_next_picture ();
                         return true;
+                    case Gdk.Key.c :
+                        if (Gdk.ModifierType.CONTROL_MASK in key.state) {
+                            Gtk.Clipboard.get_default (this.get_display ()).set_image (current_pixbuf);
+                            return true;
+                        }
+                        break;
                     }
 
                     return false;
