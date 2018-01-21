@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-01-08 22:53+0100\n"
+"POT-Creation-Date: 2018-01-21 12:25+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,36 +17,52 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../src/Utils/Utils.vala:31
-msgid "No Date"
-msgstr ""
-
-#: ../src/Widgets/Album.vala:62 ../src/Widgets/Album.vala:85
+#: ../src/Widgets/Album.vala:63 ../src/Widgets/Album.vala:76
 msgid "%u Pictures"
 msgstr ""
 
-#: ../src/Widgets/Album.vala:89
+#: ../src/Widgets/Album.vala:103
 msgid "Edit Album properties…"
 msgstr ""
 
-#: ../src/Widgets/NavigationBar.vala:72
+#: ../src/Widgets/NavigationBar.vala:87
+msgid "Extras"
+msgstr ""
+
+#: ../src/Widgets/NavigationBar.vala:91
+msgid "Duplicates"
+msgstr ""
+
+#: ../src/Widgets/NavigationBar.vala:96
+msgid "Not Found"
+msgstr ""
+
+#: ../src/Widgets/NavigationBar.vala:105
 msgid "Devices"
 msgstr ""
 
-#: ../src/Widgets/NavigationBar.vala:76
+#: ../src/Widgets/NavigationBar.vala:109
 msgid "Events"
 msgstr ""
 
-#: ../src/Widgets/Picture.vala:75 ../src/Widgets/Views/PictureView.vala:117
+#: ../src/Widgets/Picture.vala:98 ../src/Widgets/Views/PictureView.vala:153
+msgid "Open with"
+msgstr ""
+
+#: ../src/Widgets/Picture.vala:103 ../src/Widgets/Views/PictureView.vala:158
 msgid "Set as Album picture"
 msgstr ""
 
-#: ../src/Widgets/Picture.vala:79 ../src/Widgets/Views/PictureView.vala:121
+#: ../src/Widgets/Picture.vala:107 ../src/Widgets/Views/PictureView.vala:162
+msgid "Album cover changed"
+msgstr ""
+
+#: ../src/Widgets/Picture.vala:112 ../src/Widgets/Views/PictureView.vala:176
 msgid "Move into Trash"
 msgstr ""
 
-#: ../src/Widgets/Picture.vala:84
-msgid "Open with"
+#: ../src/Widgets/Picture.vala:118 ../src/Widgets/Views/PictureView.vala:165
+msgid "Open location"
 msgstr ""
 
 #: ../src/Widgets/Views/Welcome.vala:44
@@ -65,43 +81,95 @@ msgstr ""
 msgid "Import pictures from a source into your library."
 msgstr ""
 
-#: ../src/Services/LibraryManager.vala:106
+#: ../src/Widgets/Views/PictureDetails.vala:64
+msgid "Rotate left"
+msgstr ""
+
+#: ../src/Widgets/Views/PictureDetails.vala:71
+msgid "Rotate right"
+msgstr ""
+
+#: ../src/Widgets/Views/PictureDetails.vala:80
+msgid "Move into trash"
+msgstr ""
+
+#: ../src/Widgets/Views/PictureDetails.vala:90
+msgid "Next Picture"
+msgstr ""
+
+#: ../src/Widgets/Views/PictureDetails.vala:97
+msgid "Previous Picture"
+msgstr ""
+
+#: ../src/Widgets/Views/PictureDetails.vala:127
+msgid "Keywords comma separated"
+msgstr ""
+
+#: ../src/Widgets/Views/PictureView.vala:251
+msgid "Picture properties updated"
+msgstr ""
+
+#: ../src/Widgets/NavigationNotFound.vala:39
+msgid "Remove Pictures"
+msgstr ""
+
+#: ../src/Services/LibraryManager.vala:186
 msgid "Select a folder."
 msgstr ""
 
-#: ../src/Services/LibraryManager.vala:107
+#: ../src/Services/LibraryManager.vala:187
 msgid "_Cancel"
 msgstr ""
 
-#: ../src/Services/LibraryManager.vala:108
+#: ../src/Services/LibraryManager.vala:188
 msgid "_Open"
 msgstr ""
 
-#: ../src/Services/LibraryManager.vala:111
+#: ../src/Services/LibraryManager.vala:191
 msgid "Folder"
 msgstr ""
 
-#: ../src/MainWindow.vala:129
-msgid "Change Video Folder…"
+#: ../src/Objects/Album.vala:230
+msgid "No Date"
 msgstr ""
 
-#: ../src/MainWindow.vala:138
-msgid "Import Videos…"
+#: ../src/MainWindow.vala:71 ../src/MainWindow.vala:399
+msgid "Hide Picture Details [F4]"
 msgstr ""
 
-#: ../src/MainWindow.vala:146
+#: ../src/MainWindow.vala:74 ../src/MainWindow.vala:402
+msgid "Show Picture Details [F4]"
+msgstr ""
+
+#: ../src/MainWindow.vala:169
+msgid "Change Picture Folder…"
+msgstr ""
+
+#: ../src/MainWindow.vala:179
+msgid "Import Pictures…"
+msgstr ""
+
+#: ../src/MainWindow.vala:188
+msgid "Reset all views"
+msgstr ""
+
+#: ../src/MainWindow.vala:195
+msgid "Resync Library"
+msgstr ""
+
+#: ../src/MainWindow.vala:201
 msgid "Preferences"
 msgstr ""
 
-#: ../src/MainWindow.vala:163
+#: ../src/MainWindow.vala:222
 msgid "Search Pictures"
 msgstr ""
 
-#: ../src/MainWindow.vala:184
+#: ../src/MainWindow.vala:254
 msgid "Back"
 msgstr ""
 
-#: ../src/MainWindow.vala:262 ../src/MainWindow.vala:293
+#: ../src/MainWindow.vala:373 ../src/MainWindow.vala:408
 msgid "Show My Pictures"
 msgstr ""
 
@@ -109,10 +177,14 @@ msgstr ""
 msgid "Use Dark Theme"
 msgstr ""
 
-#: ../src/Dialogs/AlbumEditor.vala:93
-msgid "Keywords:"
+#: ../src/Dialogs/Preferences.vala:68
+msgid "Sync files on start up"
 msgstr ""
 
-#: ../src/Dialogs/AlbumEditor.vala:104
+#: ../src/Dialogs/AlbumEditor.vala:94
+msgid "Keywords"
+msgstr ""
+
+#: ../src/Dialogs/AlbumEditor.vala:112
 msgid "Save"
 msgstr ""

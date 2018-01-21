@@ -29,7 +29,7 @@
         </screenshot>
     </screenshots>
     <releases>
-        <release version="0.1.2" date="2018-01-25">
+        <release version="0.1.2" date="2018-01-22">
             <description>
                 <p>New:</p>
                 <ul>
@@ -39,7 +39,7 @@
                 <p>Improved:</p>
                 <ul>
                     <li>Clean up context menu for missing files</li>
-                    <li>Start up behavior</li>
+                    <li>Start up behavior (much faster)</li>
                 </ul>
             </description>
         </release>
