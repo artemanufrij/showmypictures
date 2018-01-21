@@ -68,8 +68,10 @@ namespace ShowMyPictures {
                 () => {
                     if (settings.show_picture_details) {
                         show_details.set_image (pane_hide);
+                        show_details.tooltip_text = _("Hide Picture Details [F4]");
                     } else {
                         show_details.set_image (pane_show);
+                        show_details.tooltip_text = _("Show Picture Details [F4]");
                     }
                 });
 
@@ -394,8 +396,10 @@ namespace ShowMyPictures {
             navigation.reveal_child = false;
             if (settings.show_picture_details) {
                 show_details.set_image (pane_hide);
+                show_details.tooltip_text = _("Hide Picture Details [F4]");
             } else {
                 show_details.set_image (pane_show);
+                show_details.tooltip_text = _("Show Picture Details [F4]");
             }
             show_details.show ();
         }

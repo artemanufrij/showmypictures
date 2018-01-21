@@ -84,6 +84,8 @@ namespace ShowMyPictures.Widgets.Views {
                     db_manager.remove_picture (current_picture);
                 });
 
+            var navigation_controls = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 6);
+
             var go_next = new Gtk.Button.from_icon_name ("go-next-symbolic", Gtk.IconSize.LARGE_TOOLBAR);
             go_next.tooltip_text = _ ("Next Picture");
             go_next.valign = Gtk.Align.CENTER;
@@ -98,16 +100,16 @@ namespace ShowMyPictures.Widgets.Views {
                 () => {
                     prev ();
                 });
+            navigation_controls.pack_start (go_prev, false, false);
+            navigation_controls.pack_start (go_next, false, false);
 
-            controls.pack_start (rotate_left, false, false);
-            controls.pack_start (rotate_right, false, false);
             controls.pack_start (into_trash, false, false);
-
-            controls.pack_end (go_next, false, false);
-            controls.pack_end (go_prev, false, false);
+            controls.set_center_widget (navigation_controls);
+            controls.pack_end (rotate_right, false, false);
+            controls.pack_end (rotate_left, false, false);
 
             var scroll = new Gtk.ScrolledWindow (null, null);
-            scroll.set_size_request (256,-1);
+            scroll.set_size_request (256, -1);
 
             var box = new Gtk.Box (Gtk.Orientation.VERTICAL, 12);
             box.margin = 12;
