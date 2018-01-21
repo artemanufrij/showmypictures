@@ -482,39 +482,40 @@ namespace ShowMyPictures {
         }
 
         public void open_file (File file) {
-            File directory = file.get_parent ();
-
             var album = new Objects.Album ("Files");
+            var current_picture = new Objects.Picture (album);
+            current_picture.path = file.get_path ();
+            album.add_picture (current_picture);
 
-            try {
-                var children = directory.enumerate_children (FileAttribute.STANDARD_CONTENT_TYPE, GLib.FileQueryInfoFlags.NONE);
-                FileInfo file_info;
+            picture_view.show_picture (current_picture);
+            show_picture ();
 
-                while ((file_info = children.next_file ()) != null) {
-                    string mime_type = file_info.get_content_type ();
-                    if (Utils.is_valid_mime_type (mime_type)) {
-                        var picture = new Objects.Picture (album);
-                        picture.path = GLib.Path.build_filename (directory.get_path (), file_info.get_name ());
-                        album.add_picture (picture);
+            new Thread<void*> (
+                "open_file",
+                () => {
+                    File directory = file.get_parent ();
+                    try {
+                        var children = directory.enumerate_children (FileAttribute.STANDARD_CONTENT_TYPE, GLib.FileQueryInfoFlags.NONE);
+                        FileInfo file_info;
+                        while ((file_info = children.next_file ()) != null) {
+                            string mime_type = file_info.get_content_type ();
+                            if (Utils.is_valid_mime_type (mime_type) && file_info.get_name () != file.get_basename ()) {
+                                var picture = new Objects.Picture (album);
+                                picture.path = GLib.Path.build_filename (directory.get_path (), file_info.get_name ());
+                                album.add_picture (picture);
+                            }
+                        }
+                        children.close ();
+                        children.dispose ();
+                    } catch (Error err) {
+                        warning (err.message);
                     }
-                }
-
-                children.close ();
-                children.dispose ();
-            }
-            catch (Error err) {
-                warning (err.message);
-            }
-            directory.dispose ();
-
-            var picture = album.get_picture_by_path (file.get_path ());
-            if (picture != null) {
-                picture_view.show_picture (picture);
-                show_picture ();
-            }
+                    directory.dispose ();
+                    return null;
+                });
         }
 
-        public void open_files (File[] files) {
+        public void open_files (File[] files, bool first_call = true) {
             if (files.length == 1 && files[0].query_exists ()) {
                 open_file (files[0]);
             } else {
@@ -530,8 +531,9 @@ namespace ShowMyPictures {
                     show_picture ();
                 }
             }
-
-            load_content_from_database.begin ();
+            if (first_call) {
+                load_content_from_database.begin ();
+            }
         }
 
         public void back_action () {

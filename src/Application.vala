@@ -142,9 +142,10 @@ namespace ShowMyPictures {
         }
 
         public override void open (File[] files, string hint) {
+            var first_call = mainwindow == null;
             create_instance (true);
             mainwindow.present ();
-            mainwindow.open_files (files);
+            mainwindow.open_files (files, first_call);
         }
 
         private void create_instance (bool open_files = false) {
