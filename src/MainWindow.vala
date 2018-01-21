@@ -538,27 +538,9 @@ namespace ShowMyPictures {
             }
         }
 
-        public void delete_action () {
-            if (content.visible_child_name == "picture") {
-                picture_view.delete_current_picture ();
-            }
-        }
-
         public void toggle_details_action () {
             if (content.visible_child_name == "picture") {
                 picture_view.toggle_picture_details ();
-            }
-        }
-
-        public void next_action () {
-            if (content.visible_child_name == "picture") {
-                picture_view.show_next_picture ();
-            }
-        }
-
-        public void prev_action () {
-            if (content.visible_child_name == "picture") {
-                picture_view.show_prev_picture ();
             }
         }
 

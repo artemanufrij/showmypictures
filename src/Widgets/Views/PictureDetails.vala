@@ -75,6 +75,15 @@ namespace ShowMyPictures.Widgets.Views {
                     current_picture.rotate_right_exiv ();
                 });
 
+
+            var into_trash = new Gtk.Button.from_icon_name ("edit-delete-symbolic", Gtk.IconSize.SMALL_TOOLBAR);
+            into_trash.tooltip_text = _ ("Move into trash");
+            into_trash.valign = Gtk.Align.CENTER;
+            into_trash.clicked.connect (
+                () => {
+                    db_manager.remove_picture (current_picture);
+                });
+
             var go_next = new Gtk.Button.from_icon_name ("go-next-symbolic", Gtk.IconSize.LARGE_TOOLBAR);
             go_next.tooltip_text = _ ("Next Picture");
             go_next.valign = Gtk.Align.CENTER;
@@ -92,6 +101,7 @@ namespace ShowMyPictures.Widgets.Views {
 
             controls.pack_start (rotate_left, false, false);
             controls.pack_start (rotate_right, false, false);
+            controls.pack_start (into_trash, false, false);
 
             controls.pack_end (go_next, false, false);
             controls.pack_end (go_prev, false, false);

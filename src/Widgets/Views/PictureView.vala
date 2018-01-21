@@ -59,6 +59,28 @@ namespace ShowMyPictures.Widgets.Views {
         public PictureView () {
             build_ui ();
             this.draw.connect (first_draw);
+
+            this.key_press_event.connect (
+                (key) => {
+                    switch (key.keyval) {
+                    case Gdk.Key.Delete :
+                        return delete_current_picture ();
+                    case Gdk.Key.Left :
+                        if (Gdk.ModifierType.MOD1_MASK in key.state) {
+                            break;
+                        }
+                        show_prev_picture ();
+                        return true;
+                    case Gdk.Key.Right :
+                        if (Gdk.ModifierType.MOD1_MASK in key.state) {
+                            break;
+                        }
+                        show_next_picture ();
+                        return true;
+                    }
+
+                    return false;
+                });
         }
 
         public bool show_next_picture () {
@@ -81,15 +103,16 @@ namespace ShowMyPictures.Widgets.Views {
             return false;
         }
 
-        public void delete_current_picture () {
+        public bool delete_current_picture () {
             if (picture_details.has_text_focus) {
-                return;
+                return false;
             }
             var for_delete = current_picture;
             if (!show_next_picture ()) {
                 show_prev_picture ();
             }
             library_manager.db_manager.remove_picture (for_delete);
+            return true;
         }
 
         private bool first_draw () {
@@ -297,7 +320,7 @@ namespace ShowMyPictures.Widgets.Views {
             }
 
             zoom_timer = Timeout.add (
-                100,
+                50,
                 () => {
                     drawing_area.set_size_request ((int)(current_pixbuf.get_width ()*zoom), (int)(current_pixbuf.get_height ()*zoom));
                     drawing_area.queue_draw ();

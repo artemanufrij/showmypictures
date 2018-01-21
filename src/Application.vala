@@ -57,15 +57,6 @@ namespace ShowMyPictures {
                 }
             });
 
-            var action_delete = new SimpleAction ("delete-action", null);
-            add_action (action_delete);
-            add_accelerator ("Delete", "app.delete-action", null);
-            action_delete.activate.connect (() => {
-                if (mainwindow != null) {
-                    mainwindow.delete_action ();
-                }
-            });
-
             var toggle_details_reset = new SimpleAction ("toggle-details-action", null);
             add_action (toggle_details_reset);
             add_accelerator ("F4", "app.toggle-details-action", null);
@@ -108,24 +99,6 @@ namespace ShowMyPictures {
             action_forward.activate.connect (() => {
                 if (mainwindow != null) {
                     mainwindow.forward_action ();
-                }
-            });
-
-            var action_next = new SimpleAction ("next-action", null);
-            add_action (action_next);
-            add_accelerator ("Right", "app.next-action", null);
-            action_next.activate.connect (() => {
-                if (mainwindow != null) {
-                    mainwindow.next_action ();
-                }
-            });
-
-            var action_prev = new SimpleAction ("prev-action", null);
-            add_action (action_prev);
-            add_accelerator ("Left", "app.prev-action", null);
-            action_prev.activate.connect (() => {
-                if (mainwindow != null) {
-                    mainwindow.prev_action ();
                 }
             });
 
