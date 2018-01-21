@@ -78,6 +78,14 @@ namespace ShowMyPictures.Widgets {
                             return false;
                         });
                 });
+            this.album.picture_removed.connect (
+                (picture) => {
+                    Idle.add (
+                        () => {
+                            counter.label = _ ("%u Pictures").printf (this.album.pictures.length ());
+                            return false;
+                        });
+                });
         }
 
         private bool first_draw () {
@@ -133,10 +141,10 @@ namespace ShowMyPictures.Widgets {
                 });
             menu.add (menu_new_cover);
 
-            menu_merge = new Gtk.MenuItem.with_label (_("Merge selected Artists"));
+            menu_merge = new Gtk.MenuItem.with_label (_ ("Merge selected Artists"));
             menu_merge.activate.connect (() => {
-                merge ();
-            });
+                                             merge ();
+                                         });
             menu.add (menu_merge);
 
             menu.show_all ();
