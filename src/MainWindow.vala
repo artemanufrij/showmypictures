@@ -195,7 +195,7 @@ namespace ShowMyPictures {
             menu_item_resync = new Gtk.MenuItem.with_label (_ ("Resync Library"));
             menu_item_resync.activate.connect (
                 () => {
-                    library_manager.sync_library_content_async.begin ();
+                    library_manager.sync_library_content_async.begin (true);
                 });
 
             var menu_item_preferences = new Gtk.MenuItem.with_label (_ ("Preferences"));

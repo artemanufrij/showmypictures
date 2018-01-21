@@ -76,13 +76,13 @@ namespace ShowMyPictures.Services {
         private LibraryManager () {
         }
 
-        public async void sync_library_content_async () {
+        public async void sync_library_content_async (bool force = false) {
             sync_started ();
             new Thread <void*> (
                 "sync_library_content",
                 () => {
                     find_non_existent_items ();
-                    if (settings.sync_files) {
+                    if (settings.sync_files || force) {
                         scan_local_library_for_new_files (settings.library_location);
                     } else {
                         scan_for_duplicates_async.begin ();

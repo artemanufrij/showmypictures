@@ -138,7 +138,7 @@ namespace ShowMyPictures.Widgets.Views {
             string[] filter_elements = filter.strip ().down ().split (" ");
             var picture = (child as Widgets.Picture).picture;
             foreach (string filter_element in filter_elements) {
-                if (!picture.path.down ().contains (filter_element)) {
+                if (!picture.path.down ().contains (filter_element) && !picture.keywords.down ().contains (filter_element) && !picture.comment.down ().contains (filter_element)) {
                     return false;
                 }
             }

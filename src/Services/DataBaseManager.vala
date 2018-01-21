@@ -95,8 +95,8 @@ namespace ShowMyPictures.Services {
                 keywords    TEXT        NOT NULL,
                 hash        TEXT        NOT NULL,
                 comment     TEXT        NOT NULL,
-                stars       INT         NULL,
-                color       TEXT        NULL,
+                stars       INT         NOT NULL,
+                colors       TEXT        NOT NULL,
                 CONSTRAINT unique_video UNIQUE (path),
                 FOREIGN KEY (album_id) REFERENCES albums (ID)
                     ON DELETE CASCADE
@@ -104,6 +104,35 @@ namespace ShowMyPictures.Services {
             if (db.exec (q, null, out errormsg) != Sqlite.OK) {
                 warning (errormsg);
             }
+
+            // TEMP ALTER
+            q = """ALTER TABLE pictures ADD
+                stars       INT         NULL;""";
+            if (db.exec (q, null, out errormsg) != Sqlite.OK) {
+                warning (errormsg);
+            }
+            q = """ALTER TABLE pictures ADD
+                colors       TEXT         NULL;""";
+            if (db.exec (q, null, out errormsg) != Sqlite.OK) {
+                warning (errormsg);
+            }
+
+            Sqlite.Statement stmt;
+            q = """
+                UPDATE albums SET stars = 0 WHERE stars IS NULL;
+            """;
+            db.prepare_v2 (q, q.length, out stmt);
+            stmt.step ();
+            stmt.reset ();
+
+            q = """
+                UPDATE albums SET colors = '' WHERE colors IS NULL;
+            """;
+            db.prepare_v2 (q, q.length, out stmt);
+            stmt.step ();
+            stmt.reset ();
+
+            // END TEM ALTER
 
             q = """PRAGMA foreign_keys=ON;""";
             if (db.exec (q, null, out errormsg) != Sqlite.OK) {
@@ -259,7 +288,7 @@ namespace ShowMyPictures.Services {
             Sqlite.Statement stmt;
 
             string sql = """
-                SELECT id, path, year, month, day, mime_type, keywords, hash, comment FROM pictures WHERE album_id=$ALBUM_ID ORDER BY year, month, day, path;
+                SELECT id, path, year, month, day, mime_type, keywords, hash, comment, stars, colors FROM pictures WHERE album_id=$ALBUM_ID ORDER BY year, month, day, path;
             """;
 
             db.prepare_v2 (sql, sql.length, out stmt);
@@ -285,6 +314,8 @@ namespace ShowMyPictures.Services {
             return_value.keywords = stmt.column_text (6);
             return_value.hash = stmt.column_text (7);
             return_value.comment = stmt.column_text (8);
+            return_value.stars = stmt.column_int (9);
+            return_value.colors = stmt.column_text (10);
             return return_value;
         }
 
@@ -292,8 +323,8 @@ namespace ShowMyPictures.Services {
             Sqlite.Statement stmt;
 
             string sql = """
-                INSERT INTO pictures (album_id, path, year, month, day, mime_type, keywords, hash, comment)
-                VALUES ($ALBUM_ID, $PATH, $YEAR, $MONTH, $DAY, $MIME_TYPE, $KEYWORDS, $HASH, $COMMENT);
+                INSERT INTO pictures (album_id, path, year, month, day, mime_type, keywords, hash, comment, stars, colors)
+                VALUES ($ALBUM_ID, $PATH, $YEAR, $MONTH, $DAY, $MIME_TYPE, $KEYWORDS, $HASH, $COMMENT, $STARS, $COLORS);
             """;
 
             db.prepare_v2 (sql, sql.length, out stmt);
@@ -303,9 +334,11 @@ namespace ShowMyPictures.Services {
             set_parameter_int (stmt, sql, "$MONTH", picture.month);
             set_parameter_int (stmt, sql, "$DAY", picture.day);
             set_parameter_str (stmt, sql, "$MIME_TYPE", picture.mime_type);
-            set_parameter_str (stmt, sql, "$KEYWORDS", picture.keywords);
+            set_parameter_str (stmt, sql, "$KEYWORDS", picture.keywords.strip ());
             set_parameter_str (stmt, sql, "$HASH", picture.hash);
-            set_parameter_str (stmt, sql, "$COMMENT", picture.comment);
+            set_parameter_str (stmt, sql, "$COMMENT", picture.comment.strip ());
+            set_parameter_int (stmt, sql, "$STARS", picture.stars);
+            set_parameter_str (stmt, sql, "$COLORS", picture.colors.strip ());
 
             if (stmt.step () != Sqlite.DONE) {
                 warning ("Error: %d: %s", db.errcode (), db.errmsg ());
@@ -337,10 +370,10 @@ namespace ShowMyPictures.Services {
 
             db.prepare_v2 (sql, sql.length, out stmt);
             set_parameter_int (stmt, sql, "$ID", picture.ID);
-            set_parameter_str (stmt, sql, "$KEYWORDS", picture.keywords);
-            set_parameter_str (stmt, sql, "$COMMENT", picture.comment);
+            set_parameter_str (stmt, sql, "$KEYWORDS", picture.keywords.strip ());
+            set_parameter_str (stmt, sql, "$COMMENT", picture.comment.strip ());
             set_parameter_int (stmt, sql, "$STARS", picture.stars);
-            set_parameter_str (stmt, sql, "$COLORS", picture.colors);
+            set_parameter_str (stmt, sql, "$COLORS", picture.colors.strip ());
 
             if (stmt.step () != Sqlite.DONE) {
                 warning ("Error: %d: %s", db.errcode (), db.errmsg ());

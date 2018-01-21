@@ -82,6 +82,9 @@ namespace ShowMyPictures.Widgets.Views {
         }
 
         public void delete_current_picture () {
+            if (picture_details.has_text_focus) {
+                return;
+            }
             var for_delete = current_picture;
             if (!show_next_picture ()) {
                 show_prev_picture ();
@@ -118,6 +121,7 @@ namespace ShowMyPictures.Widgets.Views {
             drawing_area.halign = Gtk.Align.CENTER;
             drawing_area.valign = Gtk.Align.CENTER;
             drawing_area.draw.connect (on_draw);
+            drawing_area.can_focus = true;
             scroll.add (drawing_area);
             event_box.add (scroll);
 
@@ -152,7 +156,6 @@ namespace ShowMyPictures.Widgets.Views {
                     library_manager.db_manager.remove_picture (current_picture);
                 });
 
-
             menu.add (menu_new_cover);
             menu.add (new Gtk.SeparatorMenuItem ());
             menu.add (menu_open_loacation);
@@ -174,13 +177,18 @@ namespace ShowMyPictures.Widgets.Views {
             cr.scale (zoom, zoom);
             Gdk.cairo_set_source_pixbuf (cr, current_pixbuf, 0, 0);
             cr.paint ();
-
             return true;
         }
 
         public void show_picture (Objects.Picture picture) {
             if (current_picture == picture) {
                 return;
+            }
+
+            picture_details.save_changes ();
+
+            if (current_picture != null) {
+                current_picture.updated.disconnect (picture_updated);
             }
             picture_loading ();
 
@@ -200,6 +208,13 @@ namespace ShowMyPictures.Widgets.Views {
             set_optimal_zoom ();
             picture_details.show_picture (current_picture);
             picture_loaded (current_picture);
+            current_picture.updated.connect (picture_updated);
+
+            drawing_area.grab_focus ();
+        }
+
+        private void picture_updated () {
+            ShowMyPicturesApp.instance.mainwindow.send_app_notification (_ ("Picture properties updated"));
         }
 
         public void reset () {

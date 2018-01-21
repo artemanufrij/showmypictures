@@ -36,6 +36,12 @@ namespace ShowMyPictures.Widgets.Views {
         Gtk.Entry keywords_entry;
         Gtk.TextView comment_entry;
 
+        public bool has_text_focus {
+            get {
+                return keywords_entry.is_focus || comment_entry.is_focus;
+            }
+        }
+
         construct {
             db_manager = Services.DataBaseManager.instance;
         }
@@ -70,6 +76,7 @@ namespace ShowMyPictures.Widgets.Views {
             var comment_scroll = new Gtk.ScrolledWindow (null, null);
             comment_scroll.height_request = 64;
             comment_entry = new Gtk.TextView ();
+            comment_entry.buffer.text = "";
             comment_scroll.add (comment_entry);
 
             location = new Gtk.Label ("");
@@ -94,10 +101,6 @@ namespace ShowMyPictures.Widgets.Views {
                 return;
             }
 
-            if (current_picture != null) {
-                save_changes ();
-            }
-
             current_picture = picture;
 
             if (current_picture.date == null) {
@@ -109,13 +112,15 @@ namespace ShowMyPictures.Widgets.Views {
             comment_entry.buffer.text = current_picture.comment;
         }
 
-        private void save_changes () {
+        public void save_changes () {
+            if (current_picture == null) {
+                return;
+            }
             var new_keywords = keywords_entry.text.strip ();
             var new_comment = comment_entry.buffer.text.strip ();
-            if (new_keywords!=current_picture.keywords || new_comment!=current_picture.comment) {
+            if (new_keywords != current_picture.keywords || new_comment != current_picture.comment) {
                 current_picture.keywords = new_keywords;
                 current_picture.comment = new_comment;
-
                 db_manager.update_picture (current_picture);
             }
         }

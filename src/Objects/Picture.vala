@@ -182,7 +182,6 @@ namespace ShowMyPictures.Objects {
             rotation = Utils.Exiv2.convert_rotation_from_exiv (exiv_data.get_orientation ());
             width = exiv_data.get_pixel_width ();
             height = exiv_data.get_pixel_height ();
-            comment = exiv_data.get_comment ();
 
             date = exiv_data.get_tag_string ("Exif.Photo.DateTimeOriginal");
             if (date != null && date != "") {
@@ -203,11 +202,17 @@ namespace ShowMyPictures.Objects {
                 return false;
             }
             exiv_data.set_orientation (Utils.Exiv2.rotate_left (Utils.Exiv2.convert_rotation_to_exiv (rotation)));
-            if (exiv_data.save_file (path)) {
-                rotation = Utils.Exiv2.convert_rotation_from_exiv (exiv_data.get_orientation ());
-                return true;
+
+            bool saved = false;
+            try {
+                saved = exiv_data.save_file (path);
+            } catch (Error err) {
+                warning (err.message);
             }
-            return false;
+            if (saved) {
+                rotation = Utils.Exiv2.convert_rotation_from_exiv (exiv_data.get_orientation ());
+            }
+            return saved;
         }
 
         public bool rotate_right_exiv () {
@@ -215,11 +220,17 @@ namespace ShowMyPictures.Objects {
                 return false;
             }
             exiv_data.set_orientation (Utils.Exiv2.rotate_right (Utils.Exiv2.convert_rotation_to_exiv (rotation)));
-            if (exiv_data.save_file (path)) {
-                rotation = Utils.Exiv2.convert_rotation_from_exiv (exiv_data.get_orientation ());
-                return true;
+
+            bool saved = false;
+            try {
+                saved = exiv_data.save_file (path);
+            } catch (Error err) {
+                warning (err.message);
             }
-            return false;
+            if (saved) {
+                rotation = Utils.Exiv2.convert_rotation_from_exiv (exiv_data.get_orientation ());
+            }
+            return saved;
         }
 
         private bool open_exiv () {

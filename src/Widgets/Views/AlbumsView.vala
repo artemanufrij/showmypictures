@@ -40,7 +40,7 @@ namespace ShowMyPictures.Widgets.Views {
             } set {
                 if (_filter != value) {
                     _filter = value;
-                    albums.invalidate_filter ();
+                    do_filter ();
                 }
             }
         }
@@ -49,6 +49,7 @@ namespace ShowMyPictures.Widgets.Views {
         int filter_month = 0;
 
         uint timer_sort = 0;
+        uint timer_filter = 0;
 
         construct {
             library_manager = ShowMyPictures.Services.LibraryManager.instance;
@@ -120,6 +121,24 @@ namespace ShowMyPictures.Widgets.Views {
             }
         }
 
+        private void do_filter () {
+            lock (timer_filter) {
+                if (timer_filter != 0) {
+                    Source.remove (timer_filter);
+                    timer_filter = 0;
+                }
+
+                timer_sort = Timeout.add (
+                    250,
+                    () => {
+                        albums.invalidate_filter ();
+                        Source.remove (timer_filter);
+                        timer_filter = 0;
+                        return false;
+                    });
+            }
+        }
+
         public void date_filter (int year, int month) {
             if (year != filter_year || month != filter_month) {
                 filter_year = year;
@@ -156,7 +175,7 @@ namespace ShowMyPictures.Widgets.Views {
                     if (!album.title.down ().contains (filter_element) && !album.keywords.down ().contains (filter_element)) {
                         bool picture_title = false;
                         foreach (var picture in album.pictures) {
-                            if (picture.path.down ().contains (filter_element)) {
+                            if (picture.path.down ().contains (filter_element) || picture.keywords.down ().contains (filter_element)||picture.comment.down ().contains (filter_element)) {
                                 picture_title = true;
                             }
                         }

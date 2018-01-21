@@ -44,25 +44,25 @@ namespace ShowMyPictures.Dialogs {
         }
 
         public AlbumEditor (Gtk.Window parent, Objects.Album album) {
-            Object (
-                transient_for: parent
-            );
+            Object (transient_for: parent);
             this.album = album;
             build_ui ();
 
-            this.response.connect ((source, response_id) => {
-                switch (response_id) {
-                    case Gtk.ResponseType.ACCEPT:
+            this.response.connect (
+                (source, response_id) => {
+                    switch (response_id) {
+                    case Gtk.ResponseType.ACCEPT :
                         save ();
-                    break;
-                }
-            });
-            this.key_press_event.connect ((event) => {
-                if ((event.keyval == Gdk.Key.Return || event.keyval == Gdk.Key.KP_Enter) && Gdk.ModifierType.CONTROL_MASK in event.state) {
-                    save ();
-                }
-                return false;
-            });
+                        break;
+                    }
+                });
+            this.key_press_event.connect (
+                (event) => {
+                    if ((event.keyval == Gdk.Key.Return || event.keyval == Gdk.Key.KP_Enter) && Gdk.ModifierType.CONTROL_MASK in event.state) {
+                        save ();
+                    }
+                    return false;
+                });
         }
 
         private void build_ui () {
@@ -88,10 +88,10 @@ namespace ShowMyPictures.Dialogs {
             event_box.add (cover);
 
             title_entry = new Gtk.Entry ();
-            title_entry.get_style_context ().add_class("h3");
+            title_entry.get_style_context ().add_class ("h3");
             title_entry.text = album.title;
 
-            var keywords_label = new Gtk.Label (_("Keywords"));
+            var keywords_label = new Gtk.Label (_ ("Keywords"));
             keywords_entry = new Gtk.Entry ();
             keywords_entry.text = album.keywords;
 
@@ -99,7 +99,7 @@ namespace ShowMyPictures.Dialogs {
             comment_scroll.height_request = 64;
             comment_entry = new Gtk.TextView ();
             comment_entry.buffer.text = album.comment;
-            comment_scroll.add(comment_entry);
+            comment_scroll.add (comment_entry);
 
             grid.attach (event_box, 0, 0, 2, 1);
             grid.attach (title_entry, 0, 1, 2, 1);
@@ -109,7 +109,7 @@ namespace ShowMyPictures.Dialogs {
 
             content.pack_start (grid, false, false, 0);
 
-            var save_button = this.add_button (_("Save"), Gtk.ResponseType.ACCEPT) as Gtk.Button;
+            var save_button = this.add_button (_ ("Save"), Gtk.ResponseType.ACCEPT) as Gtk.Button;
             save_button.get_style_context ().add_class (Gtk.STYLE_CLASS_SUGGESTED_ACTION);
             this.show_all ();
         }
