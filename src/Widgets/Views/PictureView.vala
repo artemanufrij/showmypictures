@@ -96,7 +96,6 @@ namespace ShowMyPictures.Widgets.Views {
                 show_picture (pic);
                 return true;
             }
-
             return false;
         }
 
@@ -106,7 +105,6 @@ namespace ShowMyPictures.Widgets.Views {
                 show_picture (pic);
                 return true;
             }
-
             return false;
         }
 
@@ -328,7 +326,7 @@ namespace ShowMyPictures.Widgets.Views {
             zoom_timer = Timeout.add (
                 50,
                 () => {
-                    drawing_area.set_size_request ((int)(current_pixbuf.get_width ()*zoom), (int)(current_pixbuf.get_height ()*zoom));
+                    drawing_area.set_size_request ((int)(current_pixbuf.get_width () * zoom), (int)(current_pixbuf.get_height () * zoom));
                     drawing_area.queue_draw ();
                     center_scrollbars ();
                     Source.remove (zoom_timer);
@@ -343,12 +341,12 @@ namespace ShowMyPictures.Widgets.Views {
 
             va.changed.connect (
                 () => {
-                    va.set_value ((va.upper - va.page_size)/2);
+                    va.set_value ((va.upper - va.page_size) / 2);
                 });
 
             ha.changed.connect (
                 () => {
-                    ha.set_value ((ha.upper - ha.page_size)/2);
+                    ha.set_value ((ha.upper - ha.page_size) / 2);
                 });
         }
 

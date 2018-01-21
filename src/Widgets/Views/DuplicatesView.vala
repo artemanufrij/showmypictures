@@ -44,6 +44,7 @@ namespace ShowMyPictures.Widgets.Views {
 
         private void build_ui () {
             duplicates = new Gtk.Box (Gtk.Orientation.VERTICAL, 12);
+            duplicates.valign = Gtk.Align.START;
             duplicates.margin = 24;
             duplicates.remove.connect_after (
                 () => {
@@ -75,7 +76,7 @@ namespace ShowMyPictures.Widgets.Views {
                         }
                         foreach (var hash in hash_list) {
                             var row = new Widgets.DuplicateRow (hash);
-                            duplicates.pack_start (row);
+                            duplicates.pack_start (row, false, false);
                         }
                     }
                     counter_changed (hash_list.length ());
