@@ -61,14 +61,14 @@ namespace ShowMyPictures.Widgets.Views {
             var controls = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 6);
             controls.margin = 12;
             var rotate_left = new Gtk.Button.from_icon_name ("object-rotate-left-symbolic", Gtk.IconSize.SMALL_TOOLBAR);
-            rotate_left.tooltip_text = _ ("Rotate left");
+            rotate_left.tooltip_text = _ ("Rotate left [Ctrl+Left]");
             rotate_left.valign = Gtk.Align.CENTER;
             rotate_left.clicked.connect (
                 () => {
                     current_picture.rotate_left_exiv ();
                 });
             var rotate_right = new Gtk.Button.from_icon_name ("object-rotate-right-symbolic", Gtk.IconSize.SMALL_TOOLBAR);
-            rotate_right.tooltip_text = _ ("Rotate right");
+            rotate_right.tooltip_text = _ ("Rotate right [Ctrl+Right]");
             rotate_right.valign = Gtk.Align.CENTER;
             rotate_right.clicked.connect (
                 () => {
