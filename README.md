@@ -25,7 +25,6 @@ sudo apt install elementary-sdk
 Install dependencies
 ```
 sudo apt install libsqlite3-dev
-sudo apt install libexif-dev
 ```
 
 Clone repository and change directory
