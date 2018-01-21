@@ -165,6 +165,19 @@ namespace ShowMyPictures.Objects {
             return null;
         }
 
+        public void merge (GLib.List<Objects.Album> albums) {
+            foreach (var album in albums) {
+                if (album.ID == ID) {
+                    continue;
+                }
+                foreach (var picture in album.pictures) {
+                    add_picture_if_not_exists (picture);
+                    db_manager.update_picture (picture);
+                }
+                db_manager.remove_album (album);
+            }
+        }
+
         public async void create_cover () {
             if (cover_creating || _cover != null) {
                 return;

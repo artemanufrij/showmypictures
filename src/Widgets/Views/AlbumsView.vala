@@ -28,6 +28,7 @@
 namespace ShowMyPictures.Widgets.Views {
     public class AlbumsView : Gtk.Grid {
         ShowMyPictures.Services.LibraryManager library_manager;
+        MainWindow mainwindow;
 
         public signal void album_selected (Objects.Album album);
 
@@ -40,7 +41,7 @@ namespace ShowMyPictures.Widgets.Views {
             } set {
                 if (_filter != value) {
                     _filter = value;
-                    do_filter ();
+                    albums.invalidate_filter ();
                 }
             }
         }
@@ -49,7 +50,6 @@ namespace ShowMyPictures.Widgets.Views {
         int filter_month = 0;
 
         uint timer_sort = 0;
-        uint timer_filter = 0;
 
         construct {
             library_manager = ShowMyPictures.Services.LibraryManager.instance;
@@ -63,7 +63,16 @@ namespace ShowMyPictures.Widgets.Views {
                 });
         }
 
-        public AlbumsView () {
+        public AlbumsView (MainWindow mainwindow) {
+            this.mainwindow = mainwindow;
+            this.mainwindow.ctrl_press.connect (() => {
+                foreach (var child in albums.get_selected_children ()) {
+                    var album = child as Widgets.Album;
+                    if (!album.multi_selection) {
+                        album.toggle_multi_selection (false);
+                    }
+                }
+            });
             build_ui ();
         }
 
@@ -72,14 +81,11 @@ namespace ShowMyPictures.Widgets.Views {
             albums.margin = 24;
             albums.valign = Gtk.Align.START;
             albums.set_filter_func (albums_filter_func);
-            albums.selection_mode = Gtk.SelectionMode.SINGLE;
+            albums.selection_mode = Gtk.SelectionMode.MULTIPLE;
             albums.max_children_per_line = 99;
             albums.row_spacing = 24;
             albums.column_spacing = 24;
-            albums.child_activated.connect (
-                (child) => {
-                    album_selected ((child as Widgets.Album).album);
-                });
+            albums.child_activated.connect (show_album_viewer);
 
             var scroll = new Gtk.ScrolledWindow (null, null);
             scroll.expand = true;
@@ -93,7 +99,33 @@ namespace ShowMyPictures.Widgets.Views {
             lock (albums) {
                 albums.add (a);
             }
+            a.merge.connect (() => {
+                GLib.List<Objects.Album> selected = new GLib.List<Objects.Album> ();
+                foreach (var child in albums.get_selected_children ()){
+                    selected.append ((child as Widgets.Album).album);
+                }
+                album.merge (selected);
+            });
             do_sort ();
+        }
+
+        private void show_album_viewer (Gtk.FlowBoxChild item) {
+            if (mainwindow.ctrl_pressed) {
+                if ((item as Widgets.Album).multi_selection) {
+                    albums.unselect_child (item);
+                    (item as Widgets.Album).reset ();
+                    return;
+                } else {
+                    (item as Widgets.Album).toggle_multi_selection (false);
+                }
+            } else if (!(item as Widgets.Album).multi_selection) {
+                foreach (var child in albums.get_selected_children ()) {
+                    (child as Widgets.Album).reset ();
+                }
+                albums.unselect_all ();
+                albums.select_child (item);
+                album_selected ((item as Widgets.Album).album);
+            }
         }
 
         public void reset () {
@@ -116,24 +148,6 @@ namespace ShowMyPictures.Widgets.Views {
                         albums.set_sort_func (null);
                         Source.remove (timer_sort);
                         timer_sort = 0;
-                        return false;
-                    });
-            }
-        }
-
-        private void do_filter () {
-            lock (timer_filter) {
-                if (timer_filter != 0) {
-                    Source.remove (timer_filter);
-                    timer_filter = 0;
-                }
-
-                timer_sort = Timeout.add (
-                    250,
-                    () => {
-                        albums.invalidate_filter ();
-                        Source.remove (timer_filter);
-                        timer_filter = 0;
                         return false;
                     });
             }
@@ -196,6 +210,13 @@ namespace ShowMyPictures.Widgets.Views {
             }
 
             return true;
+        }
+
+        public void unselect_all () {
+            foreach (var child in albums.get_selected_children ()) {
+                (child as Widgets.Album).reset ();
+            }
+            albums.unselect_all ();
         }
     }
 }

@@ -93,7 +93,11 @@ namespace ShowMyPictures.Services {
 
         public void found_local_image_file (string path, string mime_type) {
             if (!db_manager.picture_file_exists (path)) {
-                reset_duplicate_timer ();
+                if (duplicates_timer == 0) {
+                    sync_started ();
+                } else  {
+                    reset_duplicate_timer ();
+                }
                 insert_queue++;
                 insert_picture_file (path, mime_type);
                 insert_queue--;

@@ -30,6 +30,9 @@ namespace ShowMyPictures {
         Services.LibraryManager library_manager;
         Settings settings;
 
+        public signal void ctrl_press ();
+        public signal void ctrl_release ();
+
         Gtk.SearchEntry search_entry;
         Gtk.HeaderBar headerbar;
         Gtk.MenuButton app_menu;
@@ -53,6 +56,8 @@ namespace ShowMyPictures {
 
         Granite.Widgets.Toast app_notification;
 
+        public bool ctrl_pressed { get; private set; default = false; }
+
         construct {
             settings = Settings.get_default ();
             settings.notify["use-dark-theme"].connect (
@@ -68,10 +73,10 @@ namespace ShowMyPictures {
                 () => {
                     if (settings.show_picture_details) {
                         show_details.set_image (pane_hide);
-                        show_details.tooltip_text = _("Hide Picture Details [F4]");
+                        show_details.tooltip_text = _ ("Hide Picture Details [F4]");
                     } else {
                         show_details.set_image (pane_show);
-                        show_details.tooltip_text = _("Show Picture Details [F4]");
+                        show_details.tooltip_text = _ ("Show Picture Details [F4]");
                     }
                 });
 
@@ -107,6 +112,24 @@ namespace ShowMyPictures {
                     spinner.active = false;
                     menu_item_resync.sensitive = true;
                     menu_item_reset.sensitive = true;
+                });
+
+            this.key_press_event.connect (
+                (event) => {
+                    if (event.keyval == 65507) {
+                        ctrl_pressed = true;
+                        ctrl_press ();
+                    }
+                    return false;
+                });
+
+            this.key_release_event.connect (
+                (event) => {
+                    if (event.keyval == 65507) {
+                        ctrl_pressed = false;
+                        ctrl_release ();
+                    }
+                    return true;
                 });
         }
 
@@ -262,7 +285,7 @@ namespace ShowMyPictures {
             headerbar.pack_start (navigation_button);
 
             welcome = new Widgets.Views.Welcome ();
-            albums_view = new Widgets.Views.AlbumsView ();
+            albums_view = new Widgets.Views.AlbumsView (this);
             albums_view.album_selected.connect (
                 (album) => {
                     album_view.show_album (album);
@@ -396,10 +419,10 @@ namespace ShowMyPictures {
             navigation.reveal_child = false;
             if (settings.show_picture_details) {
                 show_details.set_image (pane_hide);
-                show_details.tooltip_text = _("Hide Picture Details [F4]");
+                show_details.tooltip_text = _ ("Hide Picture Details [F4]");
             } else {
                 show_details.set_image (pane_show);
-                show_details.tooltip_text = _("Show Picture Details [F4]");
+                show_details.tooltip_text = _ ("Show Picture Details [F4]");
             }
             show_details.show ();
         }
@@ -539,6 +562,8 @@ namespace ShowMyPictures {
         public void reset_action () {
             if (search_entry.visible && search_entry.text != "") {
                 search_entry.text = "";
+            } else if (content.visible_child_name == "albums") {
+                albums_view.unselect_all ();
             }
         }
 
