@@ -30,6 +30,9 @@ namespace ShowMyPictures.Widgets.Views {
         Services.DataBaseManager db_manager;
         Objects.Picture current_picture;
 
+        public signal void next ();
+        public signal void prev ();
+
         Gtk.Label title;
         Gtk.Label date_size_resolution;
         Gtk.Label location;
@@ -54,6 +57,44 @@ namespace ShowMyPictures.Widgets.Views {
             this.transition_type = Gtk.RevealerTransitionType.SLIDE_LEFT;
 
             var content = new Gtk.Grid ();
+
+            var controls = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 6);
+            controls.margin = 12;
+            var rotate_left = new Gtk.Button.from_icon_name ("object-rotate-left-symbolic", Gtk.IconSize.SMALL_TOOLBAR);
+            rotate_left.tooltip_text = _ ("Rotate left");
+            rotate_left.valign = Gtk.Align.CENTER;
+            rotate_left.clicked.connect (
+                () => {
+                    current_picture.rotate_left_exiv ();
+                });
+            var rotate_right = new Gtk.Button.from_icon_name ("object-rotate-right-symbolic", Gtk.IconSize.SMALL_TOOLBAR);
+            rotate_right.tooltip_text = _ ("Rotate right");
+            rotate_right.valign = Gtk.Align.CENTER;
+            rotate_right.clicked.connect (
+                () => {
+                    current_picture.rotate_right_exiv ();
+                });
+
+            var go_next = new Gtk.Button.from_icon_name ("go-next-symbolic", Gtk.IconSize.LARGE_TOOLBAR);
+            go_next.tooltip_text = _ ("Next Picture");
+            go_next.valign = Gtk.Align.CENTER;
+            go_next.clicked.connect (
+                () => {
+                    next ();
+                });
+            var go_prev = new Gtk.Button.from_icon_name ("go-previous-symbolic", Gtk.IconSize.LARGE_TOOLBAR);
+            go_prev.tooltip_text = _ ("Previous Picture");
+            go_prev.valign = Gtk.Align.CENTER;
+            go_prev.clicked.connect (
+                () => {
+                    prev ();
+                });
+
+            controls.pack_start (rotate_left, false, false);
+            controls.pack_start (rotate_right, false, false);
+
+            controls.pack_end (go_next, false, false);
+            controls.pack_end (go_prev, false, false);
 
             var scroll = new Gtk.ScrolledWindow (null, null);
             scroll.set_size_request (256,-1);
@@ -84,13 +125,15 @@ namespace ShowMyPictures.Widgets.Views {
             location.wrap = true;
             location.wrap_mode = Pango.WrapMode.WORD_CHAR;
 
-            content.attach (new Gtk.Separator (Gtk.Orientation.VERTICAL), 0, 0, 1, 2);
-            content.attach (scroll, 1, 0);
-
             box.pack_start (date_size_resolution, false, false);
             box.pack_start (keywords_entry, false, false);
             box.pack_start (comment_scroll, false, false);
             box.pack_start (location, false, false);
+
+
+            content.attach (new Gtk.Separator (Gtk.Orientation.VERTICAL), 0, 0, 1, 2);
+            content.attach (controls, 1, 0);
+            content.attach (scroll, 1, 1);
 
             this.add (content);
             this.show_all ();

@@ -37,8 +37,6 @@ namespace ShowMyPictures {
         Gtk.MenuItem menu_item_resync;
         Gtk.Stack content;
         Gtk.Button navigation_button;
-        Gtk.Button rotate_left;
-        Gtk.Button rotate_right;
         Gtk.Button show_details;
         Gtk.Spinner spinner;
 
@@ -261,24 +259,6 @@ namespace ShowMyPictures {
                 });
             headerbar.pack_start (navigation_button);
 
-            rotate_left = new Gtk.Button.from_icon_name ("object-rotate-left-symbolic", Gtk.IconSize.SMALL_TOOLBAR);
-            rotate_left.tooltip_text = _ ("Rotate left");
-            rotate_left.valign = Gtk.Align.CENTER;
-            rotate_left.clicked.connect (
-                () => {
-                    rotate_left_action ();
-                });
-            rotate_right = new Gtk.Button.from_icon_name ("object-rotate-right-symbolic", Gtk.IconSize.SMALL_TOOLBAR);
-            rotate_right.tooltip_text = _ ("Rotate right");
-            rotate_right.valign = Gtk.Align.CENTER;
-            rotate_right.clicked.connect (
-                () => {
-                    rotate_right_action ();
-                });
-
-            headerbar.pack_start (rotate_left);
-            headerbar.pack_start (rotate_right);
-
             welcome = new Widgets.Views.Welcome ();
             albums_view = new Widgets.Views.AlbumsView ();
             albums_view.album_selected.connect (
@@ -377,16 +357,12 @@ namespace ShowMyPictures {
 
         private void show_duplicates () {
             content.visible_child_name = "duplicates";
-            rotate_left.hide ();
-            rotate_right.hide ();
             navigation_button.show ();
             show_details.hide ();
         }
 
         private void show_not_found () {
             content.visible_child_name = "not_found";
-            rotate_left.hide ();
-            rotate_right.hide ();
             navigation_button.show ();
             show_details.hide ();
         }
@@ -395,8 +371,6 @@ namespace ShowMyPictures {
             headerbar.title = _ ("Show My Pictures");
             content.visible_child_name = "albums";
             navigation_button.hide ();
-            rotate_left.hide ();
-            rotate_right.hide ();
             search_entry.show ();
             search_entry.text = albums_view.filter;
             navigation.reveal_child = true;
@@ -407,8 +381,6 @@ namespace ShowMyPictures {
             headerbar.title = album_view.current_album.title;
             content.visible_child_name = "album";
             navigation_button.show ();
-            rotate_left.hide ();
-            rotate_right.hide ();
             search_entry.show ();
             search_entry.text = album_view.filter;
             navigation.reveal_child = true;
@@ -418,8 +390,6 @@ namespace ShowMyPictures {
         private void show_picture () {
             content.visible_child_name = "picture";
             navigation_button.show ();
-            rotate_left.show ();
-            rotate_right.show ();
             search_entry.hide ();
             navigation.reveal_child = false;
             if (settings.show_picture_details) {
@@ -434,8 +404,6 @@ namespace ShowMyPictures {
             headerbar.title = _ ("Show My Pictures");
             content.visible_child_name = "welcome";
             navigation_button.hide ();
-            rotate_left.hide ();
-            rotate_right.hide ();
             search_entry.hide ();
             navigation.reveal_child = false;
             show_details.hide ();

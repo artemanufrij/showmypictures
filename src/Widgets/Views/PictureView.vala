@@ -164,6 +164,15 @@ namespace ShowMyPictures.Widgets.Views {
 
             picture_details = new Widgets.Views.PictureDetails ();
             picture_details.reveal_child = settings.show_picture_details;
+            picture_details.next.connect (
+                () => {
+                    show_next_picture ();
+                });
+            picture_details.prev.connect (
+                () => {
+                    show_prev_picture ();
+                });
+
             this.attach (event_box, 0, 0);
             this.attach (picture_details, 1, 0);
         }
@@ -189,6 +198,7 @@ namespace ShowMyPictures.Widgets.Views {
 
             if (current_picture != null) {
                 current_picture.updated.disconnect (picture_updated);
+                current_picture.rotated.disconnect (picture_rotated);
             }
             picture_loading ();
 
@@ -209,12 +219,19 @@ namespace ShowMyPictures.Widgets.Views {
             picture_details.show_picture (current_picture);
             picture_loaded (current_picture);
             current_picture.updated.connect (picture_updated);
+            current_picture.rotated.connect (picture_rotated);
 
             drawing_area.grab_focus ();
         }
 
         private void picture_updated () {
             ShowMyPicturesApp.instance.mainwindow.send_app_notification (_ ("Picture properties updated"));
+        }
+
+        private void picture_rotated () {
+            var p = current_picture;
+            current_picture = null;
+            show_picture (p);
         }
 
         public void reset () {
@@ -342,19 +359,11 @@ namespace ShowMyPictures.Widgets.Views {
         }
 
         public void rotate_left () {
-            if (current_picture.rotate_left_exiv ()) {
-                var p = current_picture;
-                current_picture = null;
-                show_picture (p);
-            }
+            current_picture.rotate_left_exiv ();
         }
 
         public void rotate_right () {
-            if (current_picture.rotate_right_exiv ()) {
-                var p = current_picture;
-                current_picture = null;
-                show_picture (p);
-            }
+            current_picture.rotate_right_exiv ();
         }
     }
 }
