@@ -58,6 +58,7 @@ namespace ShowMyPictures.Widgets.Views {
 
         public PictureView () {
             build_ui ();
+            this.can_focus = true;
             this.draw.connect (first_draw);
 
             this.key_press_event.connect (
@@ -150,7 +151,6 @@ namespace ShowMyPictures.Widgets.Views {
             drawing_area.halign = Gtk.Align.CENTER;
             drawing_area.valign = Gtk.Align.CENTER;
             drawing_area.draw.connect (on_draw);
-            drawing_area.can_focus = true;
             scroll.add (drawing_area);
             event_box.add (scroll);
 
@@ -223,7 +223,7 @@ namespace ShowMyPictures.Widgets.Views {
                 return;
             }
 
-            picture_details.save_changes ();
+            save_changes ();
 
             if (current_picture != null) {
                 current_picture.updated.disconnect (picture_updated);
@@ -250,7 +250,7 @@ namespace ShowMyPictures.Widgets.Views {
             current_picture.updated.connect (picture_updated);
             current_picture.rotated.connect (picture_rotated);
 
-            drawing_area.grab_focus ();
+            this.grab_focus ();
         }
 
         private void picture_updated () {
@@ -393,6 +393,10 @@ namespace ShowMyPictures.Widgets.Views {
 
         public void rotate_right () {
             current_picture.rotate_right_exiv ();
+        }
+
+        public void save_changes () {
+            picture_details.save_changes ();
         }
     }
 }

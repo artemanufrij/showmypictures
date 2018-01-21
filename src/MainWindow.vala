@@ -544,6 +544,7 @@ namespace ShowMyPictures {
                 } else {
                     show_albums ();
                 }
+                picture_view.save_changes ();
                 break;
             case "not_found" :
             case "album" :

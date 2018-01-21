@@ -58,6 +58,7 @@ namespace ShowMyPictures.Widgets.Views {
             pictures.row_spacing = 12;
             pictures.column_spacing = 12;
             pictures.valign = Gtk.Align.START;
+            pictures.selection_mode = Gtk.SelectionMode.SINGLE;
             pictures.set_filter_func (pictures_filter_func);
             pictures.child_activated.connect ((child) => {
                 picture_selected ((child as Widgets.Picture).picture);

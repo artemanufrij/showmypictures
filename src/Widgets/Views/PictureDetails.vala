@@ -168,7 +168,7 @@ namespace ShowMyPictures.Widgets.Views {
         }
 
         public void save_changes () {
-            if (current_picture == null) {
+            if (current_picture == null || current_picture.ID == 0) {
                 return;
             }
             var new_keywords = keywords_entry.text.strip ();
