@@ -143,7 +143,11 @@ namespace ShowMyPictures.Objects {
         public Picture ? get_next_picture (Picture current) {
             int i = _pictures.index (current) + 1;
             if (i < _pictures.length ()) {
-                return _pictures.nth_data (i);
+                var next = _pictures.nth_data (i);
+                if (next.file_exists ()) {
+                    return next;
+                }
+                return get_next_picture (next);
             }
             return null;
         }
@@ -151,7 +155,11 @@ namespace ShowMyPictures.Objects {
         public Picture ? get_prev_picture (Picture current) {
             int i = _pictures.index (current) - 1;
             if (i > -1) {
-                return _pictures.nth_data (i);
+                var prev = _pictures.nth_data (i);
+                if (prev.file_exists ()) {
+                    return prev;
+                }
+                return get_prev_picture (prev);
             }
             return null;
         }

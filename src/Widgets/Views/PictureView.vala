@@ -43,8 +43,8 @@ namespace ShowMyPictures.Widgets.Views {
         Gtk.Menu menu;
         Gtk.Menu open_with;
 
-        double zoom = 1;
-        double optimal_zoom = 1;
+        public double zoom { get; private set; default = 1; }
+        public double optimal_zoom { get; private set; default = 1; }
 
         int current_width = 1;
         int current_height = 1;
@@ -122,7 +122,7 @@ namespace ShowMyPictures.Widgets.Views {
 
         private bool first_draw () {
             this.draw.disconnect (first_draw);
-            set_optimal_zoom ();
+            calc_optimal_zoom ();
             return false;
         }
 
@@ -242,7 +242,7 @@ namespace ShowMyPictures.Widgets.Views {
             }
             drawing_area.tooltip_text = current_picture.path;
 
-            set_optimal_zoom ();
+            calc_optimal_zoom ();
             picture_details.show_picture (current_picture);
             picture_loaded (current_picture);
             current_picture.updated.connect (picture_updated);
@@ -266,7 +266,7 @@ namespace ShowMyPictures.Widgets.Views {
             this.tooltip_text = "";
         }
 
-        public void set_optimal_zoom () {
+        public void calc_optimal_zoom (bool force = false) {
             current_width = scroll.get_allocated_width ();
             current_height = scroll.get_allocated_height ();
 
@@ -290,7 +290,11 @@ namespace ShowMyPictures.Widgets.Views {
             } else if (zoom < 0.1) {
                 zoom = 0.1;
             }
-            do_zoom ();
+            if (force) {
+                zooming ();
+            } else {
+                do_zoom ();
+            }
         }
 
         public void zoom_in () {
@@ -302,7 +306,7 @@ namespace ShowMyPictures.Widgets.Views {
             if (zoom > 1) {
                 zoom = 1;
             }
-            do_zoom ();
+                    zooming ();
         }
 
         public void zoom_out () {
@@ -313,8 +317,11 @@ namespace ShowMyPictures.Widgets.Views {
             zoom -= 0.1;
             if (zoom < optimal_zoom) {
                 zoom = optimal_zoom;
+                if (zoom > 1) {
+                    zoom = 1;
+                }
             }
-            do_zoom ();
+                    zooming ();
         }
 
         private void do_zoom () {
@@ -324,15 +331,19 @@ namespace ShowMyPictures.Widgets.Views {
             }
 
             zoom_timer = Timeout.add (
-                50,
+                250,
                 () => {
-                    drawing_area.set_size_request ((int)(current_pixbuf.get_width () * zoom), (int)(current_pixbuf.get_height () * zoom));
-                    drawing_area.queue_draw ();
-                    center_scrollbars ();
+                    zooming ();
                     Source.remove (zoom_timer);
                     zoom_timer = 0;
                     return false;
                 });
+        }
+
+        private void zooming () {
+            drawing_area.set_size_request ((int)(current_pixbuf.get_width () * zoom), (int)(current_pixbuf.get_height () * zoom));
+            drawing_area.queue_draw ();
+            center_scrollbars ();
         }
 
         private void center_scrollbars () {

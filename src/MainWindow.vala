@@ -164,7 +164,7 @@ namespace ShowMyPictures {
                     settings.window_width = event.width;
                     settings.window_height = event.height;
                     if (content.visible_child_name == "picture") {
-                        picture_view.set_optimal_zoom ();
+                        picture_view.calc_optimal_zoom ();
                     }
                     return false;
                 });
@@ -486,7 +486,6 @@ namespace ShowMyPictures {
             var current_picture = new Objects.Picture (album);
             current_picture.path = file.get_path ();
             album.add_picture (current_picture);
-
             picture_view.show_picture (current_picture);
             show_picture ();
 
@@ -516,6 +515,7 @@ namespace ShowMyPictures {
         }
 
         public void open_files (File[] files, bool first_call = true) {
+            content.transition_type = Gtk.StackTransitionType.NONE;
             if (files.length == 1 && files[0].query_exists ()) {
                 open_file (files[0]);
             } else {
@@ -531,6 +531,7 @@ namespace ShowMyPictures {
                     show_picture ();
                 }
             }
+            content.transition_type = Gtk.StackTransitionType.SLIDE_LEFT_RIGHT;
             if (first_call) {
                 load_content_from_database.begin ();
             }
