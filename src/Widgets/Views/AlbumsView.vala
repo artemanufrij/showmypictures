@@ -65,14 +65,15 @@ namespace ShowMyPictures.Widgets.Views {
 
         public AlbumsView (MainWindow mainwindow) {
             this.mainwindow = mainwindow;
-            this.mainwindow.ctrl_press.connect (() => {
-                foreach (var child in albums.get_selected_children ()) {
-                    var album = child as Widgets.Album;
-                    if (!album.multi_selection) {
-                        album.toggle_multi_selection (false);
+            this.mainwindow.ctrl_press.connect (
+                () => {
+                    foreach (var child in albums.get_selected_children ()) {
+                        var album = child as Widgets.Album;
+                        if (!album.multi_selection) {
+                            album.toggle_multi_selection (false);
+                        }
                     }
-                }
-            });
+                });
             build_ui ();
         }
 
@@ -86,6 +87,13 @@ namespace ShowMyPictures.Widgets.Views {
             albums.row_spacing = 24;
             albums.column_spacing = 24;
             albums.child_activated.connect (show_album_viewer);
+            albums.button_press_event.connect (
+                () => {
+                    if (!mainwindow.ctrl_pressed) {
+                        unselect_all ();
+                    }
+                    return false;
+                });
 
             var scroll = new Gtk.ScrolledWindow (null, null);
             scroll.expand = true;
@@ -99,13 +107,14 @@ namespace ShowMyPictures.Widgets.Views {
             lock (albums) {
                 albums.add (a);
             }
-            a.merge.connect (() => {
-                GLib.List<Objects.Album> selected = new GLib.List<Objects.Album> ();
-                foreach (var child in albums.get_selected_children ()){
-                    selected.append ((child as Widgets.Album).album);
-                }
-                album.merge (selected);
-            });
+            a.merge.connect (
+                () => {
+                    GLib.List<Objects.Album> selected = new GLib.List<Objects.Album> ();
+                    foreach (var child in albums.get_selected_children ()) {
+                        selected.append ((child as Widgets.Album).album);
+                    }
+                    album.merge (selected);
+                });
             do_sort ();
         }
 
