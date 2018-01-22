@@ -205,11 +205,9 @@ namespace ShowMyPictures.Widgets.Views {
         }
 
         public bool on_draw (Cairo.Context cr) {
-            stdout.printf ("draw\n");
             if (current_picture == null) {
                 return true;
             }
-
             cr.scale (zoom, zoom);
             Gdk.cairo_set_source_pixbuf (cr, current_pixbuf, 0, 0);
             cr.paint ();
