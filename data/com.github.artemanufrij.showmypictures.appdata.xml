@@ -36,6 +36,10 @@
                     <li>Merge Albums</li>
                     <li>Copy Image into Clipboard by press [Ctrl+c]</li>
                 </ul>
+                <p>Fix:</p>
+                <ul>
+                    <li>Rotation of preview pictures</li>
+                </ul>
                 <p>Improved:</p>
                 <ul>
                     <li>Open external files</li>

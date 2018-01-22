@@ -32,6 +32,7 @@ namespace ShowMyPictures.Objects {
         public signal void picture_added (Picture picture, uint new_count);
         public signal void picture_removed (Picture picture);
         public signal void cover_created ();
+        public signal void updated ();
         public signal void removed ();
 
         int _ID = 0;
@@ -118,6 +119,7 @@ namespace ShowMyPictures.Objects {
                     (a, b) => {
                         return a.path.collate (b.path);
                     });
+                picture_added (picture, _pictures.length ());
             }
         }
 
@@ -131,7 +133,6 @@ namespace ShowMyPictures.Objects {
                 new_picture.album = this;
                 db_manager.insert_picture (new_picture);
                 add_picture (new_picture);
-                picture_added (new_picture, _pictures.length ());
             }
             create_cover.begin ();
         }
@@ -164,7 +165,7 @@ namespace ShowMyPictures.Objects {
             return null;
         }
 
-        public Picture? get_picture_by_path (string path) {
+        public Picture ? get_picture_by_path (string path) {
             foreach (var picture in pictures) {
                 if (picture.path == path) {
                     return picture;
@@ -174,16 +175,22 @@ namespace ShowMyPictures.Objects {
         }
 
         public void merge (GLib.List<Objects.Album> albums) {
-            foreach (var album in albums) {
-                if (album.ID == ID) {
-                    continue;
-                }
-                foreach (var picture in album.pictures) {
-                    add_picture_if_not_exists (picture);
-                    db_manager.update_picture (picture);
-                }
-                db_manager.remove_album (album);
-            }
+        //    new Thread<void*> (
+        //        "merge_albums",
+        //        () => {
+                    foreach (var album in albums) {
+                        if (album.ID == ID) {
+                            continue;
+                        }
+                        foreach (var picture in album.pictures) {
+                            picture.album = this;
+                            add_picture (picture);
+                            db_manager.update_picture (picture);
+                        }
+                        db_manager.remove_album (album);
+                    }
+        //            return null;
+        //        });
         }
 
         public async void create_cover () {

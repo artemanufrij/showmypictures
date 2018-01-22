@@ -27,15 +27,19 @@
 
 namespace ShowMyPictures.Widgets {
     public class NavigationAlbum : Granite.Widgets.SourceList.ExpandableItem, Granite.Widgets.SourceListSortable {
-
         public Objects.Album album { get; private set; }
 
         public NavigationAlbum (Objects.Album album) {
             this.album = album;
             this.name = this.album.title;
-            this.album.removed.connect (() => {
-                this.parent.remove (this);
-            });
+            this.album.removed.connect (
+                () => {
+                    this.parent.remove (this);
+                });
+            this.album.updated.connect (
+                () => {
+                    this.name = this.album.title;
+                });
         }
 
         public int compare (Granite.Widgets.SourceList.Item a, Granite.Widgets.SourceList.Item b) {

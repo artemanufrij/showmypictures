@@ -213,6 +213,7 @@ namespace ShowMyPictures.Objects {
             if (saved) {
                 rotation = Utils.Exiv2.convert_rotation_from_exiv (exiv_data.get_orientation ());
                 rotated ();
+                create_preview_from_path (path);
             }
             return saved;
         }
@@ -232,6 +233,7 @@ namespace ShowMyPictures.Objects {
             if (saved) {
                 rotation = Utils.Exiv2.convert_rotation_from_exiv (exiv_data.get_orientation ());
                 rotated ();
+                create_preview_from_path (path);
             }
             return saved;
         }

@@ -96,7 +96,7 @@ namespace ShowMyPictures.Services {
                 hash        TEXT        NOT NULL,
                 comment     TEXT        NOT NULL,
                 stars       INT         NOT NULL,
-                colors       TEXT        NOT NULL,
+                colors      TEXT        NOT NULL,
                 CONSTRAINT unique_video UNIQUE (path),
                 FOREIGN KEY (album_id) REFERENCES albums (ID)
                     ON DELETE CASCADE
@@ -200,6 +200,8 @@ namespace ShowMyPictures.Services {
 
             if (stmt.step () != Sqlite.DONE) {
                 warning ("Error: %d: %s", db.errcode (), db.errmsg ());
+            } else {
+                album.updated ();
             }
             stmt.reset ();
         }
@@ -365,11 +367,12 @@ namespace ShowMyPictures.Services {
             Sqlite.Statement stmt;
 
             string sql = """
-                UPDATE pictures SET keywords=$KEYWORDS, comment=$COMMENT, stars=$STARS, colors=$COLORS WHERE id=$ID;
+                UPDATE pictures SET album_id=$ALBUM_ID, keywords=$KEYWORDS, comment=$COMMENT, stars=$STARS, colors=$COLORS WHERE id=$ID;
             """;
 
             db.prepare_v2 (sql, sql.length, out stmt);
             set_parameter_int (stmt, sql, "$ID", picture.ID);
+            set_parameter_int (stmt, sql, "$ALBUM_ID", picture.album.ID);
             set_parameter_str (stmt, sql, "$KEYWORDS", picture.keywords.strip ());
             set_parameter_str (stmt, sql, "$COMMENT", picture.comment.strip ());
             set_parameter_int (stmt, sql, "$STARS", picture.stars);

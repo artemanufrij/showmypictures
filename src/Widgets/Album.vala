@@ -141,7 +141,7 @@ namespace ShowMyPictures.Widgets {
                 });
             menu.add (menu_new_cover);
 
-            menu_merge = new Gtk.MenuItem.with_label (_ ("Merge selected Artists"));
+            menu_merge = new Gtk.MenuItem.with_label ("");
             menu_merge.activate.connect (() => {
                                              merge ();
                                          });
@@ -199,7 +199,9 @@ namespace ShowMyPictures.Widgets {
                 (this.parent as Gtk.FlowBox).select_child (this);
 
                 // MERGE
-                if ((this.parent as Gtk.FlowBox).get_selected_children ().length () > 1) {
+                var count = (this.parent as Gtk.FlowBox).get_selected_children ().length ();
+                if (count > 1) {
+                    menu_merge.label = _ ("Merge %u selected Albums").printf (count);
                     menu_merge.show_all ();
                 } else {
                     menu_merge.hide ();
