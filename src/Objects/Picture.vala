@@ -31,6 +31,7 @@ namespace ShowMyPictures.Objects {
         public signal void removed ();
         public signal void updated ();
         public signal void rotated ();
+        public signal void external_modified ();
         public signal void file_not_found ();
 
         int _ID = 0;
@@ -106,6 +107,7 @@ namespace ShowMyPictures.Objects {
         }
 
         GExiv2.Metadata ? exiv_data = null;
+        FileMonitor ? monitor = null;
 
         bool preview_creating = false;
         bool exiv_excluded = false;
@@ -339,6 +341,32 @@ namespace ShowMyPictures.Objects {
                 return_value = false;
             }
             return return_value;
+        }
+
+        public void start_monitoring () {
+            if (monitor == null) {
+                var file = File.new_for_path (path);
+                try {
+                    monitor = file.monitor_file (FileMonitorFlags.NONE);
+                } catch (Error err) {
+                    warning (err.message);
+                }
+                if (monitor == null) {
+                    return;
+                }
+                monitor.changed.connect (
+                    (file, other_file, event) => {
+                        if (event == FileMonitorEvent.CHANGED) {
+                            new Thread<void*> (
+                                "start_monitoring",
+                                () => {
+                                    create_preview_from_path (path);
+                                    return null;
+                                });
+                            external_modified ();
+                        }
+                    });
+            }
         }
     }
 }

@@ -4,7 +4,7 @@
     <id>com.github.artemanufrij.showmypictures.desktop</id>
     <metadata_license>CC0-1.0</metadata_license>
     <project_license>GPL-3.0+</project_license>
-    <name>Image Viewer</name>
+    <name>Picture Manager</name>
     <summary>Manage local image files</summary>
     <description>
         <p>A very fast image viewer designed extra for large local libraries.</p>
@@ -35,10 +35,12 @@
                 <ul>
                     <li>Merge Albums</li>
                     <li>Copy Image into Clipboard by press [Ctrl+c]</li>
+                    <li>Monitoring external opened files of their changes</li>
+                    <li>Canon .CR2 support</li>
                 </ul>
                 <p>Fix:</p>
                 <ul>
-                    <li>Rotation of preview pictures</li>
+                    <li>Preview pictures follows rotation</li>
                 </ul>
                 <p>Improved:</p>
                 <ul>

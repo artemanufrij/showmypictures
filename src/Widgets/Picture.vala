@@ -150,6 +150,7 @@ namespace ShowMyPictures.Widgets {
                                 GLib.List<File> files = new GLib.List<File> ();
                                 files.append (f);
                                 try {
+                                    picture.start_monitoring ();
                                     appinfo.launch (files, null);
                                 } catch (Error err) {
                                     warning (err.message);

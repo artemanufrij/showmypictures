@@ -223,7 +223,8 @@ namespace ShowMyPictures.Widgets.Views {
 
             if (current_picture != null) {
                 current_picture.updated.disconnect (picture_updated);
-                current_picture.rotated.disconnect (picture_rotated);
+                current_picture.rotated.disconnect (picture_reload);
+                current_picture.external_modified.disconnect (picture_reload);
             }
             picture_loading ();
 
@@ -244,7 +245,8 @@ namespace ShowMyPictures.Widgets.Views {
             picture_details.show_picture (current_picture);
             picture_loaded (current_picture);
             current_picture.updated.connect (picture_updated);
-            current_picture.rotated.connect (picture_rotated);
+            current_picture.rotated.connect (picture_reload);
+            current_picture.external_modified.connect (picture_reload);
 
             this.grab_focus ();
         }
@@ -253,7 +255,7 @@ namespace ShowMyPictures.Widgets.Views {
             ShowMyPicturesApp.instance.mainwindow.send_app_notification (_ ("Picture properties updated"));
         }
 
-        private void picture_rotated () {
+        private void picture_reload () {
             var p = current_picture;
             current_picture = null;
             show_picture (p);
@@ -379,6 +381,7 @@ namespace ShowMyPictures.Widgets.Views {
                             GLib.List<File> files = new GLib.List<File> ();
                             files.append (f);
                             try {
+                                current_picture.start_monitoring ();
                                 appinfo.launch (files, null);
                             } catch (Error err) {
                                 warning (err.message);
