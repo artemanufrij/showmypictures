@@ -37,6 +37,7 @@
                     <li>Copy Image into Clipboard by press [Ctrl+c]</li>
                     <li>Monitoring external opened files of their changes</li>
                     <li>Canon .CR2 support</li>
+                    <li>Show Camera details like ISO, FNumber, Exposure Time, Focal Length</li>
                 </ul>
                 <p>Fix:</p>
                 <ul>
