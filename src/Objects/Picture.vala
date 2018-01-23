@@ -79,6 +79,12 @@ namespace ShowMyPictures.Objects {
         public int width { get; private set; default = 0; }
         public int height { get; private set; default = 0; }
         public string date { get; private set; default = ""; }
+        public int iso_speed { get; private set; default = 0; }
+        public double fnumber { get; private set; default = 0; }
+        public double focal_length { get; private set; default = 0; }
+        public int objective_zoom { get; private set; default = 0; }
+        public int exposure_time_nom { get; private set; default = 0; }
+        public int exposure_time_den { get; private set; default = 0; }
 
         public string keywords { get; set; default = ""; }
         public string comment { get; set; default = ""; }
@@ -181,9 +187,17 @@ namespace ShowMyPictures.Objects {
                 return;
             }
 
+            int nom = 0;
+            int den = 0;
+            exiv_data.get_exposure_time (out nom, out den);
+            exposure_time_nom = nom;
+            exposure_time_den = den;
             rotation = Utils.Exiv2.convert_rotation_from_exiv (exiv_data.get_orientation ());
             width = exiv_data.get_pixel_width ();
             height = exiv_data.get_pixel_height ();
+            iso_speed = exiv_data.get_iso_speed ();
+            fnumber = exiv_data.get_fnumber ();
+            focal_length = exiv_data.get_focal_length ();
 
             date = exiv_data.get_tag_string ("Exif.Photo.DateTimeOriginal");
             if (date != null && date != "") {

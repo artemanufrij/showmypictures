@@ -39,6 +39,8 @@ namespace ShowMyPictures.Widgets.Views {
         Gtk.Entry keywords_entry;
         Gtk.TextView comment_entry;
 
+        Gtk.Label lab_details;
+
         public bool has_text_focus {
             get {
                 return keywords_entry.is_focus || comment_entry.is_focus;
@@ -132,6 +134,8 @@ namespace ShowMyPictures.Widgets.Views {
             comment_entry.buffer.text = "";
             comment_scroll.add (comment_entry);
 
+            lab_details = new Gtk.Label ("");
+
             location = new Gtk.Label ("");
             location.xalign = 0;
             location.wrap = true;
@@ -140,8 +144,8 @@ namespace ShowMyPictures.Widgets.Views {
             box.pack_start (date_size_resolution, false, false);
             box.pack_start (keywords_entry, false, false);
             box.pack_start (comment_scroll, false, false);
+            box.pack_start (lab_details, false, false);
             box.pack_start (location, false, false);
-
 
             content.attach (new Gtk.Separator (Gtk.Orientation.VERTICAL), 0, 0, 1, 2);
             content.attach (controls, 1, 0);
@@ -165,6 +169,33 @@ namespace ShowMyPictures.Widgets.Views {
             location.label = current_picture.path;
             keywords_entry.text = current_picture.keywords;
             comment_entry.buffer.text = current_picture.comment;
+            show_camera_details ();
+        }
+
+        private void show_camera_details () {
+            if (current_picture.iso_speed > 0) {
+                var nom = current_picture.exposure_time_nom;
+                var den = current_picture.exposure_time_den;
+                var exposure = "%d/%ds".printf (nom, den);
+                if (nom > 1) {
+                    if (nom % den == 0) {
+                        exposure = "%.f\"".printf ((double)nom / den);
+                    } else {
+                        exposure = "%.1f\"".printf ((double)nom / den);
+                    }
+                } else if (den <= 3) {
+                    exposure = "%.1f\"".printf ((double)nom / den);
+                }
+
+                lab_details.label= "ISO: %d | f: %.1f | %s | %.0fmm".printf (
+                    current_picture.iso_speed,
+                    current_picture.fnumber,
+                    exposure,
+                    current_picture.focal_length);
+                lab_details.show ();
+            } else {
+                lab_details.hide ();
+            }
         }
 
         public void save_changes () {
