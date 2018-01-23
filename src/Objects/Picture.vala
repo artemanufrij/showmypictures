@@ -62,7 +62,6 @@ namespace ShowMyPictures.Objects {
             } set {
                 _path = value;
                 if (ID == 0) {
-                    //exclude_exif ();
                     exclude_exiv ();
                     if (year == 0) {
                         exclude_creation_date ();
