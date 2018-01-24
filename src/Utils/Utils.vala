@@ -61,4 +61,15 @@ namespace ShowMyPictures.Utils {
 
         return null;
     }
+
+    public static string format_keywords (string keywords) {
+        string return_value = keywords;
+        while (return_value.index_of ("  ") >= 0) {
+            return_value = return_value.replace ("  ", " ");
+        }
+
+        return_value = return_value.replace (" ,", ",");
+        return_value = return_value.replace (", ", ",");
+        return return_value;
+    }
 }

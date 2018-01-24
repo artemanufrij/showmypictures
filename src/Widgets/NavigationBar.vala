@@ -32,6 +32,7 @@ namespace ShowMyPictures.Widgets {
         public signal void remove_all_not_found_items ();
         public signal void album_selected (Objects.Album album);
         public signal void date_selected (int year, int month);
+        public signal void label_selected (string label);
         public signal void duplicates_selected ();
         public signal void not_found_selected ();
 
@@ -39,6 +40,7 @@ namespace ShowMyPictures.Widgets {
         Granite.Widgets.SourceList.ExpandableItem events_entry;
         Granite.Widgets.SourceList.ExpandableItem device_entry;
         Granite.Widgets.SourceList.ExpandableItem extras_entry;
+        Granite.Widgets.SourceList.ExpandableItem labels_entry;
         Granite.Widgets.SourceList.Item duplicates_item;
         Widgets.NavigationNotFound not_found_item;
 
@@ -53,6 +55,11 @@ namespace ShowMyPictures.Widgets {
                             add_album (album);
                             return false;
                         });
+                });
+
+            library_manager.db_manager.keywords_changed.connect (
+                () => {
+                    load_keywords ();
                 });
         }
 
@@ -72,11 +79,15 @@ namespace ShowMyPictures.Widgets {
                         album_selected ((item as Widgets.NavigationAlbum).album);
                     } else if (item is Widgets.NavigationDate) {
                         var folder = item as Widgets.NavigationDate;
+                        label_selected ("");
                         if (folder.parent is Widgets.NavigationDate) {
                             date_selected ((folder.parent as Widgets.NavigationDate).val, folder.val);
                         } else {
                             date_selected (folder.val,                                    0);
                         }
+                    } else if (item is Widgets.NavigationLabel) {
+                            date_selected (0,                                             0);
+                        label_selected ((item as Widgets.NavigationLabel).name);
                     } else if (item == duplicates_item) {
                         duplicates_selected ();
                     } else if (item == not_found_item) {
@@ -118,8 +129,20 @@ namespace ShowMyPictures.Widgets {
                 });
             folders.root.add (events_entry);
 
+            labels_entry = new Granite.Widgets.SourceList.ExpandableItem (_ ("Labels"));
+            labels_entry.expanded = true;
+            labels_entry.toggled.connect (
+                () => {
+                    label_selected ("");
+                    labels_entry.expanded = true;
+                    folders.selected = null;
+                });
+            folders.root.add (labels_entry);
+
             content.attach (folders, 0, 0);
             content.attach (new Gtk.Separator (Gtk.Orientation.VERTICAL), 1, 0, 1, 2);
+
+            load_keywords ();
 
             this.transition_type = Gtk.RevealerTransitionType.SLIDE_RIGHT;
             this.add (content);
@@ -130,6 +153,7 @@ namespace ShowMyPictures.Widgets {
             duplicates_item.visible = false;
             not_found_item.visible = false;
             events_entry.clear ();
+            labels_entry.clear ();
             folders.selected = null;
         }
 
@@ -183,6 +207,39 @@ namespace ShowMyPictures.Widgets {
                 duplicates_item.badge = "";
                 duplicates_item.visible = false;
             }
+        }
+
+        private void load_keywords () {
+            var keywords = library_manager.db_manager.get_keyword_collection ();
+
+            // REMOVE NON EXISTS
+            foreach (var item in labels_entry.children) {
+                unowned List<string>? find = keywords.find_custom (item.name, strcmp);
+                if (find == null || find.length () == 0) {
+                    if (folders.selected != null && folders.selected.name == item.name) {
+                        folders.selected = null;
+                    }
+                    labels_entry.remove (item);
+                }
+            }
+
+            // ADD NEW
+            foreach (var keyword in keywords) {
+                if (!has_keyword (keyword)) {
+                    var item = new Widgets.NavigationLabel (keyword);
+                    labels_entry.add (item);
+                }
+            }
+        }
+
+        private bool has_keyword (string keyword) {
+            foreach (var item in labels_entry.children) {
+                if (item.name == keyword) {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }

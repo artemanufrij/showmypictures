@@ -202,12 +202,17 @@ namespace ShowMyPictures.Widgets.Views {
             if (current_picture == null || current_picture.ID == 0) {
                 return;
             }
-            var new_keywords = keywords_entry.text.strip ();
-            var new_comment = comment_entry.buffer.text.strip ();
-            if (new_keywords != current_picture.keywords || new_comment != current_picture.comment) {
-                current_picture.keywords = new_keywords;
-                current_picture.comment = new_comment;
+            bool keywords_changed = current_picture.keywords != keywords_entry.text.strip ();
+            bool comment_changed = current_picture.comment != comment_entry.buffer.text.strip ();
+
+            if (keywords_changed || comment_changed) {
+                current_picture.keywords = Utils.format_keywords (keywords_entry.text.strip ());
+                current_picture.comment = comment_entry.buffer.text.strip ();
+
                 db_manager.update_picture (current_picture);
+                if (keywords_changed) {
+                    db_manager.keywords_changed ();
+                }
             }
         }
     }

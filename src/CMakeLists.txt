@@ -9,6 +9,7 @@ vala_precompile (VALA_C ${CMAKE_PROJECT_NAME}
     Widgets/NavigationBar.vala
     Widgets/NavigationDate.vala
     Widgets/NavigationAlbum.vala
+    Widgets/NavigationLabel.vala
     Widgets/NavigationNotFound.vala
     Widgets/DuplicateRow.vala
     Widgets/Views/AlbumsView.vala

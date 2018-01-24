@@ -115,11 +115,16 @@ namespace ShowMyPictures.Dialogs {
         }
 
         private void save () {
-            var new_title = title_entry.text.strip ();
-            album.title = new_title;
-            album.keywords = keywords_entry.text.strip ();
-            album.comment = comment_entry.buffer.text;
+            album.title = title_entry.text.strip ();
+
+            bool keywords_changed = album.keywords != keywords_entry.text.strip ();
+
+            album.keywords = Utils.format_keywords (keywords_entry.text.strip ());
+            album.comment = comment_entry.buffer.text.strip ();
             db_manager.update_album (album);
+            if (keywords_changed) {
+                db_manager.keywords_changed ();
+            }
             this.destroy ();
         }
     }

@@ -175,22 +175,36 @@ namespace ShowMyPictures.Objects {
         }
 
         public void merge (GLib.List<Objects.Album> albums) {
-        //    new Thread<void*> (
-        //        "merge_albums",
-        //        () => {
-                    foreach (var album in albums) {
-                        if (album.ID == ID) {
-                            continue;
-                        }
-                        foreach (var picture in album.pictures) {
-                            picture.album = this;
-                            add_picture (picture);
-                            db_manager.update_picture (picture);
-                        }
-                        db_manager.remove_album (album);
+            foreach (var album in albums) {
+                if (album.ID == ID) {
+                    continue;
+                }
+                foreach (var picture in album.pictures) {
+                    picture.album = this;
+                    add_picture (picture);
+                    db_manager.update_picture (picture);
+                }
+                db_manager.remove_album (album);
+            }
+        }
+
+        public bool contains_keyword (string keyword) {
+            bool return_value = false;
+            lock (_pictures) {
+                foreach (var picture in pictures) {
+                    var pic_keywords = picture.keywords.down ();
+                    if (pic_keywords == keyword || pic_keywords.has_prefix (keyword + ",") || pic_keywords.contains ("," + keyword + ",") || pic_keywords.has_suffix ("," + keyword)) {
+                        return_value = true;
+                        break;
                     }
-        //            return null;
-        //        });
+                }
+            }
+
+            if (!return_value) {
+                var keywords_album = keywords.down ();
+                return_value = keywords_album == keyword || keywords_album.has_prefix (keyword + ",") || keywords_album.contains ("," + keyword + ",") || keywords_album.has_suffix ("," + keyword);
+            }
+            return return_value;
         }
 
         public async void create_cover () {

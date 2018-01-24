@@ -348,6 +348,11 @@ namespace ShowMyPictures {
                     albums_view.date_filter (year, month);
                     show_albums ();
                 });
+            navigation.label_selected.connect (
+                (label) => {
+                    albums_view.label_filter (label);
+                    // album_view.label_filter (label);
+                });
             navigation.duplicates_selected.connect (
                 () => {
                     show_duplicates ();
@@ -593,6 +598,17 @@ namespace ShowMyPictures {
             if (library_manager.albums.length () > 0 && content.visible_child_name != "picture") {
                 show_albums ();
             }
+            new Thread<void*> (
+                "load_content_from_database",
+                () => {
+                    uint i = 0;
+                    foreach (var album in library_manager.albums) {
+                        i += album.pictures.length ();
+                    }
+
+                    return null;
+                });
+
             foreach (var album in library_manager.albums) {
                 albums_view.add_album (album);
                 navigation.add_album (album);

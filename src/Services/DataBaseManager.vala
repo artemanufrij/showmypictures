@@ -39,6 +39,7 @@ namespace ShowMyPictures.Services {
 
         public signal void added_new_album (Objects.Album album);
         public signal void removed_album (Objects.Album album);
+        public signal void keywords_changed ();
 
         GLib.List<Objects.Album> _albums = null;
         public GLib.List<Objects.Album> albums {
@@ -403,6 +404,39 @@ namespace ShowMyPictures.Services {
                 picture.removed ();
             }
             stmt.reset ();
+        }
+
+// KEYWORDS
+        public GLib.List<string> get_keyword_collection () {
+            GLib.List<string> return_value = new GLib.List<string> ();
+            Sqlite.Statement stmt;
+
+            string sql = """
+                WITH SPLIT (keyword, str, hascomma) AS (
+                    SELECT * FROM (SELECT '', LOWER (keywords), 1 FROM albums WHERE keywords <> ''
+                    UNION
+                    SELECT '', LOWER (keywords), 1 FROM pictures WHERE keywords <> '')
+                    UNION ALL SELECT
+                    SUBSTR (str, 0,
+                        CASE WHEN INSTR (str, ',')
+                        THEN INSTR (str, ',')
+                        ELSE LENGTH (str) + 1 END),
+                    LTRIM (SUBSTR (str, INSTR (str, ',')), ','),
+                    INSTR (str, ',')
+                    FROM split
+                    WHERE hascomma
+                )
+                SELECT DISTINCT TRIM (keyword) AS keyword FROM split WHERE keyword != '' ORDER BY TRIM (keyword)
+            """;
+
+            db.prepare_v2 (sql, sql.length, out stmt);
+
+            while (stmt.step () == Sqlite.ROW) {
+                return_value.append (stmt.column_text (0));
+            }
+            stmt.reset ();
+
+            return return_value;
         }
 
 // UTILITIES REGION

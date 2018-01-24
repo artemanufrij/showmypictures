@@ -48,6 +48,7 @@ namespace ShowMyPictures.Widgets.Views {
 
         int filter_year = 0;
         int filter_month = 0;
+        string filter_label = "";
 
         uint timer_sort = 0;
 
@@ -170,6 +171,13 @@ namespace ShowMyPictures.Widgets.Views {
             }
         }
 
+        public void label_filter (string label) {
+            if (filter_label != label) {
+                filter_label = label;
+                albums.invalidate_filter ();
+            }
+        }
+
         private int albums_sort_func (Gtk.FlowBoxChild child1, Gtk.FlowBoxChild child2) {
             var item1 = (Widgets.Album)child1;
             var item2 = (Widgets.Album)child2;
@@ -186,7 +194,7 @@ namespace ShowMyPictures.Widgets.Views {
         }
 
         private bool albums_filter_func (Gtk.FlowBoxChild child) {
-            if (filter.strip ().length == 0 && filter_year == 0 && filter_month == 0) {
+            if (filter.strip ().length == 0 && filter_year == 0 && filter_month == 0 && filter_label == "") {
                 return true;
             }
 
@@ -198,7 +206,7 @@ namespace ShowMyPictures.Widgets.Views {
                     if (!album.title.down ().contains (filter_element) && !album.keywords.down ().contains (filter_element)) {
                         bool picture_title = false;
                         foreach (var picture in album.pictures) {
-                            if (picture.path.down ().contains (filter_element) || picture.keywords.down ().contains (filter_element)||picture.comment.down ().contains (filter_element)) {
+                            if (picture.path.down ().contains (filter_element) || picture.keywords.down ().contains (filter_element) || picture.comment.down ().contains (filter_element)) {
                                 picture_title = true;
                             }
                         }
@@ -214,6 +222,12 @@ namespace ShowMyPictures.Widgets.Views {
                 if (album.year != filter_year) {
                     return false;
                 } else if (filter_month > 0 && album.month != filter_month) {
+                    return false;
+                }
+            }
+
+            if (filter_label != "") {
+                if (!album.contains_keyword (filter_label)) {
                     return false;
                 }
             }
