@@ -29,6 +29,7 @@ namespace ShowMyPictures.Widgets {
     public class NavigationLabel : Granite.Widgets.SourceList.Item {
         public NavigationLabel (string name) {
             this.name = name;
+            this.icon = new ThemedIcon ("tag-symbolic");
         }
     }
 }

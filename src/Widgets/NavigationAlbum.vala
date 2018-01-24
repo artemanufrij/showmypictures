@@ -32,6 +32,7 @@ namespace ShowMyPictures.Widgets {
         public NavigationAlbum (Objects.Album album) {
             this.album = album;
             this.name = this.album.title;
+            this.icon = new ThemedIcon ("emblem-photos-symbolic");
             this.album.removed.connect (
                 () => {
                     this.parent.remove (this);
