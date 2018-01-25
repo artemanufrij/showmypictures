@@ -356,6 +356,11 @@ namespace ShowMyPictures.Objects {
             return return_value;
         }
 
+        public bool contains_keyword (string keyword) {
+            var pic_keywords = keywords.down ();
+            return pic_keywords == keyword || pic_keywords.has_prefix (keyword + ",") || pic_keywords.contains ("," + keyword + ",") || pic_keywords.has_suffix ("," + keyword);
+        }
+
         public void start_monitoring () {
             if (monitor == null) {
                 var file = File.new_for_path (path);

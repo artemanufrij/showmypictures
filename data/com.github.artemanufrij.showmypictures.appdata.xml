@@ -29,7 +29,7 @@
         </screenshot>
     </screenshots>
     <releases>
-        <release version="0.1.3" date="2018-01-27">
+        <release version="0.1.3" date="2018-01-26">
             <description>
                 <p>New:</p>
                 <ul>
@@ -38,6 +38,7 @@
                     <li>Monitor files for external changes to automatically update their content in the app</li>
                     <li>Canon .CR2 support</li>
                     <li>Show Camera details like ISO, FNumber, Exposure Time, Focal Length</li>
+                    <li>Labels/Keywords support</li>
                 </ul>
                 <p>Fix:</p>
                 <ul>

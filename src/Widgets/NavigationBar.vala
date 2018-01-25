@@ -31,7 +31,7 @@ namespace ShowMyPictures.Widgets {
 
         public signal void remove_all_not_found_items ();
         public signal void album_selected (Objects.Album album);
-        public signal void date_selected (int year, int month);
+        public signal void date_selected (int year, int month, bool reload = true);
         public signal void label_selected (string label);
         public signal void duplicates_selected ();
         public signal void not_found_selected ();
@@ -86,7 +86,7 @@ namespace ShowMyPictures.Widgets {
                             date_selected (folder.val,                                    0);
                         }
                     } else if (item is Widgets.NavigationLabel) {
-                            date_selected (0,                                             0);
+                            date_selected (0,                                             0, false);
                         label_selected ((item as Widgets.NavigationLabel).name);
                     } else if (item == duplicates_item) {
                         duplicates_selected ();
@@ -214,12 +214,14 @@ namespace ShowMyPictures.Widgets {
 
             // REMOVE NON EXISTS
             foreach (var item in labels_entry.children) {
-                unowned List<string>? find = keywords.find_custom (item.name, strcmp);
+                unowned List<string> ? find = keywords.find_custom (item.name, strcmp);
                 if (find == null || find.length () == 0) {
-                    if (folders.selected != null && folders.selected.name == item.name) {
-                        folders.selected = null;
-                    }
+                    var selected_item = folders.selected == item;
                     labels_entry.remove (item);
+                    if (selected_item) {
+                        folders.selected = null;
+                        label_selected ("");
+                    }
                 }
             }
 

@@ -344,14 +344,19 @@ namespace ShowMyPictures {
                     show_album ();
                 });
             navigation.date_selected.connect (
-                (year, month) => {
+                (year, month, reload) => {
                     albums_view.date_filter (year, month);
-                    show_albums ();
+                    if (reload) {
+                        show_albums ();
+                    }
                 });
             navigation.label_selected.connect (
                 (label) => {
                     albums_view.label_filter (label);
-                    // album_view.label_filter (label);
+                    album_view.label_filter (label);
+                    if (content.visible_child_name == "album" && album_view.visible_items == 0){
+                        show_albums ();
+                    }
                 });
             navigation.duplicates_selected.connect (
                 () => {

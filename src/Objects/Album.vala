@@ -188,14 +188,15 @@ namespace ShowMyPictures.Objects {
             }
         }
 
-        public bool contains_keyword (string keyword) {
+        public bool contains_keyword (string keyword, bool check_pictures = true) {
             bool return_value = false;
-            lock (_pictures) {
-                foreach (var picture in pictures) {
-                    var pic_keywords = picture.keywords.down ();
-                    if (pic_keywords == keyword || pic_keywords.has_prefix (keyword + ",") || pic_keywords.contains ("," + keyword + ",") || pic_keywords.has_suffix ("," + keyword)) {
-                        return_value = true;
-                        break;
+            if (check_pictures) {
+                lock (_pictures) {
+                    foreach (var picture in pictures) {
+                        if (picture.contains_keyword (keyword)) {
+                            return_value = true;
+                            break;
+                        }
                     }
                 }
             }

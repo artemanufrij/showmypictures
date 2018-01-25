@@ -241,7 +241,7 @@ namespace ShowMyPictures.Widgets.Views {
             }
             drawing_area.tooltip_text = current_picture.path;
 
-            calc_optimal_zoom ();
+            calc_optimal_zoom (true);
             picture_details.show_picture (current_picture);
             picture_loaded (current_picture);
             current_picture.updated.connect (picture_updated);
