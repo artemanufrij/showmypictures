@@ -375,6 +375,9 @@ namespace ShowMyPictures.Widgets.Views {
                 var f = File.new_for_path (current_picture.path);
 
                 foreach (var appinfo in AppInfo.get_all_for_type (current_picture.mime_type)) {
+                    if (appinfo.get_executable () == ShowMyPicturesApp.instance.application_id) {
+                        continue;
+                    }
                     var item = new Gtk.MenuItem.with_label (appinfo.get_name ());
                     item.activate.connect (
                         () => {

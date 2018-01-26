@@ -26,7 +26,6 @@
  */
 
 namespace ShowMyPictures.Widgets {
-
     public enum PictureStyle { DEFAULT, NOT_FOUND }
 
     public class Picture : Gtk.FlowBoxChild {
@@ -122,7 +121,7 @@ namespace ShowMyPictures.Widgets {
                     try {
                         Process.spawn_command_line_async ("xdg-open '%s'".printf (folder));
                     } catch (Error err) {
-                                warning (err.message);
+                                    warning (err.message);
                     }
                 });
 
@@ -144,6 +143,9 @@ namespace ShowMyPictures.Widgets {
                     var f = File.new_for_path (picture.path);
 
                     foreach (var appinfo in AppInfo.get_all_for_type (picture.mime_type)) {
+                        if (appinfo.get_executable () == ShowMyPicturesApp.instance.application_id) {
+                            continue;
+                        }
                         var item = new Gtk.MenuItem.with_label (appinfo.get_name ());
                         item.activate.connect (
                             () => {

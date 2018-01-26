@@ -116,6 +116,12 @@ namespace ShowMyPictures.Widgets.Views {
                     }
                     album.merge (selected);
                 });
+            a.context_opening.connect (
+                () => {
+                    if (!mainwindow.ctrl_pressed) {
+                        unselect_all ();
+                    }
+                });
             do_sort ();
         }
 

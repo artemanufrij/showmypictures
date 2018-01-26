@@ -30,6 +30,7 @@ namespace ShowMyPictures.Widgets {
         public Objects.Album album { get; private set; }
 
         public signal void merge ();
+        public signal void context_opening ();
 
         Gtk.Image cover;
         Gtk.Label counter;
@@ -196,10 +197,12 @@ namespace ShowMyPictures.Widgets {
 
         private bool show_context_menu (Gtk.Widget sender, Gdk.EventButton evt) {
             if (evt.type == Gdk.EventType.BUTTON_PRESS && evt.button == 3) {
-                (this.parent as Gtk.FlowBox).select_child (this);
+                context_opening ();
+                var parent = (this.parent as Gtk.FlowBox);
+                parent.select_child (this);
 
                 // MERGE
-                var count = (this.parent as Gtk.FlowBox).get_selected_children ().length ();
+                var count = parent.get_selected_children ().length ();
                 if (count > 1) {
                     menu_merge.label = _ ("Merge %u selected Albums").printf (count);
                     menu_merge.show_all ();
