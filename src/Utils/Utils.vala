@@ -40,10 +40,13 @@ namespace ShowMyPictures.Utils {
     }
 
     public static bool is_valid_mime_type (string mime_type) {
-        return mime_type.has_prefix ("image/png") || mime_type.has_prefix ("image/jpeg") || mime_type == "image/x-canon-cr2";
+        return mime_type.has_prefix ("image/png")
+               || mime_type.has_prefix ("image/jpeg")
+               || mime_type == "image/x-canon-cr2"
+               || mime_type == "image/x-nikon-nef";
     }
 
-    public static DateTime? get_datetime_from_string (string input) {
+    public static DateTime ? get_datetime_from_string (string input) {
         var split = input.split (" ");
         if (split.length == 2) {
             int Y = 0;

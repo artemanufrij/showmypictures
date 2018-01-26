@@ -39,10 +39,11 @@ namespace ShowMyPictures.Utils.Exiv2 {
     }
 
     public static GExiv2.Orientation convert_rotation_to_exiv (int rotation) {
+        stdout.printf ("%d\n", rotation);
         switch (rotation) {
         case 6 :
             return GExiv2.Orientation.ROT_90;
-        case  3:
+        case 3 :
             return GExiv2.Orientation.ROT_180;
         case 8 :
             return GExiv2.Orientation.ROT_270;
@@ -52,31 +53,25 @@ namespace ShowMyPictures.Utils.Exiv2 {
 
     public static GExiv2.Orientation rotate_left (GExiv2.Orientation orientation) {
         switch (orientation) {
-
             case GExiv2.Orientation.NORMAL :
                 return  GExiv2.Orientation.ROT_270;
             case GExiv2.Orientation.ROT_270 :
                 return GExiv2.Orientation.ROT_180;
             case GExiv2.Orientation.ROT_180 :
                 return GExiv2.Orientation.ROT_90;
-
             }
-
             return GExiv2.Orientation.NORMAL;
     }
 
     public static GExiv2.Orientation rotate_right (GExiv2.Orientation orientation) {
         switch (orientation) {
-
             case GExiv2.Orientation.NORMAL :
                 return  GExiv2.Orientation.ROT_90;
             case GExiv2.Orientation.ROT_90 :
                 return GExiv2.Orientation.ROT_180;
             case GExiv2.Orientation.ROT_180 :
                 return GExiv2.Orientation.ROT_270;
-
             }
-
             return GExiv2.Orientation.NORMAL;
     }
 }

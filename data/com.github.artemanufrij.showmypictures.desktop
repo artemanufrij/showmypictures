@@ -8,5 +8,5 @@ Icon=com.github.artemanufrij.showmypictures
 Terminal=false
 Type=Application
 Categories=Graphics;Photography;GNOME;GTK;
-MimeType=x-content/image-dcf;image/jpeg;image/jpg;image/pjpeg;image/png;image/tiff;image/png;image/x-png;image/x-bmp;image/x-canon-cr2;
+MimeType=x-content/image-dcf;image/jpeg;image/jpg;image/pjpeg;image/png;image/tiff;image/png;image/x-png;image/x-bmp;image/x-canon-cr2;image/x-nikon-nef;
 X-GNOME-Gettext-Domain=com.github.artemanufrij.showmypictures
