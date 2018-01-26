@@ -144,6 +144,25 @@ namespace ShowMyPictures.Widgets.Views {
         private int pictures_sort_func (Gtk.FlowBoxChild child1, Gtk.FlowBoxChild child2) {
             var item1 = (Widgets.Picture)child1;
             var item2 = (Widgets.Picture)child2;
+
+            if (item1.picture.year != item2.picture.year) {
+                return item1.picture.year - item2.picture.year;
+            }
+            if (item1.picture.month != item2.picture.month) {
+                return item1.picture.month - item2.picture.month;
+            }
+            if (item1.picture.day != item2.picture.day) {
+                return item1.picture.day - item2.picture.day;
+            }
+            if (item1.picture.hour != item2.picture.hour) {
+                return item1.picture.hour - item2.picture.hour;
+            }
+            if (item1.picture.minute != item2.picture.minute) {
+                return item1.picture.minute - item2.picture.minute;
+            }
+            if (item1.picture.second != item2.picture.second) {
+                return item1.picture.second - item2.picture.second;
+            }
             return item1.picture.path.collate (item2.picture.path);
         }
 

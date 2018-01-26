@@ -117,6 +117,26 @@ namespace ShowMyPictures.Objects {
                 _pictures.insert_sorted_with_data (
                     picture,
                     (a, b) => {
+
+                        if (a.year != b.year) {
+                            return a.year - b.year;
+                        }
+                        if (a.month != b.month) {
+                            return a.month - b.month;
+                        }
+                        if (a.day != b.day) {
+                            return a.day - b.day;
+                        }
+                        if (a.hour != b.hour) {
+                            return a.hour - b.hour;
+                        }
+                        if (a.minute != b.minute) {
+                            return a.minute - b.minute;
+                        }
+                        if (a.second != b.second) {
+                            return a.second - b.second;
+                        }
+
                         return a.path.collate (b.path);
                     });
                 picture_added (picture, _pictures.length ());

@@ -93,6 +93,9 @@ namespace ShowMyPictures.Services {
                 year        INT         NOT NULL,
                 month       INT         NOT NULL,
                 day         INT         NOT NULL,
+                hour        INT         NOT NULL,
+                minute      INT         NOT NULL,
+                second      INT         NOT NULL,
                 keywords    TEXT        NOT NULL,
                 hash        TEXT        NOT NULL,
                 comment     TEXT        NOT NULL,
@@ -108,26 +111,38 @@ namespace ShowMyPictures.Services {
 
             // TEMP ALTER
             q = """ALTER TABLE pictures ADD
-                stars       INT         NULL;""";
+                hour       INT         NULL;""";
             if (db.exec (q, null, out errormsg) != Sqlite.OK) {
                 warning (errormsg);
             }
             q = """ALTER TABLE pictures ADD
-                colors       TEXT         NULL;""";
+                minute       INT         NULL;""";
+            if (db.exec (q, null, out errormsg) != Sqlite.OK) {
+                warning (errormsg);
+            }
+            q = """ALTER TABLE pictures ADD
+                second       INT         NULL;""";
             if (db.exec (q, null, out errormsg) != Sqlite.OK) {
                 warning (errormsg);
             }
 
             Sqlite.Statement stmt;
             q = """
-                UPDATE albums SET stars = 0 WHERE stars IS NULL;
+                UPDATE pictures SET hour = 0 WHERE hour IS NULL;
             """;
             db.prepare_v2 (q, q.length, out stmt);
             stmt.step ();
             stmt.reset ();
 
             q = """
-                UPDATE albums SET colors = '' WHERE colors IS NULL;
+                UPDATE pictures SET minute = 0 WHERE minute IS NULL;
+            """;
+            db.prepare_v2 (q, q.length, out stmt);
+            stmt.step ();
+            stmt.reset ();
+
+            q = """
+                UPDATE pictures SET second = 0 WHERE second IS NULL;
             """;
             db.prepare_v2 (q, q.length, out stmt);
             stmt.step ();
@@ -291,7 +306,7 @@ namespace ShowMyPictures.Services {
             Sqlite.Statement stmt;
 
             string sql = """
-                SELECT id, path, year, month, day, mime_type, keywords, hash, comment, stars, colors FROM pictures WHERE album_id=$ALBUM_ID ORDER BY year, month, day, path;
+                SELECT id, path, year, month, day, mime_type, keywords, hash, comment, stars, colors, hour, minute, second FROM pictures WHERE album_id=$ALBUM_ID ORDER BY year, month, day, hour, minute, second, path;
             """;
 
             db.prepare_v2 (sql, sql.length, out stmt);
@@ -319,6 +334,9 @@ namespace ShowMyPictures.Services {
             return_value.comment = stmt.column_text (8);
             return_value.stars = stmt.column_int (9);
             return_value.colors = stmt.column_text (10);
+            return_value.hour = stmt.column_int (11);
+            return_value.minute = stmt.column_int (12);
+            return_value.second = stmt.column_int (13);
             return return_value;
         }
 
@@ -326,8 +344,8 @@ namespace ShowMyPictures.Services {
             Sqlite.Statement stmt;
 
             string sql = """
-                INSERT INTO pictures (album_id, path, year, month, day, mime_type, keywords, hash, comment, stars, colors)
-                VALUES ($ALBUM_ID, $PATH, $YEAR, $MONTH, $DAY, $MIME_TYPE, $KEYWORDS, $HASH, $COMMENT, $STARS, $COLORS);
+                INSERT INTO pictures (album_id, path, year, month, day, hour, minute, second, mime_type, keywords, hash, comment, stars, colors)
+                VALUES ($ALBUM_ID, $PATH, $YEAR, $MONTH, $DAY, $HOUR, $MINUTE, $SECOND, $MIME_TYPE, $KEYWORDS, $HASH, $COMMENT, $STARS, $COLORS);
             """;
 
             db.prepare_v2 (sql, sql.length, out stmt);
@@ -336,6 +354,9 @@ namespace ShowMyPictures.Services {
             set_parameter_int (stmt, sql, "$YEAR", picture.year);
             set_parameter_int (stmt, sql, "$MONTH", picture.month);
             set_parameter_int (stmt, sql, "$DAY", picture.day);
+            set_parameter_int (stmt, sql, "$HOUR", picture.hour);
+            set_parameter_int (stmt, sql, "$MINUTE", picture.minute);
+            set_parameter_int (stmt, sql, "$SECOND", picture.second);
             set_parameter_str (stmt, sql, "$MIME_TYPE", picture.mime_type);
             set_parameter_str (stmt, sql, "$KEYWORDS", picture.keywords.strip ());
             set_parameter_str (stmt, sql, "$HASH", picture.hash);
@@ -368,7 +389,7 @@ namespace ShowMyPictures.Services {
             Sqlite.Statement stmt;
 
             string sql = """
-                UPDATE pictures SET album_id=$ALBUM_ID, keywords=$KEYWORDS, comment=$COMMENT, stars=$STARS, colors=$COLORS WHERE id=$ID;
+                UPDATE pictures SET album_id=$ALBUM_ID, keywords=$KEYWORDS, comment=$COMMENT, stars=$STARS, colors=$COLORS, hash=$HASH WHERE id=$ID;
             """;
 
             db.prepare_v2 (sql, sql.length, out stmt);
@@ -378,6 +399,7 @@ namespace ShowMyPictures.Services {
             set_parameter_str (stmt, sql, "$COMMENT", picture.comment.strip ());
             set_parameter_int (stmt, sql, "$STARS", picture.stars);
             set_parameter_str (stmt, sql, "$COLORS", picture.colors.strip ());
+            set_parameter_str (stmt, sql, "$HASH", picture.hash);
 
             if (stmt.step () != Sqlite.DONE) {
                 warning ("Error: %d: %s", db.errcode (), db.errmsg ());
@@ -467,6 +489,7 @@ namespace ShowMyPictures.Services {
 
             string sql = """
                 SELECT hash FROM pictures
+                WHERE hash <> ''
                 GROUP BY hash HAVING COUNT (hash) > 1
                 ORDER BY MIN (path);
             """;
