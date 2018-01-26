@@ -208,6 +208,8 @@ namespace ShowMyPictures.Widgets.Views {
             if (keywords_changed || comment_changed) {
                 current_picture.keywords = Utils.format_keywords (keywords_entry.text.strip ());
                 current_picture.comment = comment_entry.buffer.text.strip ();
+                current_picture.colors = "";
+                current_picture.stars = 0;
 
                 db_manager.update_picture (current_picture);
                 if (keywords_changed) {
