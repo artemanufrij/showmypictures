@@ -95,7 +95,7 @@ namespace ShowMyPictures.Services {
             if (!db_manager.picture_file_exists (path)) {
                 if (duplicates_timer == 0) {
                     sync_started ();
-                } else  {
+                } else {
                     reset_duplicate_timer ();
                 }
                 insert_queue++;

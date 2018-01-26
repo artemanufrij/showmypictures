@@ -61,6 +61,7 @@ namespace ShowMyPictures.Objects {
                 return _path;
             } set {
                 _path = value;
+                file = File.new_for_path (_path);
                 if (ID == 0) {
                     exclude_exiv ();
                     if (year == 0) {
@@ -71,10 +72,15 @@ namespace ShowMyPictures.Objects {
             }
         }
 
+        public File file { get; private set; }
+
         public string mime_type { get; set; default = ""; }
         public int year { get; set; default = 0; }
         public int month { get; set; default = 0; }
         public int day { get; set; default = 0; }
+        public int hour { get; set; default = 0; }
+        public int minute { get; set; default = 0; }
+        public int second { get; set; default = 0; }
         public int rotation { get; private set; default = 1; }
         public int width { get; private set; default = 0; }
         public int height { get; private set; default = 0; }
@@ -88,6 +94,7 @@ namespace ShowMyPictures.Objects {
 
         public string keywords { get; set; default = ""; }
         public string comment { get; set; default = ""; }
+
         public string hash { get; set; default = ""; }
         public string colors { get; set; default = ""; }
         public int stars { get; set; default = 0; }
@@ -123,11 +130,11 @@ namespace ShowMyPictures.Objects {
                     if (album != null) {
                         album.picture_removed (this);
                     }
-                    var f = File.new_for_path (path);
-                    f.trash_async.begin ();
-                    f.dispose ();
 
-                    f = File.new_for_path (preview_path);
+                    file.trash_async.begin ();
+                    file.dispose ();
+
+                    var f = File.new_for_path (preview_path);
                     f.trash_async.begin ();
                     f.dispose ();
                 });
@@ -201,14 +208,17 @@ namespace ShowMyPictures.Objects {
 
             date = exiv_data.get_tag_string ("Exif.Photo.DateTimeOriginal");
             if (date != null && date != "") {
-                var date_time = Utils.get_datetime_from_string (date);
-                if (date_time != null) {
-                    year = date_time.get_year ();
-                    month = date_time.get_month ();
-                    day = date_time.get_day_of_month ();
-                    date = date_time.format ("%e. %b, %Y - %T").strip ();
+                var datetime = Utils.get_datetime_from_string (date);
+                if (datetime != null) {
+                    year = datetime.get_year ();
+                    month = datetime.get_month ();
+                    day = datetime.get_day_of_month ();
+                    hour = datetime.get_hour ();
+                    minute = datetime.get_minute ();
+                    second = datetime.get_second ();
+                    date = datetime.format ("%e. %b, %Y - %T").strip ();
                 }
-                date_time = null;
+                datetime = null;
             }
             exiv_excluded = true;
         }
@@ -281,15 +291,13 @@ namespace ShowMyPictures.Objects {
             if (!file_exists ()) {
                 return;
             }
-            var f = File.new_for_path (path);
             FileInfo info = null;
             try {
-                info = f.query_info ("time::*", 0);
+                info = file.query_info ("time::*", 0);
             } catch (Error err) {
                 warning (err.message);
                 return;
             }
-            f.dispose ();
             var output = info.get_attribute_as_string (FileAttribute.TIME_CREATED);
             if (output == null) {
                 output = info.get_attribute_as_string (FileAttribute.TIME_MODIFIED);
@@ -303,6 +311,9 @@ namespace ShowMyPictures.Objects {
                     year = datetime.get_year ();
                     month = datetime.get_month ();
                     day = datetime.get_day_of_month ();
+                    hour = datetime.get_hour ();
+                    minute = datetime.get_minute ();
+                    second = datetime.get_second ();
                 }
                 datetime = null;
             }
@@ -315,11 +326,10 @@ namespace ShowMyPictures.Objects {
             var path_hash = checksum.get_string ();
             var tmp_path = Path.build_filename (Environment.get_tmp_dir (), path_hash + "." + Utils.get_file_extention (path));
 
-            var source_file = File.new_for_path (path);
             var dest_file = File.new_for_path (tmp_path);
 
             try {
-                source_file.copy (dest_file, FileCopyFlags.OVERWRITE);
+                file.copy (dest_file, FileCopyFlags.OVERWRITE);
             } catch (Error err) {
                 warning (err.message);
                 return;
@@ -334,14 +344,19 @@ namespace ShowMyPictures.Objects {
                 checksum.update (fbuf, size);
             }
             hash = checksum.get_string ();
+            if (ID != 0) {
+                Services.DataBaseManager.instance.update_picture (this);
+            }
             new Thread<void*> (
                 "calculate_hash",
                 () => {
                     create_preview_from_path (tmp_path);
                     try {
-                        dest_file.delete ();
+                        if (dest_file.query_exists ()) {
+                            dest_file.delete ();
+                        }
                     } catch (Error err) {
-                        warning (err.message);
+                        warning ("%s: %s".printf (err.message, tmp_path));
                     }
                     return null;
                 });
@@ -349,7 +364,7 @@ namespace ShowMyPictures.Objects {
 
         public bool file_exists () {
             bool return_value = true;
-            if (!GLib.FileUtils.test (path, GLib.FileTest.EXISTS)) {
+            if (!file.query_exists ()) {
                 file_not_found ();
                 return_value = false;
             }
@@ -363,7 +378,6 @@ namespace ShowMyPictures.Objects {
 
         public void start_monitoring () {
             if (monitor == null) {
-                var file = File.new_for_path (path);
                 try {
                     monitor = file.monitor_file (FileMonitorFlags.NONE);
                 } catch (Error err) {
@@ -378,7 +392,7 @@ namespace ShowMyPictures.Objects {
                             new Thread<void*> (
                                 "start_monitoring",
                                 () => {
-                                    create_preview_from_path (path);
+                                    calculate_hash ();
                                     return null;
                                 });
                             external_modified ();
