@@ -4,7 +4,7 @@
     <id>com.github.artemanufrij.showmypictures.desktop</id>
     <metadata_license>CC0-1.0</metadata_license>
     <project_license>GPL-3.0+</project_license>
-    <name>Picture Manager</name>
+    <name>Memories</name>
     <summary>Manage local image files</summary>
     <description>
         <p>A very fast image viewer designed extra for large local libraries.</p>

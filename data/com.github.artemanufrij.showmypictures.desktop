@@ -1,6 +1,6 @@
 [Desktop Entry]
-Name=Picture Manager
-GenericName=Picture Manager
+Name=Memories
+GenericName=Memories
 Comment=Manage your Pictures
 Keywords=picture;photo;album;image;sort;
 Exec=com.github.artemanufrij.showmypictures %U

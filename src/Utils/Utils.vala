@@ -43,7 +43,8 @@ namespace ShowMyPictures.Utils {
         return mime_type.has_prefix ("image/png")
                || mime_type.has_prefix ("image/jpeg")
                || mime_type == "image/x-canon-cr2"
-               || mime_type == "image/x-nikon-nef";
+               || mime_type == "image/x-nikon-nef"
+               || mime_type == "image/x-sony-arw";
     }
 
     public static DateTime ? get_datetime_from_string (string input) {
