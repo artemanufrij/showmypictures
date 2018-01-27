@@ -118,7 +118,7 @@ namespace ShowMyPictures.Widgets.Views {
                 });
             a.context_opening.connect (
                 () => {
-                    if (!mainwindow.ctrl_pressed) {
+                    if (!mainwindow.ctrl_pressed && !a.multi_selection) {
                         unselect_all ();
                     }
                 });
