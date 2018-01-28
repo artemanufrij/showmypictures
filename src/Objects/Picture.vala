@@ -211,8 +211,12 @@ namespace ShowMyPictures.Objects {
                 }
             }
             if (preview == null && file_exists ()) {
-                create_original ();
-                create_preview_from_pixbuf (original);
+                if (is_raw) {
+                    create_original ();
+                    create_preview_from_pixbuf (original);
+                } else {
+                    create_preview_from_path (path);
+                }
             }
             preview_creating = false;
         }
@@ -226,6 +230,9 @@ namespace ShowMyPictures.Objects {
             }
             p = Utils.align_and_scale_pixbuf_for_preview (p);
             preview = p;
+            if (preview_path != "") {
+                preview.save (preview_path, "png");
+            }
             p.dispose ();
         }
 
