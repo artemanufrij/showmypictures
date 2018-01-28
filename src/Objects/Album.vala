@@ -121,7 +121,6 @@ namespace ShowMyPictures.Objects {
                 _pictures.insert_sorted_with_data (
                     picture,
                     (a, b) => {
-
                         if (a.year != b.year) {
                             return a.year - b.year;
                         }
@@ -156,7 +155,7 @@ namespace ShowMyPictures.Objects {
                 }
                 new_picture.album = this;
                 db_manager.insert_picture (new_picture);
-                add_picture (new_picture);
+                    add_picture (new_picture);
             }
             create_cover.begin ();
         }
@@ -277,7 +276,13 @@ namespace ShowMyPictures.Objects {
 
         public void set_new_cover_from_picture (Picture picture) {
             try {
-                var pixbuf = new Gdk.Pixbuf.from_file (picture.path);
+                Gdk.Pixbuf ? pixbuf = null;
+                if (picture.is_raw) {
+                    picture.create_original ();
+                    pixbuf = picture.original;
+                } else {
+                    pixbuf = new Gdk.Pixbuf.from_file (picture.path);
+                }
                 picture.exclude_exiv ();
                 var r = Utils.get_rotation (picture);
                 if (r != Gdk.PixbufRotation.NONE) {

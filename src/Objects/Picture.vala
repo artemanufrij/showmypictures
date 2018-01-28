@@ -132,6 +132,12 @@ namespace ShowMyPictures.Objects {
             }
         }
 
+        public bool is_raw {
+            get {
+                return Utils.is_raw (mime_type);
+            }
+        }
+
         GExiv2.Metadata ? exiv_data = null;
         FileMonitor ? monitor = null;
 
@@ -166,6 +172,26 @@ namespace ShowMyPictures.Objects {
             this.album = album;
         }
 
+        public void create_original () {
+            exclude_exiv ();
+            if (is_raw) {
+                var raw_view = GLib.Path.build_filename (ShowMyPicturesApp.instance.CACHE_FOLDER, "raw_view.tiff");
+                LibRaw.Processor processor = new LibRaw.Processor ();
+                processor.open_file (path);
+                processor.unpack_thumb ();
+                processor.thumb_writer (raw_view);
+
+                original = new Gdk.Pixbuf.from_file (raw_view);
+            } else {
+                original = new Gdk.Pixbuf.from_file (path);
+            }
+
+            var r = Utils.get_rotation (this);
+            if (r != Gdk.PixbufRotation.NONE) {
+                original = original.rotate_simple (r);
+            }
+        }
+
         private async void create_preview () {
             if (preview_creating || _preview != null) {
                 return;
@@ -185,27 +211,29 @@ namespace ShowMyPictures.Objects {
                 }
             }
             if (preview == null && file_exists ()) {
-                create_preview_from_path (path);
+                create_original ();
+                create_preview_from_pixbuf (original);
             }
             preview_creating = false;
+        }
+
+        private void create_preview_from_pixbuf (Gdk.Pixbuf pixbuf) {
+            exclude_exiv ();
+            var r = Utils.get_rotation (this);
+            var p = pixbuf;
+            if (r != Gdk.PixbufRotation.NONE) {
+                p = p.rotate_simple (r);
+            }
+            p = Utils.align_and_scale_pixbuf_for_preview (p);
+            preview = p;
+            p.dispose ();
         }
 
         private void create_preview_from_path (string source_path) {
             try {
                 var pixbuf = new Gdk.Pixbuf.from_file_at_scale (source_path, -1, 256, true);
-                exclude_exiv ();
-                var r = Utils.get_rotation (this);
-                if (r != Gdk.PixbufRotation.NONE) {
-                    pixbuf = pixbuf.rotate_simple (r);
-                    pixbuf = Utils.align_and_scale_pixbuf_for_preview (pixbuf);
-                }
-
-                if (preview_path != "") {
-                    pixbuf.save (preview_path, "png");
-                }
-                preview = pixbuf;
+                create_preview_from_pixbuf (pixbuf);
                 pixbuf.dispose ();
-                pixbuf = null;
             } catch (Error err) {
                 warning (err.message);
             }
@@ -420,25 +448,6 @@ namespace ShowMyPictures.Objects {
                             external_modified ();
                         }
                     });
-            }
-        }
-
-        private void create_original () {
-            exclude_exiv ();
-            if (mime_type == "image/x-nikon-nef"
-                || mime_type == "image/x-sony-arw") {
-                LibRaw.Processor processor = new LibRaw.Processor ();
-                processor.unpack_thumb ();
-                processor.thumb_writer (GLib.Path.build_filename (ShowMyPicturesApp.instance.CACHE_FOLDER, "raw_view.bmp"););
-
-                original = new Gdk.Pixbuf.from_file (raw_view);
-            } else {
-                original = new Gdk.Pixbuf.from_file (path);
-            }
-
-            var r = Utils.get_rotation (this);
-            if (r != Gdk.PixbufRotation.NONE) {
-                original = original.rotate_simple (r);
             }
         }
     }
