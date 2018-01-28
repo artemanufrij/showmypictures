@@ -230,15 +230,16 @@ namespace ShowMyPictures.Widgets.Views {
 
             current_picture = picture;
             current_picture.exclude_exiv ();
-            try {
-                current_pixbuf = new Gdk.Pixbuf.from_file (current_picture.path);
-                var r = Utils.get_rotation (current_picture);
-                if (r != Gdk.PixbufRotation.NONE) {
-                    current_pixbuf = current_pixbuf.rotate_simple (r);
-                }
-            } catch (Error err) {
-                warning (err.message);
-            }
+            current_pixbuf = picture.original;
+            /*  try {
+                  current_pixbuf = new Gdk.Pixbuf.from_file (current_picture.path);
+                  var r = Utils.get_rotation (current_picture);
+                  if (r != Gdk.PixbufRotation.NONE) {
+                      current_pixbuf = current_pixbuf.rotate_simple (r);
+                  }
+               } catch (Error err) {
+                  warning (err.message)<;
+               }*/
             drawing_area.tooltip_text = current_picture.path;
 
             calc_optimal_zoom (true);

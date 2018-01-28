@@ -30,6 +30,8 @@ vala_precompile (VALA_C ${CMAKE_PROJECT_NAME}
     Settings.vala
     MainWindow.vala
     Application.vala
+CUSTOM_VAPIS
+    ${CMAKE_SOURCE_DIR}/vapi/libraw.vapi
 PACKAGES
     granite
     gtk+-3.0

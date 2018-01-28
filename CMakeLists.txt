@@ -21,6 +21,7 @@ pkg_check_modules (DEPS REQUIRED
     granite
     sqlite3
     gexiv2
+    libraw
 )
 
 # Comment this out to enable C compiler warnings
