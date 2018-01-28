@@ -96,8 +96,12 @@ namespace ShowMyPictures.Objects {
             removed.connect (
                 () => {
                     var f = File.new_for_path (cover_path);
-                    f.trash_async.begin ();
-                    f.dispose ();
+                    f.trash_async.begin (
+                        0,
+                        null,
+                        (obj, res) => {
+                            f.dispose ();
+                        });
                 });
         }
 

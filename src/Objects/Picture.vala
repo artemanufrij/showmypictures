@@ -131,12 +131,20 @@ namespace ShowMyPictures.Objects {
                         album.picture_removed (this);
                     }
 
-                    file.trash_async.begin ();
-                    file.dispose ();
+                    file.trash_async.begin (
+                        0,
+                        null,
+                        (obj, res) => {
+                            file.dispose ();
+                        });
 
                     var f = File.new_for_path (preview_path);
-                    f.trash_async.begin ();
-                    f.dispose ();
+                    f.trash_async.begin (
+                        0,
+                        null,
+                        (obj, res) => {
+                            f.dispose ();
+                        });
                 });
         }
 
