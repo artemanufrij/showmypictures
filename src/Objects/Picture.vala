@@ -262,6 +262,7 @@ namespace ShowMyPictures.Objects {
             iso_speed = exiv_data.get_iso_speed ();
             fnumber = exiv_data.get_fnumber ();
             focal_length = exiv_data.get_focal_length ();
+            mime_type = exiv_data.get_mime_type ();
 
             date = exiv_data.get_tag_string ("Exif.Photo.DateTimeOriginal");
             if (date != null && date != "") {
