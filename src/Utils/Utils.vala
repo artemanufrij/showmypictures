@@ -42,6 +42,7 @@ namespace ShowMyPictures.Utils {
     public static bool is_valid_mime_type (string mime_type) {
         return mime_type.has_prefix ("image/png")
                || mime_type.has_prefix ("image/jpeg")
+               || mime_type == "image/svg+xml"
                || mime_type == "image/x-canon-cr2"
                || mime_type == "image/x-nikon-nef"
                || mime_type == "image/x-sony-arw";

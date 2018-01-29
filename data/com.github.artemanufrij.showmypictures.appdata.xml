@@ -31,6 +31,10 @@
     <releases>
         <release version="0.1.4" date="2018-01-31">
             <description>
+                <p>New:</p>
+                <ul>
+                    <li>'libraw' support</li>
+                </ul>
                 <p>Fix:</p>
                 <ul>
                     <li>update hash, after editing the picture</li>

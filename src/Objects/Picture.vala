@@ -121,9 +121,7 @@ namespace ShowMyPictures.Objects {
         Gdk.Pixbuf ? _original = null;
         public Gdk.Pixbuf ? original {
             get {
-                if (_original==null) {
-                    create_original ();
-                }
+                create_original ();
                 return _original;
             } private set {
                 if (_original != value ) {
@@ -143,6 +141,7 @@ namespace ShowMyPictures.Objects {
 
         bool preview_creating = false;
         bool exiv_excluded = false;
+        public bool extern_file { get; set; default = false; }
 
         construct {
             removed.connect (
@@ -168,52 +167,68 @@ namespace ShowMyPictures.Objects {
                 });
         }
 
-        public Picture (Album ? album = null) {
+        public Picture (Album ? album = null, bool extern_file = false) {
             this.album = album;
+            this.extern_file = extern_file;
         }
 
-        public void create_original () {
+        private void reload () {
+            rotation = Utils.Exiv2.convert_rotation_from_exiv (exiv_data.get_orientation ());
+            _original.dispose ();
+            _original = null;
+            create_preview.begin (true);
+        }
+
+        public void create_original (bool force = false) {
+            if (_original != null && !force) {
+                return;
+            }
             exclude_exiv ();
+            string p = path;
             if (is_raw) {
-                var raw_view = GLib.Path.build_filename (ShowMyPicturesApp.instance.CACHE_FOLDER, "raw_view.tiff");
+                p = GLib.Path.build_filename (ShowMyPicturesApp.instance.CACHE_FOLDER, "raw_view.tiff");
                 LibRaw.Processor processor = new LibRaw.Processor ();
                 processor.open_file (path);
                 processor.unpack_thumb ();
-                processor.thumb_writer (raw_view);
-
-                original = new Gdk.Pixbuf.from_file (raw_view);
-            } else {
-                original = new Gdk.Pixbuf.from_file (path);
+                processor.thumb_writer (p);
+                processor = null;
             }
-
-            var r = Utils.get_rotation (this);
-            if (r != Gdk.PixbufRotation.NONE) {
-                original = original.rotate_simple (r);
+            try {
+                var r = Utils.get_rotation (this);
+                if (r != Gdk.PixbufRotation.NONE) {
+                    original = new Gdk.Pixbuf.from_file (p).rotate_simple (r);
+                } else {
+                    original = new Gdk.Pixbuf.from_file (p);
+                }
+            } catch (Error err) {
+                        warning (err.message);
             }
         }
 
-        private async void create_preview () {
-            if (preview_creating || _preview != null) {
+        private async void create_preview (bool force = false) {
+            if (preview_creating || (_preview != null && !force)) {
                 return;
             }
             preview_creating = true;
 
-            if (preview != null) {
+            if (preview != null && !force) {
                 preview_creating = false;
                 return;
             }
 
-            if (GLib.FileUtils.test (preview_path, GLib.FileTest.EXISTS)) {
-                try {
-                    preview = new Gdk.Pixbuf.from_file (preview_path);
-                } catch (Error err) {
-                    warning (err.message);
+            if (!force) {
+                if (GLib.FileUtils.test (preview_path, GLib.FileTest.EXISTS)) {
+                    try {
+                        preview = new Gdk.Pixbuf.from_file (preview_path);
+                    } catch (Error err) {
+                        warning (err.message);
+                    }
                 }
             }
-            if (preview == null && file_exists ()) {
+            if ((preview == null || force)) {
                 if (is_raw) {
                     create_original ();
-                    create_preview_from_pixbuf (original);
+                    create_preview_from_pixbuf (original, true);
                 } else {
                     create_preview_from_path (path);
                 }
@@ -221,19 +236,32 @@ namespace ShowMyPictures.Objects {
             preview_creating = false;
         }
 
-        private void create_preview_from_pixbuf (Gdk.Pixbuf pixbuf) {
+        private void create_preview_from_pixbuf (Gdk.Pixbuf pixbuf, bool ignore_rotate = false) {
             exclude_exiv ();
             var r = Utils.get_rotation (this);
-            var p = pixbuf;
-            if (r != Gdk.PixbufRotation.NONE) {
-                p = p.rotate_simple (r);
+            Gdk.Pixbuf ? p = null;
+            if (r != Gdk.PixbufRotation.NONE && !ignore_rotate) {
+                p = Utils.align_and_scale_pixbuf_for_preview (pixbuf.rotate_simple (r));
+            } else {
+                p = Utils.align_and_scale_pixbuf_for_preview (pixbuf);
             }
-            p = Utils.align_and_scale_pixbuf_for_preview (p);
+
             preview = p;
-            if (preview_path != "") {
-                preview.save (preview_path, "png");
-            }
             p.dispose ();
+            p = null;
+
+            if (preview_path != "") {
+                new Thread<void*> (
+                    "create_preview_from_pixbuf",
+                    () => {
+                        try {
+                            preview.save (preview_path, "png");
+                        } catch (Error err) {
+                            warning (err.message);
+                        }
+                        return null;
+                    });
+            }
         }
 
         private void create_preview_from_path (string source_path) {
@@ -242,7 +270,7 @@ namespace ShowMyPictures.Objects {
                 create_preview_from_pixbuf (pixbuf);
                 pixbuf.dispose ();
             } catch (Error err) {
-                warning (err.message);
+                    warning (err.message);
             }
         }
 
@@ -262,8 +290,15 @@ namespace ShowMyPictures.Objects {
             iso_speed = exiv_data.get_iso_speed ();
             fnumber = exiv_data.get_fnumber ();
             focal_length = exiv_data.get_focal_length ();
-            mime_type = exiv_data.get_mime_type ();
-
+            if (mime_type == "") {
+                try {
+                    var file_info = file.query_info (FileAttribute.STANDARD_CONTENT_TYPE, FileQueryInfoFlags.NONE);
+                    mime_type = file_info.get_content_type ();
+                    file_info.dispose ();
+                } catch (Error err) {
+                    warning (err.message);
+                }
+            }
             date = exiv_data.get_tag_string ("Exif.Photo.DateTimeOriginal");
             if (date != null && date != "") {
                 var datetime = Utils.get_datetime_from_string (date);
@@ -291,12 +326,11 @@ namespace ShowMyPictures.Objects {
             try {
                 saved = exiv_data.save_file (path);
             } catch (Error err) {
-                warning (err.message);
+                    warning (err.message);
             }
             if (saved) {
-                rotation = Utils.Exiv2.convert_rotation_from_exiv (exiv_data.get_orientation ());
+                reload ();
                 rotated ();
-                create_preview_from_path (path);
             }
             return saved;
         }
@@ -314,9 +348,8 @@ namespace ShowMyPictures.Objects {
                 warning (err.message);
             }
             if (saved) {
-                rotation = Utils.Exiv2.convert_rotation_from_exiv (exiv_data.get_orientation ());
+                reload ();
                 rotated ();
-                create_preview_from_path (path);
             }
             return saved;
         }
@@ -328,9 +361,6 @@ namespace ShowMyPictures.Objects {
             if (exiv_data == null) {
                 exiv_data = new GExiv2.Metadata ();
             }
-            if (exiv_data == null) {
-                return false;
-            }
 
             try {
                 if (!exiv_data.open_path (this.path)) {
@@ -338,7 +368,7 @@ namespace ShowMyPictures.Objects {
                 }
             }
             catch (Error err) {
-                warning (err.message);
+                    warning (err.message);
                 return false;
             }
 
@@ -353,7 +383,7 @@ namespace ShowMyPictures.Objects {
             try {
                 info = file.query_info ("time::*", 0);
             } catch (Error err) {
-                warning (err.message);
+                    warning (err.message);
                 return;
             }
             var output = info.get_attribute_as_string (FileAttribute.TIME_CREATED);
@@ -378,32 +408,37 @@ namespace ShowMyPictures.Objects {
         }
 
         private void calculate_hash () {
-            Checksum checksum = new Checksum (ChecksumType.MD5);
+            File ? dest_file = null;
+            var tmp_path = path;
 
-            checksum.update (path.data, path.length);
-            var path_hash = checksum.get_string ();
-            var tmp_path = Path.build_filename (Environment.get_tmp_dir (), path_hash + "." + Utils.get_file_extention (path));
+            if (!extern_file) {
+                Checksum checksum = new Checksum (ChecksumType.MD5);
 
-            var dest_file = File.new_for_path (tmp_path);
+                checksum.update (path.data, path.length);
+                var path_hash = checksum.get_string ();
+                tmp_path = Path.build_filename (Environment.get_tmp_dir (), path_hash + "." + Utils.get_file_extention (path));
 
-            try {
-                file.copy (dest_file, FileCopyFlags.OVERWRITE);
-            } catch (Error err) {
-                warning (err.message);
-                return;
-            }
+                dest_file = File.new_for_path (tmp_path);
 
-            checksum = new Checksum (ChecksumType.MD5);
+                try {
+                    file.copy (dest_file, FileCopyFlags.OVERWRITE);
+                } catch (Error err) {
+                    warning (err.message);
+                    return;
+                }
 
-            FileStream stream = FileStream.open (tmp_path, "r");
-            uint8 fbuf[100];
-            size_t size;
-            while ((size = stream.read (fbuf)) > 0) {
-                checksum.update (fbuf, size);
-            }
-            hash = checksum.get_string ();
-            if (ID != 0) {
-                Services.DataBaseManager.instance.update_picture (this);
+                checksum = new Checksum (ChecksumType.MD5);
+
+                FileStream stream = FileStream.open (tmp_path, "r");
+                uint8 fbuf[100];
+                size_t size;
+                while ((size = stream.read (fbuf)) > 0) {
+                    checksum.update (fbuf, size);
+                }
+                hash = checksum.get_string ();
+                if (ID != 0) {
+                    Services.DataBaseManager.instance.update_picture (this);
+                }
             }
             new Thread<void*> (
                 "calculate_hash",

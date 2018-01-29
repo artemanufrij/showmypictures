@@ -39,7 +39,6 @@ namespace ShowMyPictures.Utils.Exiv2 {
     }
 
     public static GExiv2.Orientation convert_rotation_to_exiv (int rotation) {
-        stdout.printf ("%d\n", rotation);
         switch (rotation) {
         case 6 :
             return GExiv2.Orientation.ROT_90;
