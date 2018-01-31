@@ -39,6 +39,15 @@ namespace ShowMyPictures.Utils {
         return "";
     }
 
+    public static string format_saved_size (int bytes) {
+        if (bytes > 100000000) {
+            return _ ("%.0fMB saved").printf ((double)bytes / 1000 / 1000);
+        } else if (bytes > 1000000)  {
+            return _ ("%.1fMB saved").printf ((double)bytes / 1000 / 1000);
+        }
+        return _ ("%.2fMB saved").printf ((double)bytes / 1000 / 1000);
+    }
+
     public static bool is_valid_mime_type (string mime_type) {
         return mime_type.has_prefix ("image/png")
                || mime_type.has_prefix ("image/jpeg")
@@ -82,5 +91,22 @@ namespace ShowMyPictures.Utils {
         return_value = return_value.replace (" ,", ",");
         return_value = return_value.replace (", ", ",");
         return return_value;
+    }
+
+    public int get_optimized_size (string output_line) {
+        var regex_old = new Regex ("\\d*(?= \\-\\->)");
+        int old_value = 0;
+        MatchInfo match_info;
+        if (regex_old.match (output_line, 0, out match_info)) {
+            old_value = int.parse (match_info.fetch (0));
+        }
+
+        var regex_new = new Regex ("(?<=\\-\\-\\> )\\d*");
+        int new_value = 0;
+        if (regex_new.match (output_line, 0, out match_info)) {
+            new_value = int.parse (match_info.fetch (0));
+        }
+
+        return old_value - new_value;
     }
 }

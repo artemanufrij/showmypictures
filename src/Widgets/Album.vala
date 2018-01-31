@@ -35,11 +35,14 @@ namespace ShowMyPictures.Widgets {
         Gtk.Image cover;
         Gtk.Label counter;
         Gtk.Label title;
+        Gtk.Label saved_size;
         Gtk.Menu menu;
         Gtk.MenuItem menu_merge;
         Gtk.Image add_selection_image;
         Gtk.Image multi_selected_image;
         Gtk.Button multi_select;
+
+        Gtk.Spinner spinner;
 
         public int year { get { return album.year; } }
         public int month { get { return album.month; } }
@@ -87,6 +90,22 @@ namespace ShowMyPictures.Widgets {
                             return false;
                         });
                 });
+            this.album.optimize_started.connect (
+                () => {
+                    spinner.active = true;
+                });
+            this.album.optimize_ended.connect (
+                () => {
+                    spinner.active = false;
+                });
+            this.album.optimize_progress.connect (
+                (saved) => {
+                    Idle.add (
+                        () => {
+                            saved_size.label = "<small>%s</small>".printf (Utils.format_saved_size (saved));
+                            return false;
+                        });
+                });
         }
 
         private bool first_draw () {
@@ -119,6 +138,7 @@ namespace ShowMyPictures.Widgets {
             var content = new Gtk.Grid ();
             content.halign = Gtk.Align.CENTER;
             content.row_spacing = 6;
+            content.column_homogeneous = true;
             content.margin = 12;
             content.get_style_context ().add_class ("album");
             content.get_style_context ().add_class ("card");
@@ -131,8 +151,22 @@ namespace ShowMyPictures.Widgets {
 
             title = new Gtk.Label (album.title);
             title.get_style_context ().add_class ("h3");
+
             counter = new Gtk.Label ("");
             counter.margin_bottom = 6;
+            counter.halign = Gtk.Align.CENTER;
+
+            spinner = new Gtk.Spinner ();
+            spinner.halign = Gtk.Align.START;
+            spinner.margin_bottom = 6;
+            spinner.margin_left = 6;
+
+            saved_size = new Gtk.Label ("");
+            saved_size.halign = Gtk.Align.END;
+            saved_size.margin_bottom = 6;
+            saved_size.margin_right = 6;
+            saved_size.use_markup = true;
+            saved_size.valign = Gtk.Align.END;
 
             menu = new Gtk.Menu ();
             var menu_new_cover = new Gtk.MenuItem.with_label (_ ("Edit Album properties…"));
@@ -142,10 +176,18 @@ namespace ShowMyPictures.Widgets {
                 });
             menu.add (menu_new_cover);
 
+            var menu_optimize = new Gtk.MenuItem.with_label (_ ("Optimize pictures (lossless)"));
+            menu_optimize.activate.connect (
+                () => {
+                    album.optimize ();
+                });
+            menu.add (menu_optimize);
+
             menu_merge = new Gtk.MenuItem.with_label ("");
-            menu_merge.activate.connect (() => {
-                                             merge ();
-                                         });
+            menu_merge.activate.connect (
+                () => {
+                    merge ();
+                });
             menu.add (menu_merge);
 
             menu.show_all ();
@@ -172,9 +214,11 @@ namespace ShowMyPictures.Widgets {
                 });
 
             content.attach (multi_select, 0, 0);
-            content.attach (cover, 0, 0);
-            content.attach (title, 0, 1);
-            content.attach (counter, 0, 2);
+            content.attach (cover, 0, 0, 3, 1);
+            content.attach (title, 0, 1, 3, 1);
+            content.attach (spinner, 0, 2);
+            content.attach (counter, 1, 2);
+            content.attach (saved_size, 2, 2);
 
             this.add (event_box);
             this.show_all ();

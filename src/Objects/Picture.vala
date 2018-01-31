@@ -493,5 +493,44 @@ namespace ShowMyPictures.Objects {
                     });
             }
         }
+
+        public int optimize () {
+            if (mime_type.index_of ("jpg") > -1 || mime_type.index_of ("jpeg") > -1){
+                return optimize_jpg ();
+            }
+
+            if (mime_type.index_of ("png") > -1){
+                return optimize_png ();
+            }
+
+            return 0;
+        }
+
+        private int optimize_jpg () {
+            var command = "jpegoptim";
+
+            string stdout;
+            string stderr;
+            int status;
+
+            try {
+                Process.spawn_command_line_sync (
+                    command + " " + path.replace (" ", "\\ "),
+                    out stdout,
+                    out stderr,
+                    out status
+                    );
+                return Utils.get_optimized_size (stdout);
+            } catch (SpawnError e) {
+                stdout.printf ("Error: %s\n", e.message);
+            }
+
+            return 0;
+        }
+
+        private int optimize_png () {
+
+            return 0;
+        }
     }
 }

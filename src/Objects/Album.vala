@@ -34,6 +34,9 @@ namespace ShowMyPictures.Objects {
         public signal void cover_created ();
         public signal void updated ();
         public signal void removed ();
+        public signal void optimize_started ();
+        public signal void optimize_ended ();
+        public signal void optimize_progress (int saved);
 
         int _ID = 0;
         public int ID {
@@ -302,6 +305,23 @@ namespace ShowMyPictures.Objects {
             } else {
                 title = _ ("No Date");
             }
+        }
+
+        public void optimize () {
+            optimize_started ();
+
+            new Thread<void*> (
+                "optimize",
+                () => {
+                    int saved = 0;
+                    foreach (var picture in pictures) {
+                        saved += picture.optimize ();
+                        optimize_progress (saved);
+                    }
+
+                    optimize_ended ();
+                    return null;
+                });
         }
     }
 }
