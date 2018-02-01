@@ -520,7 +520,7 @@ namespace ShowMyPictures.Objects {
                     out stderr,
                     out status
                     );
-                return Utils.get_optimized_size (stdout);
+                return Utils.get_optimized_size_from_jpegoptim (stdout);
             } catch (SpawnError e) {
                 stdout.printf ("Error: %s\n", e.message);
             }
@@ -529,6 +529,23 @@ namespace ShowMyPictures.Objects {
         }
 
         private int optimize_png () {
+            var command = "optipng";
+
+            string stdout;
+            string stderr;
+            int status;
+
+            try {
+                Process.spawn_command_line_sync (
+                    command + " " + path.replace (" ", "\\ "),
+                    out stdout,
+                    out stderr,
+                    out status
+                    );
+                return Utils.get_optimized_size_from_optipng (stderr);
+            } catch (SpawnError e) {
+                stdout.printf ("Error: %s\n", e.message);
+            }
 
             return 0;
         }

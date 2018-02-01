@@ -42,7 +42,7 @@ namespace ShowMyPictures.Utils {
     public static string format_saved_size (int bytes) {
         if (bytes > 100000000) {
             return _ ("%.0fMB saved").printf ((double)bytes / 1000 / 1000);
-        } else if (bytes > 1000000)  {
+        } else if (bytes > 1000000) {
             return _ ("%.1fMB saved").printf ((double)bytes / 1000 / 1000);
         }
         return _ ("%.2fMB saved").printf ((double)bytes / 1000 / 1000);
@@ -93,7 +93,7 @@ namespace ShowMyPictures.Utils {
         return return_value;
     }
 
-    public int get_optimized_size (string output_line) {
+    public int get_optimized_size_from_jpegoptim (string output_line) {
         var regex_old = new Regex ("\\d*(?= \\-\\->)");
         int old_value = 0;
         MatchInfo match_info;
@@ -105,6 +105,29 @@ namespace ShowMyPictures.Utils {
         int new_value = 0;
         if (regex_new.match (output_line, 0, out match_info)) {
             new_value = int.parse (match_info.fetch (0));
+        }
+
+        return old_value - new_value;
+    }
+
+    public int get_optimized_size_from_optipng (string output_line) {
+stdout.printf ("%s\n", output_line);
+
+        var regex_old = new Regex ("(?<=Input file size = )\\d*");
+        int old_value = 0;
+        MatchInfo match_info;
+        if (regex_old.match (output_line, 0, out match_info)) {
+            old_value = int.parse (match_info.fetch (0));
+        }
+
+        var regex_new = new Regex ("(?<=Output file size = )\\d*");
+        int new_value = 0;
+        if (regex_new.match (output_line, 0, out match_info)) {
+            new_value = int.parse (match_info.fetch (0));
+        }
+
+        if (new_value == 0 || old_value == 0) {
+            return 0;
         }
 
         return old_value - new_value;
