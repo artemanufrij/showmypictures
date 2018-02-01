@@ -180,7 +180,7 @@ namespace ShowMyPictures.Widgets.Views {
             var menu_move_into_trash = new Gtk.MenuItem.with_label (_ ("Move into Trash"));
             menu_move_into_trash.activate.connect (
                 () => {
-                    library_manager.db_manager.remove_picture (current_picture);
+                    delete_current_picture ();
                 });
 
             menu.add (menu_new_cover);
