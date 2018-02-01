@@ -29,6 +29,14 @@
         </screenshot>
     </screenshots>
     <releases>
+        <release version="0.1.5" date="2018-02-05">
+            <description>
+                <p>New:</p>
+                <ul>
+                    <li>Optimize (lossless) jpg and png files</li>
+                </ul>
+            </description>
+        </release>
         <release version="0.1.4" date="2018-01-31">
             <description>
                 <p>New:</p>
