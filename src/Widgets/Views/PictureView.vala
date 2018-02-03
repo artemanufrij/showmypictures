@@ -54,6 +54,10 @@ namespace ShowMyPictures.Widgets.Views {
         construct {
             library_manager = Services.LibraryManager.instance;
             settings = Settings.get_default ();
+            settings.notify["show-picture-details"].connect (
+                () => {
+                    picture_details.reveal_child = settings.show_picture_details;
+                });
         }
 
         public PictureView () {
@@ -351,11 +355,6 @@ namespace ShowMyPictures.Widgets.Views {
                 () => {
                     ha.set_value ((ha.upper - ha.page_size) / 2);
                 });
-        }
-
-        public void toggle_picture_details () {
-            picture_details.reveal_child = !picture_details.reveal_child;
-            settings.show_picture_details = picture_details.reveal_child;
         }
 
         private bool show_context_menu (Gtk.Widget sender, Gdk.EventButton evt) {

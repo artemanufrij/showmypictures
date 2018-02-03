@@ -38,6 +38,12 @@ namespace ShowMyPictures.Widgets.Views {
         Gtk.Label location;
         Gtk.Entry keywords_entry;
         Gtk.TextView comment_entry;
+        Gtk.Box navigation_controls;
+
+        Gtk.Button go_next;
+        Gtk.Button go_prev;
+        Gtk.Button rotate_left;
+        Gtk.Button rotate_right;
 
         Gtk.Label lab_details;
 
@@ -62,14 +68,14 @@ namespace ShowMyPictures.Widgets.Views {
 
             var controls = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 6);
             controls.margin = 12;
-            var rotate_left = new Gtk.Button.from_icon_name ("object-rotate-left-symbolic", Gtk.IconSize.SMALL_TOOLBAR);
+            rotate_left = new Gtk.Button.from_icon_name ("object-rotate-left-symbolic", Gtk.IconSize.SMALL_TOOLBAR);
             rotate_left.tooltip_text = _ ("Rotate left [Ctrl+Left]");
             rotate_left.valign = Gtk.Align.CENTER;
             rotate_left.clicked.connect (
                 () => {
                     current_picture.rotate_left_exiv ();
                 });
-            var rotate_right = new Gtk.Button.from_icon_name ("object-rotate-right-symbolic", Gtk.IconSize.SMALL_TOOLBAR);
+            rotate_right = new Gtk.Button.from_icon_name ("object-rotate-right-symbolic", Gtk.IconSize.SMALL_TOOLBAR);
             rotate_right.tooltip_text = _ ("Rotate right [Ctrl+Right]");
             rotate_right.valign = Gtk.Align.CENTER;
             rotate_right.clicked.connect (
@@ -86,16 +92,16 @@ namespace ShowMyPictures.Widgets.Views {
                     db_manager.remove_picture (current_picture);
                 });
 
-            var navigation_controls = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 6);
+            navigation_controls = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 6);
 
-            var go_next = new Gtk.Button.from_icon_name ("go-next-symbolic", Gtk.IconSize.LARGE_TOOLBAR);
+            go_next = new Gtk.Button.from_icon_name ("go-next-symbolic", Gtk.IconSize.LARGE_TOOLBAR);
             go_next.tooltip_text = _ ("Next Picture");
             go_next.valign = Gtk.Align.CENTER;
             go_next.clicked.connect (
                 () => {
                     next ();
                 });
-            var go_prev = new Gtk.Button.from_icon_name ("go-previous-symbolic", Gtk.IconSize.LARGE_TOOLBAR);
+            go_prev = new Gtk.Button.from_icon_name ("go-previous-symbolic", Gtk.IconSize.LARGE_TOOLBAR);
             go_prev.tooltip_text = _ ("Previous Picture");
             go_prev.valign = Gtk.Align.CENTER;
             go_prev.clicked.connect (
@@ -216,6 +222,13 @@ namespace ShowMyPictures.Widgets.Views {
                     db_manager.keywords_changed ();
                 }
             }
+        }
+
+        public void hide_controls () {
+            go_next.hide ();
+            go_prev.hide ();
+            rotate_left.hide ();
+            rotate_right.hide ();
         }
     }
 }

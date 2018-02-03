@@ -34,6 +34,7 @@
                 <p>New:</p>
                 <ul>
                     <li>Optimize (lossless) jpg and png files</li>
+                    <li>Show picture details in Dupplicates View</li>
                 </ul>
             </description>
         </release>

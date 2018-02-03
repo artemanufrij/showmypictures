@@ -28,14 +28,21 @@
 namespace ShowMyPictures.Widgets.Views {
     public class DuplicatesView : Gtk.Grid {
         Services.LibraryManager library_manager;
+        Settings settings;
 
         public signal void counter_changed (uint new_count);
 
         Gtk.Box duplicates;
+        Widgets.Views.PictureDetails picture_details;
 
         construct {
             library_manager = Services.LibraryManager.instance;
             library_manager.duplicates_found.connect (add_duplicate);
+            settings = Settings.get_default ();
+            settings.notify["show-picture-details"].connect (
+                () => {
+                    picture_details.reveal_child = settings.show_picture_details;
+                });
         }
 
         public DuplicatesView () {
@@ -55,8 +62,13 @@ namespace ShowMyPictures.Widgets.Views {
             scroll.expand = true;
             scroll.add (duplicates);
 
-            this.add (scroll);
+            picture_details = new Widgets.Views.PictureDetails ();
+            picture_details.reveal_child = settings.show_picture_details;
+
+            this.attach (scroll, 0, 0);
+            this.attach (picture_details, 1, 0);
             this.show_all ();
+            picture_details.hide_controls ();
         }
 
         public void reset () {
@@ -76,12 +88,21 @@ namespace ShowMyPictures.Widgets.Views {
                         }
                         foreach (var hash in hash_list) {
                             var row = new Widgets.DuplicateRow (hash);
+                            row.picture_selected.connect (
+                                (picture) => {
+                                    picture.exclude_exiv ();
+                                    picture_details.show_picture (picture);
+                                });
                             duplicates.pack_start (row, false, false);
                         }
                     }
                     counter_changed (hash_list.length ());
                     return false;
                 });
+        }
+
+        public void hide_controls () {
+            picture_details.hide_controls ();
         }
     }
 }

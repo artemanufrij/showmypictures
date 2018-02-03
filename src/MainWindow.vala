@@ -71,13 +71,7 @@ namespace ShowMyPictures {
                 });
             settings.notify["show-picture-details"].connect (
                 () => {
-                    if (settings.show_picture_details) {
-                        show_details.set_image (pane_hide);
-                        show_details.tooltip_text = _ ("Hide Picture Details [F4]");
-                    } else {
-                        show_details.set_image (pane_show);
-                        show_details.tooltip_text = _ ("Show Picture Details [F4]");
-                    }
+                    set_detail_button ();
                 });
 
             library_manager = Services.LibraryManager.instance;
@@ -265,6 +259,7 @@ namespace ShowMyPictures {
                 () => {
                     toggle_details_action ();
                 });
+            set_detail_button ();
             headerbar.pack_end (show_details);
 
             spinner = new Gtk.Spinner ();
@@ -354,7 +349,7 @@ namespace ShowMyPictures {
                 (label) => {
                     albums_view.label_filter (label);
                     album_view.label_filter (label);
-                    if (content.visible_child_name == "album" && album_view.visible_items == 0){
+                    if (content.visible_child_name == "album" && album_view.visible_items == 0) {
                         show_albums ();
                     }
                 });
@@ -390,10 +385,21 @@ namespace ShowMyPictures {
             return base.key_press_event (e);
         }
 
+        private void set_detail_button () {
+            if (settings.show_picture_details) {
+                show_details.set_image (pane_hide);
+                show_details.tooltip_text = _ ("Hide Picture Details [F4]");
+            } else {
+                show_details.set_image (pane_show);
+                show_details.tooltip_text = _ ("Show Picture Details [F4]");
+            }
+        }
+
         private void show_duplicates () {
             content.visible_child_name = "duplicates";
             navigation_button.show ();
-            show_details.hide ();
+            show_details.show ();
+            duplicates_view.hide_controls ();
         }
 
         private void show_not_found () {
@@ -583,9 +589,7 @@ namespace ShowMyPictures {
         }
 
         public void toggle_details_action () {
-            if (content.visible_child_name == "picture") {
-                picture_view.toggle_picture_details ();
-            }
+            settings.show_picture_details = !settings.show_picture_details;
         }
 
         public void rotate_left_action () {

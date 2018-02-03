@@ -29,6 +29,8 @@ namespace ShowMyPictures.Widgets {
     public class DuplicateRow : Gtk.ListBoxRow {
         Services.LibraryManager library_manager;
 
+        public signal void picture_selected (Objects.Picture picture);
+
         public string hash { get; private set; }
 
         Gtk.FlowBox duplicates;
@@ -46,6 +48,10 @@ namespace ShowMyPictures.Widgets {
         private void build_ui () {
             duplicates = new Gtk.FlowBox ();
             duplicates.halign = Gtk.Align.START;
+            duplicates.child_activated.connect (
+                (child) => {
+                    picture_selected ((child as Widgets.Picture).picture);
+                });
             duplicates.set_sort_func (pictures_sort_func);
             this.add (duplicates);
             this.show_all ();
