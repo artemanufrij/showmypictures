@@ -94,14 +94,23 @@ namespace ShowMyPictures.Utils {
     }
 
     public int get_optimized_size_from_jpegoptim (string output_line) {
-        var regex_old = new Regex ("\\d*(?= \\-\\->)");
+        Regex regex_old;
+        Regex regex_new;
+
+        try {
+            regex_old = new Regex ("\\d*(?= \\-\\->)");
+            regex_new = new Regex ("(?<=\\-\\-\\> )\\d*");
+        } catch (Error err) {
+            warning (err.message);
+            return 0;
+        }
+
         int old_value = 0;
         MatchInfo match_info;
         if (regex_old.match (output_line, 0, out match_info)) {
             old_value = int.parse (match_info.fetch (0));
         }
 
-        var regex_new = new Regex ("(?<=\\-\\-\\> )\\d*");
         int new_value = 0;
         if (regex_new.match (output_line, 0, out match_info)) {
             new_value = int.parse (match_info.fetch (0));
@@ -111,16 +120,23 @@ namespace ShowMyPictures.Utils {
     }
 
     public int get_optimized_size_from_optipng (string output_line) {
-stdout.printf ("%s\n", output_line);
+        Regex regex_old;
+        Regex regex_new;
 
-        var regex_old = new Regex ("(?<=Input file size = )\\d*");
+        try {
+            regex_old = new Regex ("(?<=Input file size = )\\d*");
+            regex_new = new Regex ("(?<=Output file size = )\\d*");
+        } catch (Error err) {
+            warning (err.message);
+            return 0;
+        }
+
         int old_value = 0;
         MatchInfo match_info;
         if (regex_old.match (output_line, 0, out match_info)) {
             old_value = int.parse (match_info.fetch (0));
         }
 
-        var regex_new = new Regex ("(?<=Output file size = )\\d*");
         int new_value = 0;
         if (regex_new.match (output_line, 0, out match_info)) {
             new_value = int.parse (match_info.fetch (0));
