@@ -1,6 +1,6 @@
 <div>
   <h1 align="center">Show My Pictures</h1>
-  <h3 align="center">An image viewer for manage local image files</h3>
+  <h3 align="center">An image viewer for managing local image files</h3>
   <p align="center">Designed for <a href="https://elementary.io"> elementary OS</p>
 </div>
 <p align="center">
@@ -13,7 +13,9 @@
 </p>
 
 ## Donations
-If you liked _Show My Pictures_, and would like to support it's development of this app and more, consider [buying me a coffee](https://www.paypal.me/ArtemAnufrij) :) 
+
+If you liked _Show My Pictures_, and would like to support the development of this app and more,
+consider [buying me a coffee](https://www.paypal.me/ArtemAnufrij) :)
 
 ## Install from Github.
 
@@ -41,7 +43,7 @@ cmake -DCMAKE_INSTALL_PREFIX=/usr ..
 make
 ```
 
-Install and start Show My Pictures on your system
+Install and start _Show My Pictures_ on your system
 ```
 sudo make install
 com.github.artemanufrij.showmypictures
