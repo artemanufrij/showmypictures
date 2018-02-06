@@ -3,6 +3,10 @@
   <h3 align="center">An image viewer for managing local image files</h3>
   <p align="center">Designed for <a href="https://elementary.io"> elementary OS</p>
 </div>
+
+### Donate
+<a href="https://www.paypal.me/ArtemAnufrij">PayPal</a> | <a href="https://liberapay.com/Artem/donate">LiberaPay</a> | <a href="https://www.patreon.com/ArtemAnufrij">Patreon</a>
+
 <p align="center">
   <a href="https://appcenter.elementary.io/com.github.artemanufrij.showmypictures">
     <img src="https://appcenter.elementary.io/badge.svg" alt="Get it on AppCenter">
@@ -11,11 +15,6 @@
     <img src="screenshots/Screenshot.png"/>
   </p>
 </p>
-
-## Donations
-
-If you liked _Show My Pictures_, and would like to support the development of this app and more,
-consider [buying me a coffee](https://www.paypal.me/ArtemAnufrij) :)
 
 ## Install from Github.
 
