@@ -26,7 +26,7 @@
  */
 
 namespace ShowMyPictures.Widgets {
-    public enum PictureStyle { DEFAULT, NOT_FOUND }
+    public enum PictureStyle { DEFAULT, NOT_FOUND, MTP_DEVICE }
 
     public class Picture : Gtk.FlowBoxChild {
         ShowMyPictures.Services.LibraryManager library_manager;
@@ -43,7 +43,11 @@ namespace ShowMyPictures.Widgets {
         }
 
         public Picture (Objects.Picture picture, PictureStyle picture_style = PictureStyle.DEFAULT) {
-            this.picture_style = picture_style;
+            if (picture.path.has_prefix ("mtp:")) {
+                this.picture_style = PictureStyle.MTP_DEVICE;
+            } else {
+                this.picture_style = picture_style;
+            }
             this.picture = picture;
             this.draw.connect (first_draw);
             build_ui ();
@@ -108,11 +112,7 @@ namespace ShowMyPictures.Widgets {
                 menu.add (menu_new_cover);
                 menu.add (new Gtk.SeparatorMenuItem ());
             }
-            var menu_move_into_trash = new Gtk.MenuItem.with_label (_ ("Move into Trash"));
-            menu_move_into_trash.activate.connect (
-                () => {
-                    library_manager.db_manager.remove_picture (picture);
-                });
+
 
             var menu_open_loacation = new Gtk.MenuItem.with_label (_ ("Open location"));
             menu_open_loacation.activate.connect (
@@ -124,9 +124,17 @@ namespace ShowMyPictures.Widgets {
                                     warning (err.message);
                     }
                 });
-
             menu.add (menu_open_loacation);
-            menu.add (menu_move_into_trash);
+
+            if (picture_style != PictureStyle.MTP_DEVICE) {
+                var menu_move_into_trash = new Gtk.MenuItem.with_label (_ ("Move into Trash"));
+                menu_move_into_trash.activate.connect (
+                    () => {
+                        library_manager.db_manager.remove_picture (picture);
+                    });
+                menu.add (menu_move_into_trash);
+            }
+
             menu.show_all ();
 
             this.add (event_box);

@@ -161,13 +161,15 @@ namespace ShowMyPictures.Objects {
                             file.dispose ();
                         });
 
-                    var f = File.new_for_path (preview_path);
-                    f.trash_async.begin (
-                        0,
-                        null,
-                        (obj, res) => {
-                            f.dispose ();
-                        });
+                    if (preview_path != "") {
+                        var f = File.new_for_path (preview_path);
+                        f.trash_async.begin (
+                            0,
+                            null,
+                            (obj, res) => {
+                                f.dispose ();
+                            });
+                    }
                 });
         }
 

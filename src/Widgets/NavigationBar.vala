@@ -102,7 +102,7 @@ namespace ShowMyPictures.Widgets {
                         not_found_selected ();
                     } else if (item is Widgets.NavigationMobilePhone) {
                         var mobile_phone = (item as Widgets.NavigationMobilePhone);
-                        if (mobile_phone != null) {
+                        if (mobile_phone != null && mobile_phone.album != null) {
                             album_selected (mobile_phone.album);
                         }
                     }
