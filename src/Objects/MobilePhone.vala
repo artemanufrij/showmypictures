@@ -37,7 +37,7 @@ namespace ShowMyPictures.Objects {
         public uint64 size { get; private set; }
         public uint64 free { get; private set; }
 
-        public GLib.List<string> pictures;
+        public unowned GLib.List<string> pictures { get; private set; }
 
         construct {
             pictures = new GLib.List<string> ();
@@ -45,13 +45,17 @@ namespace ShowMyPictures.Objects {
 
         public MobilePhone (Volume volume) {
             this.volume = volume;
-            this.volume.mount.begin (
-                MountMountFlags.NONE,
-                null,
-                null,
-                (obj, res) => {
-                    found_pictures_folder (volume.get_activation_root ().get_uri ());
-                });
+            if (this.volume.get_mount () == null) {
+                this.volume.mount.begin (
+                    MountMountFlags.NONE,
+                    null,
+                    null,
+                    (obj, res) => {
+                        found_pictures_folder (volume.get_activation_root ().get_uri ());
+                    });
+            } else {
+                found_pictures_folder (volume.get_activation_root ().get_uri ());
+            }
         }
 
         private void found_pictures_folder (string uri) {

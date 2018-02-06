@@ -367,7 +367,7 @@ namespace ShowMyPictures.Objects {
             }
 
             try {
-                if (!exiv_data.open_path (this.path)) {
+                if (path.has_prefix ("mtp:") || !exiv_data.open_path (path)) {
                     return false;
                 }
             }

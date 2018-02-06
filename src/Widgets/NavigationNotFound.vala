@@ -29,20 +29,25 @@ namespace ShowMyPictures.Widgets {
     public class NavigationNotFound : Granite.Widgets.SourceList.Item {
         public signal void remove_all_not_found_items ();
 
+        Gtk.Menu menu;
+
         public NavigationNotFound (string title) {
             this.name = title;
-
+            build_menu ();
         }
 
-        public override Gtk.Menu? get_context_menu () {
-            Gtk.Menu menu = new Gtk.Menu ();
+        private void build_menu () {
+            menu = new Gtk.Menu ();
             var remove_not_found_items = new Gtk.MenuItem.with_label (_ ("Remove Pictures"));
             remove_not_found_items.activate.connect (
                 () => {
-                    remove_all_not_found_items ();
+
                 });
             menu.add (remove_not_found_items);
             menu.show_all ();
+        }
+
+        public override Gtk.Menu? get_context_menu () {
             return menu;
         }
     }
