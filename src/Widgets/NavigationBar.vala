@@ -56,15 +56,23 @@ namespace ShowMyPictures.Widgets {
                             return false;
                         });
                 });
-
             library_manager.db_manager.keywords_changed.connect (
                 () => {
                     load_keywords ();
+                });
+            library_manager.mobile_phone_connected.connect (
+                (mobile_phone) => {
+                    add_mobile_phone (mobile_phone);
+                });
+            library_manager.mobile_phone_disconnected.connect (
+                (volume) => {
+                    remove_mobile_phone (volume);
                 });
         }
 
         public NavigationBar () {
             build_ui ();
+            library_manager.device_manager.init ();
         }
 
         private void build_ui () {
@@ -83,10 +91,10 @@ namespace ShowMyPictures.Widgets {
                         if (folder.parent is Widgets.NavigationDate) {
                             date_selected ((folder.parent as Widgets.NavigationDate).val, folder.val);
                         } else {
-                            date_selected (folder.val,                                    0);
+                            date_selected (folder.val, 0);
                         }
                     } else if (item is Widgets.NavigationLabel) {
-                            date_selected (0,                                             0, false);
+                            date_selected (0, 0, false);
                         label_selected ((item as Widgets.NavigationLabel).name);
                     } else if (item == duplicates_item) {
                         duplicates_selected ();
@@ -155,6 +163,21 @@ namespace ShowMyPictures.Widgets {
             events_entry.clear ();
             labels_entry.clear ();
             folders.selected = null;
+        }
+
+        private void add_mobile_phone (Objects.MobilePhone mobile_phone) {
+            device_entry.add (new Widgets.MobilePhone (mobile_phone));
+        }
+
+        private void remove_mobile_phone (Volume volume) {
+            foreach (var item in device_entry.children) {
+                if (item is Widgets.MobilePhone) {
+                    var mobile_phone = item as Widgets.MobilePhone;
+                    if (mobile_phone.mobile_phone.volume == volume) {
+                        device_entry.remove (item);
+                    }
+                }
+            }
         }
 
         public void add_album (Objects.Album album) {

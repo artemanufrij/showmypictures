@@ -45,6 +45,16 @@
 			<summary>Look for new image files on start up.</summary>
 			<description>Look for new image files on start up.</description>
 		</key>
+		<key name="check-for-duplicates" type="b">
+			<default>true</default>
+			<summary>Check for Duplicates.</summary>
+			<description>Check for Duplicates.</description>
+		</key>
+		<key name="check-for-missing-files" type="b">
+			<default>true</default>
+			<summary>Check for missing files.</summary>
+			<description>Check for missing files.</description>
+		</key>
 		<key name="show-picture-details" type="b">
 			<default>false</default>
 			<summary>Show picture details in picture view.</summary>

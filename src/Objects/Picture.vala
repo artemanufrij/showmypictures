@@ -61,7 +61,11 @@ namespace ShowMyPictures.Objects {
                 return _path;
             } set {
                 _path = value;
-                file = File.new_for_path (_path);
+                if (_path.has_prefix ("/")) {
+                    file = File.new_for_path (_path);
+                } else {
+                    file = File.new_for_uri (_path);
+                }
                 if (ID == 0) {
                     exclude_exiv ();
                     if (year == 0) {
@@ -495,11 +499,11 @@ namespace ShowMyPictures.Objects {
         }
 
         public int optimize () {
-            if (mime_type.index_of ("jpg") > -1 || mime_type.index_of ("jpeg") > -1){
+            if (mime_type.index_of ("jpg") > -1 || mime_type.index_of ("jpeg") > -1) {
                 return optimize_jpg ();
             }
 
-            if (mime_type.index_of ("png") > -1){
+            if (mime_type.index_of ("png") > -1) {
                 return optimize_png ();
             }
 

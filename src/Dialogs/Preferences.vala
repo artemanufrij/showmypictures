@@ -73,11 +73,31 @@ namespace ShowMyPictures.Dialogs {
                 settings.sync_files = sync_files.active;
             });
 
+            var check_duplicates_label = new Gtk.Label (_("Check for duplicates"));
+            check_duplicates_label.halign = Gtk.Align.START;
+            var check_duplicates = new Gtk.Switch ();
+            check_duplicates.active = settings.check_for_duplicates;
+            check_duplicates.notify["active"].connect (() => {
+                settings.check_for_duplicates = check_duplicates.active;
+            });
+
+            var check_missing_label = new Gtk.Label (_("Check for missing files"));
+            check_missing_label.halign = Gtk.Align.START;
+            var check_missing = new Gtk.Switch ();
+            check_missing.active = settings.check_for_missing_files;
+            check_missing.notify["active"].connect (() => {
+                settings.check_for_missing_files = check_missing.active;
+            });
+
             grid.attach (use_dark_theme_label, 0, 0);
             grid.attach (use_dark_theme, 1, 0);
             grid.attach (new Gtk.Separator (Gtk.Orientation.HORIZONTAL), 0, 1, 2, 1);
             grid.attach (sync_files_label, 0, 2);
             grid.attach (sync_files, 1, 2);
+            grid.attach (check_duplicates_label, 0, 3);
+            grid.attach (check_duplicates, 1, 3);
+            grid.attach (check_missing_label, 0, 4);
+            grid.attach (check_missing, 1, 4);
 
             content.pack_start (grid, false, false, 0);
 

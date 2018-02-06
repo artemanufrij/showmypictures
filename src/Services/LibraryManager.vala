@@ -45,9 +45,12 @@ namespace ShowMyPictures.Services {
         public signal void duplicates_found (GLib.List<string> hash_list);
         public signal void added_new_album (Objects.Album album);
         public signal void removed_album (Objects.Album album);
+        public signal void mobile_phone_connected (Objects.MobilePhone mobile_phone);
+        public signal void mobile_phone_disconnected (Volume volume);
 
         public Services.DataBaseManager db_manager { get; construct set; }
         public Services.LocalFilesManager lf_manager { get; construct set; }
+        public Services.DeviceManager device_manager { get; construct set; }
 
         public GLib.List<Objects.Album> albums {
             get {
@@ -71,6 +74,17 @@ namespace ShowMyPictures.Services {
             db_manager = Services.DataBaseManager.instance;
             db_manager.added_new_album.connect ((album) => { added_new_album (album); });
             db_manager.removed_album.connect ((album) => { removed_album (album); });
+
+            device_manager = Services.DeviceManager.instance;
+            device_manager.mtp_added.connect (
+                (volume) => {
+                    var mobile_phone = new Objects.MobilePhone (volume);
+                    mobile_phone_connected (mobile_phone);
+                });
+            device_manager.mtp_removed.connect (
+                (volume) => {
+                    mobile_phone_disconnected (volume);
+                });
         }
 
         private LibraryManager () {
@@ -81,11 +95,15 @@ namespace ShowMyPictures.Services {
             new Thread <void*> (
                 "sync_library_content",
                 () => {
-                    find_non_existent_items ();
+                    if (settings.check_for_missing_files) {
+                        find_non_existent_items ();
+                    }
                     if (settings.sync_files || force) {
                         scan_local_library_for_new_files (settings.library_location);
-                    } else {
+                    } else if (settings.check_for_duplicates) {
                         scan_for_duplicates_async.begin ();
+                    } else {
+                        sync_finished ();
                     }
                     return null;
                 });
@@ -101,7 +119,7 @@ namespace ShowMyPictures.Services {
                 insert_queue++;
                 insert_picture_file (path, mime_type);
                 insert_queue--;
-                if (insert_queue == 0) {
+                if (insert_queue == 0 && settings.check_for_duplicates) {
                     scan_for_duplicates_async.begin ();
                 }
             }
@@ -109,7 +127,9 @@ namespace ShowMyPictures.Services {
 
         public void scan_local_library_for_new_files (string path) {
             lf_manager.scan (path);
-            scan_for_duplicates_async.begin ();
+            if (settings.check_for_duplicates) {
+                scan_for_duplicates_async.begin ();
+            }
         }
 
         private void insert_picture_file (string path, string mime_type) {

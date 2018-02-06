@@ -25,30 +25,27 @@
  * Authored by: Artem Anufrij <artem.anufrij@live.de>
  */
 
-namespace ShowMyPictures {
-    public class Settings : Granite.Services.Settings {
-        private static Settings settings;
-        public static Settings get_default () {
-            if (settings == null) {
-                settings = new Settings ();
-            }
-            return settings;
-        }
-        public int window_width { get; set; }
-        public int window_height { get; set; }
-        public int window_x { get; set; }
-        public int window_y { get; set; }
-        public bool window_maximized { get; set; }
-        public bool look_for_new_files { get; set; }
-        public string library_location { get; set; }
-        public bool use_dark_theme { get; set; }
-        public bool sync_files { get; set; }
-        public bool show_picture_details { get; set; }
-        public bool check_for_duplicates { get; set; }
-        public bool check_for_missing_files { get; set; }
+namespace ShowMyPictures.Widgets {
+    public class MobilePhone : Granite.Widgets.SourceList.ExpandableItem {
+        Services.LibraryManager library_manager;
 
-        private Settings () {
-            base ("com.github.artemanufrij.showmypictures");
+        public Objects.MobilePhone mobile_phone { get; private set; }
+
+        construct {
+            library_manager = Services.LibraryManager.instance;
+        }
+
+        public MobilePhone (Objects.MobilePhone mobile_phone) {
+            this.mobile_phone = mobile_phone;
+            this.name = mobile_phone.volume.get_name ();
+            this.icon = mobile_phone.volume.get_icon ();
+
+            mobile_phone.pictures_found.connect (
+                (count) => {
+                    this.badge = count.to_string ();
+                });
+
+            this.badge = mobile_phone.pictures.length ().to_string ();
         }
     }
 }

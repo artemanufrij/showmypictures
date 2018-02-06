@@ -4,6 +4,7 @@ configure_file (${CMAKE_SOURCE_DIR}/Config.vala.cmake ${CONFIG_FILE})
 vala_precompile (VALA_C ${CMAKE_PROJECT_NAME}
     Objects/Album.vala
     Objects/Picture.vala
+    Objects/MobilePhone.vala
     Widgets/Album.vala
     Widgets/Picture.vala
     Widgets/NavigationBar.vala
@@ -12,6 +13,7 @@ vala_precompile (VALA_C ${CMAKE_PROJECT_NAME}
     Widgets/NavigationLabel.vala
     Widgets/NavigationNotFound.vala
     Widgets/DuplicateRow.vala
+    Widgets/MobilePhone.vala
     Widgets/Views/AlbumsView.vala
     Widgets/Views/AlbumView.vala
     Widgets/Views/Welcome.vala
@@ -22,6 +24,7 @@ vala_precompile (VALA_C ${CMAKE_PROJECT_NAME}
     Services/DataBaseManager.vala
     Services/LocalFilesManager.vala
     Services/LibraryManager.vala
+    Services/DeviceManager.vala
     Utils/Utils.vala
     Utils/Pixbuf.vala
     Utils/Exiv2.vala
