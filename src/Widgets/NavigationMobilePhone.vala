@@ -26,7 +26,7 @@
  */
 
 namespace ShowMyPictures.Widgets {
-    public class MobilePhone : Granite.Widgets.SourceList.ExpandableItem {
+    public class NavigationMobilePhone : Granite.Widgets.SourceList.ExpandableItem {
         Services.LibraryManager library_manager;
 
         public Objects.MobilePhone mobile_phone { get; private set; }
@@ -35,7 +35,7 @@ namespace ShowMyPictures.Widgets {
             library_manager = Services.LibraryManager.instance;
         }
 
-        public MobilePhone (Objects.MobilePhone mobile_phone) {
+        public NavigationMobilePhone (Objects.MobilePhone mobile_phone) {
             this.mobile_phone = mobile_phone;
             this.name = mobile_phone.volume.get_name ();
             this.icon = mobile_phone.volume.get_icon ();

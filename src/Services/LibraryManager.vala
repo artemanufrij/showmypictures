@@ -95,7 +95,7 @@ namespace ShowMyPictures.Services {
             new Thread <void*> (
                 "sync_library_content",
                 () => {
-                    if (settings.check_for_missing_files) {
+                    if (settings.check_for_missing_files || force) {
                         find_non_existent_items ();
                     }
                     if (settings.sync_files || force) {

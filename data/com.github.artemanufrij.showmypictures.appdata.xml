@@ -29,6 +29,15 @@
         </screenshot>
     </screenshots>
     <releases>
+        <release version="0.2.0" date="2018-02-12">
+            <description>
+                <p>New:</p>
+                <ul>
+                    <li>Support for external devices</li>
+                    <li>Additional settings: "check for missing files on start up" and "check for duplicats on start up"</li>
+                </ul>
+            </description>
+        </release>
         <release version="0.1.5" date="2018-02-05">
             <description>
                 <p>New:</p>

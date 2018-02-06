@@ -166,13 +166,13 @@ namespace ShowMyPictures.Widgets {
         }
 
         private void add_mobile_phone (Objects.MobilePhone mobile_phone) {
-            device_entry.add (new Widgets.MobilePhone (mobile_phone));
+            device_entry.add (new Widgets.NavigationMobilePhone (mobile_phone));
         }
 
         private void remove_mobile_phone (Volume volume) {
             foreach (var item in device_entry.children) {
-                if (item is Widgets.MobilePhone) {
-                    var mobile_phone = item as Widgets.MobilePhone;
+                if (item is Widgets.NavigationMobilePhone) {
+                    var mobile_phone = item as Widgets.NavigationMobilePhone;
                     if (mobile_phone.mobile_phone.volume == volume) {
                         device_entry.remove (item);
                     }
