@@ -26,6 +26,8 @@
  */
 
 namespace ShowMyPictures.Objects {
+    public enum SourceType { DEFAULT, MTP }
+
     public class Picture : GLib.Object {
         public signal void preview_created ();
         public signal void removed ();
@@ -33,6 +35,8 @@ namespace ShowMyPictures.Objects {
         public signal void rotated ();
         public signal void external_modified ();
         public signal void file_not_found ();
+
+        public SourceType source_type { get; private set; default = SourceType.DEFAULT; }
 
         int _ID = 0;
         public int ID {
@@ -61,6 +65,9 @@ namespace ShowMyPictures.Objects {
                 return _path;
             } set {
                 _path = value;
+                if (_path.has_prefix ("mtp:")) {
+                    source_type = SourceType.MTP;
+                }
                 if (_path.has_prefix ("/")) {
                     file = File.new_for_path (_path);
                 } else {
@@ -189,8 +196,23 @@ namespace ShowMyPictures.Objects {
             if (_original != null && !force) {
                 return;
             }
-            exclude_exiv ();
+
             string p = path;
+            File dest_file = null;
+            if (source_type == SourceType.MTP) {
+                p = GLib.Path.build_filename (ShowMyPicturesApp.instance.CACHE_FOLDER, "mtp_view.png");
+                dest_file = File.new_for_path (p);
+                try {
+                    file.copy (dest_file, FileCopyFlags.OVERWRITE);
+                    _path = p;
+                } catch (Error err) {
+                        warning (err.message);
+                    return;
+                }
+            }
+
+            exclude_exiv ();
+
             if (is_raw) {
                 p = GLib.Path.build_filename (ShowMyPicturesApp.instance.CACHE_FOLDER, "raw_view.tiff");
                 LibRaw.Processor processor = new LibRaw.Processor ();
@@ -199,6 +221,7 @@ namespace ShowMyPictures.Objects {
                 processor.thumb_writer (p);
                 processor = null;
             }
+
             try {
                 var r = Utils.get_rotation (this);
                 if (r != Gdk.PixbufRotation.NONE) {
@@ -208,6 +231,14 @@ namespace ShowMyPictures.Objects {
                 }
             } catch (Error err) {
                         warning (err.message);
+            }
+
+            if (dest_file != null && dest_file.query_exists ()) {
+                try {
+                    dest_file.delete ();
+                } catch (Error err) {
+                        warning (err.message);
+                }
             }
         }
 

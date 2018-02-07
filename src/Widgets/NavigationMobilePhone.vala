@@ -34,8 +34,6 @@ namespace ShowMyPictures.Widgets {
         public Objects.MobilePhone mobile_phone { get; private set; }
         public Objects.Album album { get; private set; default = null; }
 
-        uint album_timer = 0;
-
         construct {
             library_manager = Services.LibraryManager.instance;
         }
@@ -44,48 +42,27 @@ namespace ShowMyPictures.Widgets {
             this.mobile_phone = mobile_phone;
             this.name = mobile_phone.volume.get_name ();
             this.icon = mobile_phone.volume.get_icon ();
+            album = new Objects.Album (this.name);
 
-            mobile_phone.pictures_found.connect (
-                (count) => {
-                    this.badge = count.to_string ();
-                    create_album ();
+            this.mobile_phone.pictures_found.connect (
+                (uri) => {
+                    this.badge = mobile_phone.pictures.length ().to_string ();;
+                    add_picture (uri);
                 });
 
             this.badge = mobile_phone.pictures.length ().to_string ();
             build_menu ();
-            if (mobile_phone.pictures.length () > 0) {
-                create_album ();
+
+            foreach (string picture in mobile_phone.pictures) {
+                add_picture (picture);
             }
         }
 
-        private void create_album () {
-            if (album != null) {
-                return;
-            }
-                    reset_create_album ();
-            album_timer = Timeout.add (
-                250,
-                () => {
-                    new Thread<void*> (
-                        "",
-                        () => {
-                            album = new Objects.Album (this.name);
-                            foreach (var uri in mobile_phone.pictures.copy ()) {
-                                var picture = new Objects.Picture (album);
-                                picture.path = uri;
-                                album.add_picture (picture);
-                            }
-                            return null;
-                        });
-                    reset_create_album ();
-                    return false;
-                });
-        }
-
-        private void reset_create_album () {
-            if (album_timer != 0 ) {
-                Source.remove (album_timer);
-                album_timer = 0;
+        private void add_picture (string uri) {
+            lock (album) {
+                var picture = new Objects.Picture (album);
+                picture.path = uri;
+                album.add_picture (picture);
             }
         }
 

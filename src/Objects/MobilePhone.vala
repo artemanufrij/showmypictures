@@ -32,7 +32,7 @@ namespace ShowMyPictures.Objects {
         public signal void copy_started ();
         public signal void copy_finished ();
         public signal void copy_progress (string title, uint count, uint sum);
-        public signal void pictures_found (uint count);
+        public signal void pictures_found (string uri);
 
         public uint64 size { get; private set; }
         public uint64 free { get; private set; }
@@ -68,9 +68,8 @@ namespace ShowMyPictures.Objects {
                         FileInfo file_info = null;
                         while ((file_info = children.next_file ()) != null) {
                             if (file_info.get_file_type () == FileType.DIRECTORY) {
-                                if (file_info.get_name ().down () == "pictures") {
+                                if (file_info.get_name ().down () == "pictures" || file_info.get_name ().down () == "camera") {
                                     extract_picture_files (uri + file_info.get_name () + "/");
-                                    break;
                                 } else {
                                     found_pictures_folder (uri + file_info.get_name () + "/");
                                 }
@@ -98,7 +97,7 @@ namespace ShowMyPictures.Objects {
 
                     if (exception_check.has_suffix ("jpg") || exception_check.has_suffix ("png")) {
                         pictures.append (uri + file_info.get_name ());
-                        pictures_found (pictures.length ());
+                        pictures_found (uri + file_info.get_name ());
                     }
                 }
             } catch (Error err) {

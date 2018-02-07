@@ -39,11 +39,13 @@ namespace ShowMyPictures.Widgets.Views {
         Gtk.Entry keywords_entry;
         Gtk.TextView comment_entry;
         Gtk.Box navigation_controls;
+        Gtk.Box controls;
 
         Gtk.Button go_next;
         Gtk.Button go_prev;
         Gtk.Button rotate_left;
         Gtk.Button rotate_right;
+        Gtk.Button into_trash;
 
         Gtk.Label lab_details;
 
@@ -66,7 +68,7 @@ namespace ShowMyPictures.Widgets.Views {
 
             var content = new Gtk.Grid ();
 
-            var controls = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 6);
+            controls = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 6);
             controls.margin = 12;
             rotate_left = new Gtk.Button.from_icon_name ("object-rotate-left-symbolic", Gtk.IconSize.SMALL_TOOLBAR);
             rotate_left.tooltip_text = _ ("Rotate left [Ctrl+Left]");
@@ -84,7 +86,7 @@ namespace ShowMyPictures.Widgets.Views {
                 });
 
 
-            var into_trash = new Gtk.Button.from_icon_name ("edit-delete-symbolic", Gtk.IconSize.SMALL_TOOLBAR);
+            into_trash = new Gtk.Button.from_icon_name ("edit-delete-symbolic", Gtk.IconSize.SMALL_TOOLBAR);
             into_trash.tooltip_text = _ ("Move into trash");
             into_trash.valign = Gtk.Align.CENTER;
             into_trash.clicked.connect (
@@ -176,6 +178,12 @@ namespace ShowMyPictures.Widgets.Views {
             keywords_entry.text = current_picture.keywords;
             comment_entry.buffer.text = current_picture.comment;
             show_camera_details ();
+
+            if (picture.source_type == Objects.SourceType.MTP) {
+                hide_all_controls ();
+            } else {
+                show_all_controls ();
+            }
         }
 
         private void show_camera_details () {
@@ -229,6 +237,14 @@ namespace ShowMyPictures.Widgets.Views {
             go_prev.hide ();
             rotate_left.hide ();
             rotate_right.hide ();
+        }
+
+        private void hide_all_controls () {
+            controls.hide ();
+        }
+
+        private void show_all_controls () {
+            controls.show ();
         }
     }
 }

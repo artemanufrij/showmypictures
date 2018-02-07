@@ -43,7 +43,7 @@ namespace ShowMyPictures.Widgets {
         }
 
         public Picture (Objects.Picture picture, PictureStyle picture_style = PictureStyle.DEFAULT) {
-            if (picture.path.has_prefix ("mtp:")) {
+            if (picture.source_type == Objects.SourceType.MTP) {
                 this.picture_style = PictureStyle.MTP_DEVICE;
             } else {
                 this.picture_style = picture_style;
