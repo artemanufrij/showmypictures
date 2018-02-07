@@ -179,6 +179,9 @@ namespace ShowMyPictures.Widgets {
                 if (item is Widgets.NavigationMobilePhone) {
                     var mobile_phone = item as Widgets.NavigationMobilePhone;
                     if (mobile_phone.mobile_phone.volume == volume) {
+                        if (folders.selected == item) {
+                            date_selected (0, 0);
+                        }
                         device_entry.remove (item);
                     }
                 }
