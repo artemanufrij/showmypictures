@@ -113,7 +113,7 @@ namespace ShowMyPictures.Widgets.Views {
         }
 
         public bool delete_current_picture () {
-            if (picture_details.has_text_focus) {
+            if (picture_details.has_text_focus || current_picture.source_type == Objects.SourceType.MTP) {
                 return false;
             }
             var for_delete = current_picture;
