@@ -26,6 +26,8 @@
  */
 
 namespace ShowMyPictures.Services {
+    public enum DeviceType { DEFAULT, MTP, GPHOTO }
+
     public class DeviceManager : GLib.Object {
         static DeviceManager _instance = null;
 
@@ -40,8 +42,8 @@ namespace ShowMyPictures.Services {
         private DeviceManager () {
         }
 
-        public signal void mtp_added (Volume volume);
-        public signal void mtp_removed (Volume volume);
+        public signal void external_device_added (Volume volume, DeviceType device_type);
+        public signal void external_device_removed (Volume volume);
 
         private GLib.VolumeMonitor monitor;
 
@@ -50,31 +52,65 @@ namespace ShowMyPictures.Services {
 
             monitor.volume_added.connect (
                 (volume) => {
-                    if (check_for_mtp_volume (volume)) {
-                        mtp_added (volume);
-                    }
+                    signal_check_add (volume);
                 });
 
             monitor.volume_removed.connect (
                 (volume) => {
-                    if (check_for_mtp_volume (volume)) {
-                        mtp_removed (volume);
-                    }
+                    signal_check_remove (volume);
                 });
         }
 
         public void init () {
             var volumes = monitor.get_volumes ();
             foreach (var volume in volumes) {
-                if (check_for_mtp_volume (volume)) {
-                    mtp_added (volume);
+                signal_check_add (volume);
+            }
+        }
+
+        private void signal_check_add (Volume volume) {
+            if (check_for_mtp_volume (volume)) {
+                external_device_added (volume, DeviceType.MTP);
+            } else if (check_for_gphoto_volume (volume)) {
+                external_device_added (volume, DeviceType.GPHOTO);
+            } else {
+                var drive = volume.get_drive ();
+                if (drive != null) {
+                    if (check_for_external_device (drive)) {
+                        external_device_added (volume, DeviceType.DEFAULT);
+                    }
+                    drive.unref ();
                 }
             }
         }
 
-        private bool check_for_mtp_volume (Volume volume) {
-            File file = volume.get_activation_root ();
-            return (file != null && file.get_uri ().has_prefix ("mtp://"));
+        private void signal_check_remove (Volume volume) {
+            if (check_for_mtp_volume (volume) || check_for_gphoto_volume (volume)) {
+                        external_device_removed (volume);
+            } else {
+                var drive = volume.get_drive ();
+                if (drive != null) {
+                    if (check_for_external_device (drive)) {
+                        external_device_removed (volume);
+                    }
+                    drive.unref ();
+                }
+            }
         }
+    }
+
+    private bool check_for_mtp_volume (Volume volume) {
+        File file = volume.get_activation_root ();
+        return (file != null && file.get_uri ().has_prefix ("mtp://"));
+    }
+
+    private bool check_for_gphoto_volume (Volume volume) {
+        File file = volume.get_activation_root ();
+        return (file != null && file.get_uri ().has_prefix ("gphoto2://"));
+    }
+
+    private bool check_for_external_device (Drive drive) {
+        string ? unix_device = drive.get_identifier ("unix-device");
+        return (drive.is_media_removable () || drive.can_stop ()) && (unix_device != null && (unix_device.has_prefix ("/dev/sd") || unix_device.has_prefix ("/dev/mmc")));
     }
 }

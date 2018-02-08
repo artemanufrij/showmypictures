@@ -60,13 +60,20 @@ namespace ShowMyPictures.Widgets {
                 () => {
                     load_keywords ();
                 });
-            library_manager.mobile_phone_connected.connect (
-                (mobile_phone) => {
-                    add_mobile_phone (mobile_phone);
+            library_manager.external_device_added.connect (
+                (volume, device_type) => {
+                    switch (device_type) {
+                    case Services.DeviceType.MTP :
+                        add_mobile_phone (volume);
+                        break;
+                    case Services.DeviceType.GPHOTO :
+                        add_gphoto (volume);
+                        break;
+                    }
                 });
-            library_manager.mobile_phone_disconnected.connect (
+            library_manager.external_device_removed.connect (
                 (volume) => {
-                    remove_mobile_phone (volume);
+                    remove_volume (volume);
                 });
         }
 
@@ -100,10 +107,10 @@ namespace ShowMyPictures.Widgets {
                         duplicates_selected ();
                     } else if (item == not_found_item) {
                         not_found_selected ();
-                    } else if (item is Widgets.NavigationMobilePhone) {
-                        var mobile_phone = (item as Widgets.NavigationMobilePhone);
-                        if (mobile_phone != null && mobile_phone.album != null) {
-                            album_selected (mobile_phone.album);
+                    } else if (item is Widgets.NavigationExternalDevice) {
+                        var device = (item as Widgets.NavigationExternalDevice);
+                        if (device != null && device.album != null) {
+                            album_selected (device.album);
                         }
                     }
                 });
@@ -170,15 +177,19 @@ namespace ShowMyPictures.Widgets {
             folders.selected = null;
         }
 
-        private void add_mobile_phone (Objects.MobilePhone mobile_phone) {
-            device_entry.add (new Widgets.NavigationMobilePhone (mobile_phone));
+        private void add_mobile_phone (Volume volume) {
+            device_entry.add (new Widgets.NavigationExternalDevice (new Objects.MobilePhone (volume)));
         }
 
-        private void remove_mobile_phone (Volume volume) {
+        private void add_gphoto (Volume volume) {
+            device_entry.add (new Widgets.NavigationExternalDevice (new Objects.GphotoDevice (volume)));
+        }
+
+        private void remove_volume (Volume volume) {
             foreach (var item in device_entry.children) {
-                if (item is Widgets.NavigationMobilePhone) {
-                    var mobile_phone = item as Widgets.NavigationMobilePhone;
-                    if (mobile_phone.mobile_phone.volume == volume) {
+                if (item is Widgets.NavigationExternalDevice) {
+                    var mobile_phone = item as Widgets.NavigationExternalDevice;
+                    if (mobile_phone.device.volume == volume) {
                         if (folders.selected == item) {
                             date_selected (0, 0);
                         }

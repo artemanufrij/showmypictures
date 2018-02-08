@@ -26,9 +26,9 @@
  */
 
 namespace ShowMyPictures.Objects {
-    public class MobilePhone : ExternalDevice {
+    public class GphotoDevice : ExternalDevice {
 
-        public MobilePhone (Volume volume) {
+        public GphotoDevice (Volume volume) {
             this.volume = volume;
             if (this.volume.get_mount () == null) {
                 this.volume.mount.begin (
@@ -36,35 +36,11 @@ namespace ShowMyPictures.Objects {
                     null,
                     null,
                     (obj, res) => {
-                        found_pictures_folder (volume.get_activation_root ().get_uri ());
+                        extract_picture_files (volume.get_activation_root ().get_uri ());
                     });
             } else {
-                found_pictures_folder (volume.get_activation_root ().get_uri ());
+                extract_picture_files (volume.get_activation_root ().get_uri ());
             }
-        }
-
-        private void found_pictures_folder (string uri) {
-            new Thread <void*> (
-                "found_pictures_folder",
-                () => {
-                    var file = File.new_for_uri (uri);
-                    try {
-                        var children = file.enumerate_children ("standard::*", GLib.FileQueryInfoFlags.NONE);
-                        FileInfo file_info = null;
-                        while ((file_info = children.next_file ()) != null) {
-                            if (file_info.get_file_type () == FileType.DIRECTORY) {
-                                if (file_info.get_name ().down () == "pictures" || file_info.get_name ().down () == "camera") {
-                                    extract_picture_files (uri + file_info.get_name () + "/");
-                                } else {
-                                    found_pictures_folder (uri + file_info.get_name () + "/");
-                                }
-                            }
-                        }
-                    } catch (Error err) {
-                        warning (err.message);
-                    }
-                    return null;
-                });
         }
     }
 }

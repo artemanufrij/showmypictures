@@ -26,34 +26,34 @@
  */
 
 namespace ShowMyPictures.Widgets {
-    public class NavigationMobilePhone : Granite.Widgets.SourceList.ExpandableItem {
+    public class NavigationExternalDevice : Granite.Widgets.SourceList.ExpandableItem {
         Services.LibraryManager library_manager;
 
         Gtk.Menu menu;
 
-        public Objects.MobilePhone mobile_phone { get; private set; }
+        public Objects.ExternalDevice device { get; private set; }
         public Objects.Album album { get; private set; default = null; }
 
         construct {
             library_manager = Services.LibraryManager.instance;
         }
 
-        public NavigationMobilePhone (Objects.MobilePhone mobile_phone) {
-            this.mobile_phone = mobile_phone;
-            this.name = mobile_phone.volume.get_name ();
-            this.icon = mobile_phone.volume.get_icon ();
+        public NavigationExternalDevice (Objects.ExternalDevice device) {
+            this.device = device;
+            this.name = device.volume.get_name ();
+            this.icon = device.volume.get_icon ();
             album = new Objects.Album (this.name);
 
-            this.mobile_phone.pictures_found.connect (
+            this.device.pictures_found.connect (
                 (uri) => {
-                    this.badge = mobile_phone.pictures.length ().to_string ();;
+                    this.badge = device.pictures.length ().to_string ();;
                     add_picture (uri);
                 });
 
-            this.badge = mobile_phone.pictures.length ().to_string ();
+            this.badge = device.pictures.length ().to_string ();
             build_menu ();
 
-            foreach (string picture in mobile_phone.pictures) {
+            foreach (string picture in device.pictures) {
                 add_picture (picture);
             }
         }

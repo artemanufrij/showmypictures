@@ -5,6 +5,8 @@ vala_precompile (VALA_C ${CMAKE_PROJECT_NAME}
     Objects/Album.vala
     Objects/Picture.vala
     Objects/MobilePhone.vala
+    Objects/ExternalDevice.vala
+    Objects/GphotoDevice.vala
     Widgets/Album.vala
     Widgets/Picture.vala
     Widgets/NavigationBar.vala
@@ -12,7 +14,7 @@ vala_precompile (VALA_C ${CMAKE_PROJECT_NAME}
     Widgets/NavigationAlbum.vala
     Widgets/NavigationLabel.vala
     Widgets/NavigationNotFound.vala
-    Widgets/NavigationMobilePhone.vala
+    Widgets/NavigationExternalDevice.vala
     Widgets/DuplicateRow.vala
     Widgets/Views/AlbumsView.vala
     Widgets/Views/AlbumView.vala

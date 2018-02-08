@@ -45,8 +45,8 @@ namespace ShowMyPictures.Services {
         public signal void duplicates_found (GLib.List<string> hash_list);
         public signal void added_new_album (Objects.Album album);
         public signal void removed_album (Objects.Album album);
-        public signal void mobile_phone_connected (Objects.MobilePhone mobile_phone);
-        public signal void mobile_phone_disconnected (Volume volume);
+        public signal void external_device_added (Volume volume, DeviceType device_type);
+        public signal void external_device_removed (Volume volume);
 
         public Services.DataBaseManager db_manager { get; construct set; }
         public Services.LocalFilesManager lf_manager { get; construct set; }
@@ -76,14 +76,13 @@ namespace ShowMyPictures.Services {
             db_manager.removed_album.connect ((album) => { removed_album (album); });
 
             device_manager = Services.DeviceManager.instance;
-            device_manager.mtp_added.connect (
-                (volume) => {
-                    var mobile_phone = new Objects.MobilePhone (volume);
-                    mobile_phone_connected (mobile_phone);
+            device_manager.external_device_added.connect (
+                (volume, device_type) => {
+                    external_device_added (volume, device_type);
                 });
-            device_manager.mtp_removed.connect (
+            device_manager.external_device_removed.connect (
                 (volume) => {
-                    mobile_phone_disconnected (volume);
+                    external_device_removed (volume);
                 });
         }
 
