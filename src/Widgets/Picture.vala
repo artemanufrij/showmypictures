@@ -148,8 +148,6 @@ namespace ShowMyPictures.Widgets {
                         child.destroy ();
                     }
 
-                    var f = File.new_for_path (picture.path);
-
                     foreach (var appinfo in AppInfo.get_all_for_type (picture.mime_type)) {
                         if (appinfo.get_executable () == ShowMyPicturesApp.instance.application_id) {
                             continue;
@@ -158,7 +156,7 @@ namespace ShowMyPictures.Widgets {
                         item.activate.connect (
                             () => {
                                 GLib.List<File> files = new GLib.List<File> ();
-                                files.append (f);
+                                files.append (picture.file);
                                 try {
                                     picture.start_monitoring ();
                                     appinfo.launch (files, null);

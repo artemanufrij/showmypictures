@@ -54,9 +54,7 @@ namespace ShowMyPictures.Objects {
                                 continue;
                             }
 
-                            var exception_check = file_info.get_name ().down ();
-
-                            if (exception_check.has_suffix ("jpg") || exception_check.has_suffix ("png")) {
+                            if (Utils.is_valid_extention (file_info.get_name ().down ())) {
                                 pictures.append (uri + file_info.get_name ());
                                 pictures_found (uri + file_info.get_name ());
                             }

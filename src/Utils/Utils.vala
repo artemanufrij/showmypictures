@@ -57,6 +57,14 @@ namespace ShowMyPictures.Utils {
                || mime_type == "image/x-sony-arw";
     }
 
+    public static bool is_valid_extention (string extention) {
+        return extention.has_suffix ("png")
+               || extention.has_suffix ("jpeg")
+               || extention.has_suffix ("jpg")
+               || extention.has_suffix ("cr2")
+               || extention.has_suffix ("nef");
+    }
+
     public static bool is_raw (string mime_type) {
         return mime_type == "image/x-canon-cr2"
                || mime_type == "image/x-nikon-nef"

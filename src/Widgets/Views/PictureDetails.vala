@@ -174,7 +174,7 @@ namespace ShowMyPictures.Widgets.Views {
                 current_picture.exclude_creation_date ();
             }
             date_size_resolution.label = "%s\n%d × %d".printf (current_picture.date, current_picture.width, current_picture.height);
-            location.label = current_picture.path;
+            location.label = current_picture.file.get_uri ();
             keywords_entry.text = current_picture.keywords;
             comment_entry.buffer.text = current_picture.comment;
             show_camera_details ();
