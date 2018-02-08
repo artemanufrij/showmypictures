@@ -26,7 +26,7 @@
  */
 
 namespace ShowMyPictures.Objects {
-    public enum SourceType { DEFAULT, MTP }
+    public enum SourceType { DEFAULT, GPHOTO, MTP }
 
     public class Picture : GLib.Object {
         public signal void preview_created ();
@@ -67,6 +67,8 @@ namespace ShowMyPictures.Objects {
                 _path = value;
                 if (_path.has_prefix ("mtp:")) {
                     source_type = SourceType.MTP;
+                } else if (_path.has_prefix ("gphoto2:")) {
+                    source_type = SourceType.GPHOTO;
                 }
                 if (_path.has_prefix ("/")) {
                     file = File.new_for_path (_path);
@@ -196,11 +198,10 @@ namespace ShowMyPictures.Objects {
             if (_original != null && !force) {
                 return;
             }
-
             string p = path;
             File dest_file = null;
-            if (source_type == SourceType.MTP) {
-                p = GLib.Path.build_filename (ShowMyPicturesApp.instance.CACHE_FOLDER, "mtp_view.png");
+            if (source_type == SourceType.MTP || source_type == SourceType.GPHOTO) {
+                p = GLib.Path.build_filename (ShowMyPicturesApp.instance.CACHE_FOLDER, "ext_view.png");
                 dest_file = File.new_for_path (p);
                 try {
                     file.copy (dest_file, FileCopyFlags.OVERWRITE);
@@ -400,7 +401,7 @@ namespace ShowMyPictures.Objects {
             }
 
             try {
-                if (path.has_prefix ("mtp:") || !exiv_data.open_path (path)) {
+                if (path.has_prefix ("mtp:") || path.has_prefix ("gphoto2:") || !exiv_data.open_path (path)) {
                     return false;
                 }
             }

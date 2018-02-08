@@ -41,26 +41,31 @@ namespace ShowMyPictures.Objects {
         }
 
         protected void extract_picture_files (string uri) {
-            var file = File.new_for_uri (uri);
-            try {
-                var children = file.enumerate_children ("standard::*", GLib.FileQueryInfoFlags.NONE);
-                FileInfo file_info = null;
-                while ((file_info = children.next_file ()) != null) {
-                    if (file_info.get_file_type () == FileType.DIRECTORY) {
-                        extract_picture_files (uri + file_info.get_name () + "/");
-                        continue;
-                    }
+            new Thread <void*> (
+                "extract_picture_files",
+                () => {
+                    var file = File.new_for_uri (uri);
+                    try {
+                        var children = file.enumerate_children ("standard::*", GLib.FileQueryInfoFlags.NONE);
+                        FileInfo file_info = null;
+                        while ((file_info = children.next_file ()) != null) {
+                            if (file_info.get_file_type () == FileType.DIRECTORY) {
+                                extract_picture_files (uri + file_info.get_name () + "/");
+                                continue;
+                            }
 
-                    var exception_check = file_info.get_name ().down ();
+                            var exception_check = file_info.get_name ().down ();
 
-                    if (exception_check.has_suffix ("jpg") || exception_check.has_suffix ("png")) {
-                        pictures.append (uri + file_info.get_name ());
-                        pictures_found (uri + file_info.get_name ());
+                            if (exception_check.has_suffix ("jpg") || exception_check.has_suffix ("png")) {
+                                pictures.append (uri + file_info.get_name ());
+                                pictures_found (uri + file_info.get_name ());
+                            }
+                        }
+                    } catch (Error err) {
+                        warning (err.message);
                     }
-                }
-            } catch (Error err) {
-                warning (err.message);
-            }
+                    return null;
+                });
         }
     }
 }
