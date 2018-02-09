@@ -321,7 +321,28 @@ namespace ShowMyPictures.Services {
             return return_value;
         }
 
-        public Objects.Picture _fill_picture (Sqlite.Statement stmt, Objects.Album album) {
+        public GLib.List<Objects.Picture> get_picture_collection_by_hash (string hash) {
+            GLib.List<Objects.Picture> return_value = new GLib.List<Objects.Picture> ();
+
+            Sqlite.Statement stmt;
+
+            string sql = """
+                SELECT id, path, year, month, day, mime_type, keywords, hash, comment, stars, colors, hour, minute, second FROM pictures WHERE hash=$HASH ORDER BY year, month, day, hour, minute, second, path;
+            """;
+
+            db.prepare_v2 (sql, sql.length, out stmt);
+            set_parameter_str (stmt, sql, "$HASH", hash);
+
+            while (stmt.step () == Sqlite.ROW) {
+                var picture = _fill_picture (stmt, null);
+                return_value.append (picture);
+            }
+            stmt.reset ();
+
+            return return_value;
+        }
+
+        public Objects.Picture _fill_picture (Sqlite.Statement stmt, Objects.Album? album) {
             Objects.Picture return_value = new Objects.Picture (album);
             return_value.ID = stmt.column_int (0);
             return_value.path = stmt.column_text (1);
@@ -472,6 +493,27 @@ namespace ShowMyPictures.Services {
 
             db.prepare_v2 (sql, sql.length, out stmt);
             set_parameter_str (stmt, sql, "$PATH", path);
+
+            if (stmt.step () == Sqlite.ROW) {
+                return_value = stmt.column_int (0) > 0;
+            } else {
+                warning ("Error: %d: %s", db.errcode (), db.errmsg ());
+            }
+            stmt.reset ();
+
+            return return_value;
+        }
+
+        public bool hash_exists (string hash) {
+            bool return_value = false;
+            Sqlite.Statement stmt;
+
+            string sql = """
+                SELECT COUNT (*) FROM pictures WHERE hash=$HASH;
+            """;
+
+            db.prepare_v2 (sql, sql.length, out stmt);
+            set_parameter_str (stmt, sql, "$HASH", hash);
 
             if (stmt.step () == Sqlite.ROW) {
                 return_value = stmt.column_int (0) > 0;

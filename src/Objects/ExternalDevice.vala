@@ -29,9 +29,6 @@ namespace ShowMyPictures.Objects {
     public class ExternalDevice : GLib.Object {
         public Volume volume { get; protected set; }
 
-        public signal void import_started ();
-        public signal void import_finished ();
-        public signal void import_progress (string title, uint count, uint sum);
         public signal void pictures_found (string uri);
 
         public unowned GLib.List<string> pictures { get; protected set; }

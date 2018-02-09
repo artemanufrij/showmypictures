@@ -29,6 +29,10 @@ namespace ShowMyPictures.Widgets {
     public class NavigationExternalDevice : Granite.Widgets.SourceList.ExpandableItem {
         Services.LibraryManager library_manager;
 
+        public signal void import_started ();
+        public signal void import_finished ();
+        public signal void import_counter (uint count);
+
         Gtk.Menu menu;
 
         public Objects.ExternalDevice device { get; private set; }
@@ -36,6 +40,26 @@ namespace ShowMyPictures.Widgets {
 
         construct {
             library_manager = Services.LibraryManager.instance;
+            import_started.connect (
+                () => {
+                    this.name = _ ("…importing");
+                });
+            import_finished.connect (
+                () => {
+                    Idle.add (
+                        () => {
+                            this.name = device.volume.get_name ();
+                            return false;
+                        });
+                });
+            import_counter.connect (
+                (count) => {
+                    Idle.add (
+                        () => {
+                            this.badge = count.to_string ();
+                            return false;
+                        });
+                });
         }
 
         public NavigationExternalDevice (Objects.ExternalDevice device) {
@@ -46,7 +70,11 @@ namespace ShowMyPictures.Widgets {
 
             this.device.pictures_found.connect (
                 (uri) => {
-                    this.badge = device.pictures.length ().to_string ();;
+                    Idle.add (
+                        () => {
+                            this.badge = device.pictures.length ().to_string ();
+                            return false;
+                        });
                     add_picture (uri);
                 });
 
@@ -68,11 +96,24 @@ namespace ShowMyPictures.Widgets {
 
         private void build_menu () {
             menu = new Gtk.Menu ();
-            var remove_not_found_items = new Gtk.MenuItem.with_label (_ ("Import Pictures"));
-            remove_not_found_items.activate.connect (
+            var import_items = new Gtk.MenuItem.with_label (_ ("Import Pictures"));
+            import_items.activate.connect (
                 () => {
+                    import_started ();
+                    new Thread<void*> (
+                        "import_pictures",
+                        () => {
+                            uint counter = 0;
+                            foreach (var picture in album.pictures) {
+                                library_manager.import_from_external_device (picture);
+                                counter++;
+                                import_counter (counter);
+                            }
+                            import_finished ();
+                            return null;
+                        });
                 });
-            menu.add (remove_not_found_items);
+            menu.add (import_items);
             menu.show_all ();
         }
 

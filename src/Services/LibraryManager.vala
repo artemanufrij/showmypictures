@@ -144,7 +144,39 @@ namespace ShowMyPictures.Services {
             }
         }
 
-        private void import_from_external_device (Objects.Picture picture) {
+        public void import_from_external_device (Objects.Picture picture) {
+            var hash_pictures = db_manager.get_picture_collection_by_hash (picture.hash);
+
+            foreach (var hash_picture in hash_pictures) {
+                if (hash_picture.file_exists ()) {
+                    return;
+                }
+            }
+
+            stdout.printf ("HASH %s\n", picture.hash);
+
+            var target_path = Path.build_filename (settings.library_location, picture.year.to_string (), picture.month.to_string (), picture.day.to_string ());
+            var target_folder = File.new_for_path (target_path);
+            if (!target_folder.query_exists ()) {
+                try {
+                    target_folder.make_directory_with_parents ();
+                } catch (Error err) {
+                    warning (err.message);
+                    return;
+                }
+            }
+            target_folder.dispose ();
+
+            target_path = Path.build_filename (target_path, picture.file.get_basename ());
+            var target_file = File.new_for_path (target_path);
+
+            try {
+                if (picture.file.copy (target_file, FileCopyFlags.NONE)) {
+                    insert_picture_file (target_path, picture.mime_type);
+                }
+            } catch (Error err) {
+                warning (err.message);
+            }
         }
 
         private void find_non_existent_items () {
