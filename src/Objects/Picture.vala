@@ -207,7 +207,7 @@ namespace ShowMyPictures.Objects {
                     file.copy (dest_file, FileCopyFlags.OVERWRITE);
                     _path = p;
                 } catch (Error err) {
-                        warning (err.message);
+                    warning (err.message);
                     return;
                 }
             }
@@ -304,11 +304,9 @@ namespace ShowMyPictures.Objects {
 
         private void create_preview_from_path (string source_path) {
             try {
-                var pixbuf = new Gdk.Pixbuf.from_file_at_scale (source_path, -1, 256, true);
-                create_preview_from_pixbuf (pixbuf);
-                pixbuf.dispose ();
+                create_preview_from_pixbuf (new Gdk.Pixbuf.from_file_at_scale (source_path, -1, 256, true));
             } catch (Error err) {
-                    warning (err.message);
+                warning (err.message);
             }
         }
 

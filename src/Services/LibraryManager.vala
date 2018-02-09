@@ -144,6 +144,9 @@ namespace ShowMyPictures.Services {
             }
         }
 
+        private void import_from_external_device (Objects.Picture picture) {
+        }
+
         private void find_non_existent_items () {
             not_found = new GLib.List<Objects.Picture> ();
             foreach (var album in albums) {
