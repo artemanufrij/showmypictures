@@ -585,6 +585,8 @@ namespace ShowMyPictures {
                 search_entry.text = "";
             } else if (content.visible_child_name == "albums") {
                 albums_view.unselect_all ();
+            } else if (content.visible_child_name == "album") {
+                album_view.unselect_all ();
             }
         }
 

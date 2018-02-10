@@ -123,5 +123,9 @@ namespace ShowMyPictures.Widgets {
             }
             return false;
         }
+
+        public void reset () {
+            multi_selection = false;
+        }
     }
 }

@@ -101,6 +101,7 @@ namespace ShowMyPictures.Widgets.Views {
         public void reset () {
             foreach (var child in pictures.get_children ()) {
                 (child as Widgets.Picture).picture.import_request.disconnect (import_request);
+                (child as Widgets.Picture).context_opening.disconnect (context_menu_opening);
                 child.destroy ();
             }
         }
@@ -114,12 +115,7 @@ namespace ShowMyPictures.Widgets.Views {
                     var item = new Widgets.Picture (picture);
                     this.pictures.add (item);
                     picture.import_request.connect (import_request);
-                    item.context_opening.connect (
-                        () => {
-                            if (!mainwindow.ctrl_pressed && !item.multi_selection) {
-                                unselect_all ();
-                            }
-                        });
+                    item.context_opening.connect (context_menu_opening);
                     do_sort ();
                     return false;
                 });
@@ -138,26 +134,33 @@ namespace ShowMyPictures.Widgets.Views {
             foreach (var child in pictures.get_selected_children ()) {
                 library_manager.import_from_external_device ((child as Widgets.Picture).picture);
             }
-            unselect_all ();
+                unselect_all ();
+        }
+
+        private void context_menu_opening () {
+            if (!mainwindow.ctrl_pressed && !(pictures.get_selected_children ().first ().data as Widgets.Picture).multi_selection) {
+                unselect_all ();
+            }
         }
 
         private void do_sort () {
-            if (timer_sort != 0) {
-                Source.remove (timer_sort);
-                timer_sort = 0;
-            }
+                    reset_sort_timer ();
 
             timer_sort = Timeout.add (
                 500,
                 () => {
                     pictures.set_sort_func (pictures_sort_func);
                     pictures.set_sort_func (null);
-                    if (timer_sort != 0) {
-                        Source.remove (timer_sort);
-                        timer_sort = 0;
-                    }
+                    reset_sort_timer ();
                     return false;
                 });
+        }
+
+        private void reset_sort_timer () {
+            if (timer_sort != 0) {
+                Source.remove (timer_sort);
+                timer_sort = 0;
+            }
         }
 
         public void label_filter (string label) {
@@ -220,6 +223,9 @@ namespace ShowMyPictures.Widgets.Views {
         }
 
         public void unselect_all () {
+            foreach (var child in pictures.get_selected_children ()) {
+                (child as Widgets.Picture).reset ();
+            }
             pictures.unselect_all ();
         }
     }
