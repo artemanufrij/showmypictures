@@ -49,7 +49,7 @@ namespace ShowMyPictures.Utils {
         var menu_open_loacation = new Gtk.MenuItem.with_label (_ ("Open location"));
         menu_open_loacation.activate.connect (
             () => {
-                var folder = Path.get_dirname (picture.path);
+                var folder = Path.get_dirname (picture.file.get_uri ());
                 try {
                     Process.spawn_command_line_async ("xdg-open '%s'".printf (folder));
                 } catch (Error err) {
@@ -58,7 +58,7 @@ namespace ShowMyPictures.Utils {
             });
         menu.add (menu_open_loacation);
 
-        if (picture.source_type != Objects.SourceType.MTP) {
+        if (picture.source_type != Objects.SourceType.MTP && picture.source_type != Objects.SourceType.GPHOTO) {
             var menu_move_into_trash = new Gtk.MenuItem.with_label (_ ("Move into Trash"));
             menu_move_into_trash.activate.connect (
                 () => {
@@ -151,7 +151,6 @@ namespace ShowMyPictures.Utils {
                 album.merge_request ();
             });
         menu.add (menu_merge);
-
         menu.show_all ();
 
         return menu;
@@ -161,7 +160,6 @@ namespace ShowMyPictures.Utils {
         foreach (var item in menu.get_children ()) {
             if ((item is Gtk.MenuItem) && (item as Gtk.MenuItem).name == "merge_placeholder") {
                 Gtk.MenuItem menu_merge = (item as Gtk.MenuItem);
-
                 if (merge_counter > 1) {
                     menu_merge.label = _ ("Merge %u selected Albums").printf (merge_counter);
                     menu_merge.show_all ();

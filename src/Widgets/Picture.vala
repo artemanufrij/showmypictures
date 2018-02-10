@@ -75,7 +75,7 @@ namespace ShowMyPictures.Widgets {
         }
 
         private void build_ui () {
-            this.tooltip_text = picture.path;
+            this.tooltip_text = picture.file.get_uri ();
             var event_box = new Gtk.EventBox ();
             event_box.button_press_event.connect (show_context_menu);
 
