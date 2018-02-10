@@ -37,6 +37,8 @@ namespace ShowMyPictures.Objects {
         public signal void optimize_started ();
         public signal void optimize_ended ();
         public signal void optimize_progress (int saved);
+        public signal void edit_request ();
+        public signal void merge_request ();
 
         int _ID = 0;
         public int ID {

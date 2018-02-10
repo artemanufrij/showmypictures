@@ -41,7 +41,6 @@ namespace ShowMyPictures.Widgets.Views {
         Gtk.DrawingArea drawing_area;
         Widgets.Views.PictureDetails picture_details;
         Gtk.Menu menu;
-        Gtk.Menu open_with;
 
         public double zoom { get; private set; default = 1; }
         public double optimal_zoom { get; private set; default = 1; }
@@ -156,43 +155,6 @@ namespace ShowMyPictures.Widgets.Views {
             scroll.add (drawing_area);
             event_box.add (scroll);
 
-            menu = new Gtk.Menu ();
-
-            var menu_open_with = new Gtk.MenuItem.with_label (_ ("Open with"));
-            open_with = new Gtk.Menu ();
-            menu_open_with.set_submenu (open_with);
-            menu.add (menu_open_with);
-
-            var menu_new_cover = new Gtk.MenuItem.with_label (_ ("Set as Album picture"));
-            menu_new_cover.activate.connect (
-                () => {
-                    current_picture.album.set_new_cover_from_picture (current_picture);
-                    ShowMyPicturesApp.instance.mainwindow.send_app_notification (_ ("Album cover changed"));
-                });
-
-            var menu_open_loacation = new Gtk.MenuItem.with_label (_ ("Open location"));
-            menu_open_loacation.activate.connect (
-                () => {
-                    var folder = Path.get_dirname (current_picture.path);
-                    try {
-                        Process.spawn_command_line_async ("xdg-open '%s'".printf (folder));
-                    } catch (Error err) {
-                        warning (err.message);
-                    }
-                });
-
-            var menu_move_into_trash = new Gtk.MenuItem.with_label (_ ("Move into Trash"));
-            menu_move_into_trash.activate.connect (
-                () => {
-                    delete_current_picture ();
-                });
-
-            menu.add (menu_new_cover);
-            menu.add (new Gtk.SeparatorMenuItem ());
-            menu.add (menu_open_loacation);
-            menu.add (menu_move_into_trash);
-            menu.show_all ();
-
             picture_details = new Widgets.Views.PictureDetails ();
             picture_details.reveal_child = settings.show_picture_details;
             picture_details.next.connect (
@@ -243,6 +205,8 @@ namespace ShowMyPictures.Widgets.Views {
             current_picture.updated.connect (picture_updated);
             current_picture.rotated.connect (picture_reload);
             current_picture.external_modified.connect (picture_reload);
+
+            menu = Utils.create_picture_menu (current_picture);
 
             this.grab_focus ();
         }
@@ -359,30 +323,7 @@ namespace ShowMyPictures.Widgets.Views {
 
         private bool show_context_menu (Gtk.Widget sender, Gdk.EventButton evt) {
             if (evt.type == Gdk.EventType.BUTTON_PRESS && evt.button == 3) {
-                foreach (var child in open_with.get_children ()) {
-                    child.destroy ();
-                }
-
-                foreach (var appinfo in AppInfo.get_all_for_type (current_picture.mime_type)) {
-                    if (appinfo.get_executable () == ShowMyPicturesApp.instance.application_id) {
-                        continue;
-                    }
-                    var item = new Gtk.MenuItem.with_label (appinfo.get_name ());
-                    item.activate.connect (
-                        () => {
-                            GLib.List<File> files = new GLib.List<File> ();
-                            files.append (current_picture.file);
-                            try {
-                                current_picture.start_monitoring ();
-                                appinfo.launch (files, null);
-                            } catch (Error err) {
-                                warning (err.message);
-                            }
-                        });
-                    open_with.add (item);
-                }
-                open_with.show_all ();
-
+                Utils.show_picture_menu (menu, current_picture);
                 menu.popup (null, null, null, evt.button, evt.time);
                 return true;
             }

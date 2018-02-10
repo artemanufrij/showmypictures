@@ -26,28 +26,19 @@
  */
 
 namespace ShowMyPictures.Widgets {
-    public enum PictureStyle { DEFAULT, NOT_FOUND, MTP_DEVICE }
-
     public class Picture : Gtk.FlowBoxChild {
         ShowMyPictures.Services.LibraryManager library_manager;
 
         public Objects.Picture picture { get; private set; }
-        PictureStyle picture_style;
 
         Gtk.Image preview;
-        Gtk.Menu menu;
-        Gtk.Menu open_with;
+        Gtk.Menu menu = null;
 
         construct {
             library_manager = ShowMyPictures.Services.LibraryManager.instance;
         }
 
-        public Picture (Objects.Picture picture, PictureStyle picture_style = PictureStyle.DEFAULT) {
-            if (picture.source_type == Objects.SourceType.MTP) {
-                this.picture_style = PictureStyle.MTP_DEVICE;
-            } else {
-                this.picture_style = picture_style;
-            }
+        public Picture (Objects.Picture picture) {
             this.picture = picture;
             this.draw.connect (first_draw);
             build_ui ();
@@ -95,80 +86,17 @@ namespace ShowMyPictures.Widgets {
 
             content.attach (preview, 0, 0);
 
-            menu = new Gtk.Menu ();
-
-            if (picture_style == PictureStyle.DEFAULT) {
-                var menu_open_with = new Gtk.MenuItem.with_label (_ ("Open with"));
-                open_with = new Gtk.Menu ();
-                menu_open_with.set_submenu (open_with);
-                menu.add (menu_open_with);
-
-                var menu_new_cover = new Gtk.MenuItem.with_label (_ ("Set as Album picture"));
-                menu_new_cover.activate.connect (
-                    () => {
-                        picture.album.set_new_cover_from_picture (picture);
-                        ShowMyPicturesApp.instance.mainwindow.send_app_notification (_ ("Album cover changed"));
-                    });
-                menu.add (menu_new_cover);
-                menu.add (new Gtk.SeparatorMenuItem ());
-            }
-
-
-            var menu_open_loacation = new Gtk.MenuItem.with_label (_ ("Open location"));
-            menu_open_loacation.activate.connect (
-                () => {
-                    var folder = Path.get_dirname (picture.path);
-                    try {
-                        Process.spawn_command_line_async ("xdg-open '%s'".printf (folder));
-                    } catch (Error err) {
-                                    warning (err.message);
-                    }
-                });
-            menu.add (menu_open_loacation);
-
-            if (picture_style != PictureStyle.MTP_DEVICE) {
-                var menu_move_into_trash = new Gtk.MenuItem.with_label (_ ("Move into Trash"));
-                menu_move_into_trash.activate.connect (
-                    () => {
-                        library_manager.db_manager.remove_picture (picture);
-                    });
-                menu.add (menu_move_into_trash);
-            }
-
-            menu.show_all ();
-
             this.add (event_box);
             this.show_all ();
         }
 
         private bool show_context_menu (Gtk.Widget sender, Gdk.EventButton evt) {
             if (evt.type == Gdk.EventType.BUTTON_PRESS && evt.button == 3) {
-                if (picture_style == PictureStyle.DEFAULT) {
-                    foreach (var child in open_with.get_children ()) {
-                        child.destroy ();
-                    }
-
-                    foreach (var appinfo in AppInfo.get_all_for_type (picture.mime_type)) {
-                        if (appinfo.get_executable () == ShowMyPicturesApp.instance.application_id) {
-                            continue;
-                        }
-                        var item = new Gtk.MenuItem.with_label (appinfo.get_name ());
-                        item.activate.connect (
-                            () => {
-                                GLib.List<File> files = new GLib.List<File> ();
-                                files.append (picture.file);
-                                try {
-                                    picture.start_monitoring ();
-                                    appinfo.launch (files, null);
-                                } catch (Error err) {
-                                    warning (err.message);
-                                }
-                            });
-                        open_with.add (item);
-                    }
-                    open_with.show_all ();
+                if (menu == null) {
+                    menu = Utils.create_picture_menu (picture);
                 }
 
+                Utils.show_picture_menu (menu, picture);
                 (this.parent as Gtk.FlowBox).select_child (this);
                 menu.popup (null, null, null, evt.button, evt.time);
                 return true;

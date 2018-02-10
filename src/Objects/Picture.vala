@@ -26,7 +26,7 @@
  */
 
 namespace ShowMyPictures.Objects {
-    public enum SourceType { DEFAULT, GPHOTO, MTP }
+    public enum SourceType { LIBRARY, GPHOTO, MTP, REMOVABLE }
 
     public class Picture : GLib.Object {
         public signal void preview_created ();
@@ -36,7 +36,7 @@ namespace ShowMyPictures.Objects {
         public signal void external_modified ();
         public signal void file_not_found ();
 
-        public SourceType source_type { get; private set; default = SourceType.DEFAULT; }
+        public SourceType source_type { get; private set; default = SourceType.LIBRARY; }
 
         int _ID = 0;
         public int ID {
@@ -458,10 +458,16 @@ namespace ShowMyPictures.Objects {
 
                 try {
                     file.copy (dest_file, FileCopyFlags.OVERWRITE);
+                    if (mime_type == "") {
+                        FileInfo info = dest_file.query_info ("standard::*", 0);
+                        mime_type = info.get_content_type ();
+                    }
                 } catch (Error err) {
                     warning (err.message);
                     return;
                 }
+
+
 
                 checksum = new Checksum (ChecksumType.MD5);
 

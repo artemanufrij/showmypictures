@@ -108,7 +108,7 @@ namespace ShowMyPictures.Widgets.Views {
             lock (albums) {
                 albums.add (a);
             }
-            a.merge.connect (
+            album.merge_request.connect (
                 () => {
                     GLib.List<Objects.Album> selected = new GLib.List<Objects.Album> ();
                     foreach (var child in albums.get_selected_children ()) {

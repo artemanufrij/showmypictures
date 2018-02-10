@@ -66,7 +66,7 @@ namespace ShowMyPictures.Widgets.Views {
             Idle.add (
                 () => {
                     foreach (var picture in missed_pictures) {
-                        var item = new Widgets.Picture (picture, Widgets.PictureStyle.NOT_FOUND);
+                        var item = new Widgets.Picture (picture);
                         pictures.add (item);
                     }
                     counter_changed (pictures.get_children ().length ());

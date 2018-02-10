@@ -29,15 +29,13 @@ namespace ShowMyPictures.Widgets {
     public class Album : Gtk.FlowBoxChild {
         public Objects.Album album { get; private set; }
 
-        public signal void merge ();
         public signal void context_opening ();
 
         Gtk.Image cover;
         Gtk.Label counter;
         Gtk.Label title;
         Gtk.Label saved_size;
-        Gtk.Menu menu;
-        Gtk.MenuItem menu_merge;
+        Gtk.Menu menu = null;
         Gtk.Image add_selection_image;
         Gtk.Image multi_selected_image;
         Gtk.Button multi_select;
@@ -106,6 +104,7 @@ namespace ShowMyPictures.Widgets {
                             return false;
                         });
                 });
+            this.album.edit_request.connect (edit_album);
         }
 
         private bool first_draw () {
@@ -168,30 +167,6 @@ namespace ShowMyPictures.Widgets {
             saved_size.use_markup = true;
             saved_size.valign = Gtk.Align.END;
 
-            menu = new Gtk.Menu ();
-            var menu_new_cover = new Gtk.MenuItem.with_label (_ ("Edit Album properties…"));
-            menu_new_cover.activate.connect (
-                () => {
-                    edit_album ();
-                });
-            menu.add (menu_new_cover);
-
-            var menu_optimize = new Gtk.MenuItem.with_label (_ ("Optimize pictures (lossless)"));
-            menu_optimize.activate.connect (
-                () => {
-                    album.optimize ();
-                });
-            menu.add (menu_optimize);
-
-            menu_merge = new Gtk.MenuItem.with_label ("");
-            menu_merge.activate.connect (
-                () => {
-                    merge ();
-                });
-            menu.add (menu_merge);
-
-            menu.show_all ();
-
             // MULTISELECTION BUTTON
             add_selection_image = new Gtk.Image.from_icon_name ("selection-add", Gtk.IconSize.BUTTON);
             multi_selected_image = new Gtk.Image.from_icon_name ("selection-checked", Gtk.IconSize.BUTTON);
@@ -241,18 +216,18 @@ namespace ShowMyPictures.Widgets {
 
         private bool show_context_menu (Gtk.Widget sender, Gdk.EventButton evt) {
             if (evt.type == Gdk.EventType.BUTTON_PRESS && evt.button == 3) {
+
+                if (menu == null) {
+                    menu = Utils.create_album_menu (album);
+                }
+
                 context_opening ();
                 var parent = (this.parent as Gtk.FlowBox);
                 parent.select_child (this);
 
                 // MERGE
                 var count = parent.get_selected_children ().length ();
-                if (count > 1) {
-                    menu_merge.label = _ ("Merge %u selected Albums").printf (count);
-                    menu_merge.show_all ();
-                } else {
-                    menu_merge.hide ();
-                }
+                Utils.show_album_menu (menu, count);
 
                 menu.popup (null, null, null, evt.button, evt.time);
                 return true;
