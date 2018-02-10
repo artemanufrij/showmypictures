@@ -29,10 +29,14 @@ namespace ShowMyPictures.Widgets {
     public class Picture : Gtk.FlowBoxChild {
         ShowMyPictures.Services.LibraryManager library_manager;
 
+        public signal void context_opening ();
+
         public Objects.Picture picture { get; private set; }
 
         Gtk.Image preview;
         Gtk.Menu menu = null;
+
+        public bool multi_selection { get; private set; default = false; }
 
         construct {
             library_manager = ShowMyPictures.Services.LibraryManager.instance;
@@ -90,13 +94,29 @@ namespace ShowMyPictures.Widgets {
             this.show_all ();
         }
 
+        public void toggle_multi_selection (bool activate = true) {
+            if (!multi_selection) {
+                multi_selection = true;
+                if (activate) {
+                    this.activate ();
+                }
+            } else {
+                multi_selection = false;
+                (this.parent as Gtk.FlowBox).unselect_child (this);
+            }
+        }
+
         private bool show_context_menu (Gtk.Widget sender, Gdk.EventButton evt) {
             if (evt.type == Gdk.EventType.BUTTON_PRESS && evt.button == 3) {
                 if (menu == null) {
                     menu = Utils.create_picture_menu (picture);
                 }
 
-                Utils.show_picture_menu (menu, picture);
+                var parent = (this.parent as Gtk.FlowBox);
+                parent.select_child (this);
+                var count = parent.get_selected_children ().length ();
+
+                Utils.show_picture_menu (menu, picture, count);
                 (this.parent as Gtk.FlowBox).select_child (this);
                 menu.popup (null, null, null, evt.button, evt.time);
                 return true;

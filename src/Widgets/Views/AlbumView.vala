@@ -29,7 +29,10 @@ namespace ShowMyPictures.Widgets.Views {
     public class AlbumView : Gtk.Grid {
         public signal void picture_selected (Objects.Picture picture);
 
+        ShowMyPictures.Services.LibraryManager library_manager;
+
         public Objects.Album current_album { get; private set; }
+        MainWindow mainwindow;
 
         Gtk.FlowBox pictures;
 
@@ -50,7 +53,12 @@ namespace ShowMyPictures.Widgets.Views {
         uint timer_sort = 0;
         string filter_label = "";
 
-        public AlbumView () {
+        construct {
+            library_manager = ShowMyPictures.Services.LibraryManager.instance;
+        }
+
+        public AlbumView (MainWindow mainwindow) {
+            this.mainwindow = mainwindow;
             build_ui ();
         }
 
@@ -61,12 +69,9 @@ namespace ShowMyPictures.Widgets.Views {
             pictures.row_spacing = 12;
             pictures.column_spacing = 12;
             pictures.valign = Gtk.Align.START;
-            pictures.selection_mode = Gtk.SelectionMode.SINGLE;
+            pictures.selection_mode = Gtk.SelectionMode.MULTIPLE;
             pictures.set_filter_func (pictures_filter_func);
-            pictures.child_activated.connect (
-                (child) => {
-                    picture_selected ((child as Widgets.Picture).picture);
-                });
+            pictures.child_activated.connect (show_picture_viewer);
             var scroll = new Gtk.ScrolledWindow (null, null);
             scroll.add (pictures);
             scroll.expand = true;
@@ -95,6 +100,7 @@ namespace ShowMyPictures.Widgets.Views {
 
         public void reset () {
             foreach (var child in pictures.get_children ()) {
+                (child as Widgets.Picture).picture.import_request.disconnect (import_request);
                 child.destroy ();
             }
         }
@@ -107,9 +113,32 @@ namespace ShowMyPictures.Widgets.Views {
                 () => {
                     var item = new Widgets.Picture (picture);
                     this.pictures.add (item);
+                    picture.import_request.connect (import_request);
+                    item.context_opening.connect (
+                        () => {
+                            if (!mainwindow.ctrl_pressed && !item.multi_selection) {
+                                unselect_all ();
+                            }
+                        });
                     do_sort ();
                     return false;
                 });
+        }
+
+        private void show_picture_viewer (Gtk.FlowBoxChild item) {
+            if (mainwindow.ctrl_pressed) {
+                (item as Widgets.Picture).toggle_multi_selection (false);
+            } else {
+                unselect_all ();
+                picture_selected ((item as Widgets.Picture).picture);
+            }
+        }
+
+        private void import_request () {
+            foreach (var child in pictures.get_selected_children ()) {
+                library_manager.import_from_external_device ((child as Widgets.Picture).picture);
+            }
+            unselect_all ();
         }
 
         private void do_sort () {
@@ -123,8 +152,10 @@ namespace ShowMyPictures.Widgets.Views {
                 () => {
                     pictures.set_sort_func (pictures_sort_func);
                     pictures.set_sort_func (null);
-                    Source.remove (timer_sort);
-                    timer_sort = 0;
+                    if (timer_sort != 0) {
+                        Source.remove (timer_sort);
+                        timer_sort = 0;
+                    }
                     return false;
                 });
         }
@@ -186,6 +217,10 @@ namespace ShowMyPictures.Widgets.Views {
             }
             visible_items++;
             return true;
+        }
+
+        public void unselect_all () {
+            pictures.unselect_all ();
         }
     }
 }

@@ -91,6 +91,9 @@ namespace ShowMyPictures.Widgets {
                 var picture = new Objects.Picture (album);
                 picture.path = uri;
                 album.add_picture (picture);
+                if (picture.source_type == Objects.SourceType.LIBRARY) {
+                    picture.source_type = Objects.SourceType.REMOVABLE;
+                }
             }
         }
 

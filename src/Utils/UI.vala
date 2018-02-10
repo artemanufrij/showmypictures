@@ -26,13 +26,11 @@
  */
 
 namespace ShowMyPictures.Utils {
-    private const string open_with_label = _ ("Open with");
-    private const string open_merge_label = _ ("Merge %u selected Albums");
-
     public static Gtk.Menu create_picture_menu (Objects.Picture picture) {
         Gtk.Menu menu = new Gtk.Menu ();
 
-        var menu_open_with = new Gtk.MenuItem.with_label (open_with_label);
+        var menu_open_with = new Gtk.MenuItem.with_label (_ ("Open with"));
+        menu_open_with.name = "open_with";
         var open_with = new Gtk.Menu ();
         menu_open_with.set_submenu (open_with);
         menu.add (menu_open_with);
@@ -69,13 +67,25 @@ namespace ShowMyPictures.Utils {
             menu.add (menu_move_into_trash);
         }
 
+        var menu_import = new Gtk.MenuItem.with_label ("");
+        menu_import.name = "import";
+        menu_import.activate.connect (
+            () => {
+                picture.import_request ();
+            });
+        menu.add (menu_import);
+
         menu.show_all ();
         return menu;
     }
 
-    public static void show_picture_menu (Gtk.Menu menu, Objects.Picture picture) {
+    public static void show_picture_menu (Gtk.Menu menu, Objects.Picture picture, uint count = 1) {
         foreach (var item in menu.get_children ()) {
-            if ((item is Gtk.MenuItem) && (item as Gtk.MenuItem).label == open_with_label) {
+            if (!(item is Gtk.MenuItem)) {
+                continue;
+            }
+
+            if ((item as Gtk.MenuItem).name == "open_with") {
                 Gtk.Menu open_with = (item as Gtk.MenuItem).get_submenu () as Gtk.Menu;
                 foreach (var child in open_with.get_children ()) {
                     child.destroy ();
@@ -100,7 +110,20 @@ namespace ShowMyPictures.Utils {
                     open_with.add (open_item);
                 }
                 open_with.show_all ();
-                return;
+            }
+
+            if ((item as Gtk.MenuItem).name == "import") {
+                Gtk.MenuItem menu_import = (item as Gtk.MenuItem);
+                if (picture.source_type != Objects.SourceType.LIBRARY) {
+                    if (count == 1) {
+                        menu_import.label = _ ("Import");
+                    } else {
+                        menu_import.label = _ ("Import %u pictures").printf (count);
+                    }
+                    menu_import.show ();
+                } else {
+                    menu_import.hide ();
+                }
             }
         }
     }
@@ -140,7 +163,7 @@ namespace ShowMyPictures.Utils {
                 Gtk.MenuItem menu_merge = (item as Gtk.MenuItem);
 
                 if (merge_counter > 1) {
-                    menu_merge.label = open_merge_label.printf (merge_counter);
+                    menu_merge.label = _ ("Merge %u selected Albums").printf (merge_counter);
                     menu_merge.show_all ();
                 } else {
                     menu_merge.hide ();

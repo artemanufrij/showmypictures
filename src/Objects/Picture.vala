@@ -35,8 +35,9 @@ namespace ShowMyPictures.Objects {
         public signal void rotated ();
         public signal void external_modified ();
         public signal void file_not_found ();
+        public signal void import_request ();
 
-        public SourceType source_type { get; private set; default = SourceType.LIBRARY; }
+        public SourceType source_type { get; set; default = SourceType.LIBRARY; }
 
         int _ID = 0;
         public int ID {

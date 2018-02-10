@@ -286,7 +286,7 @@ namespace ShowMyPictures {
                     album_view.show_album (album);
                     show_album ();
                 });
-            album_view = new Widgets.Views.AlbumView ();
+            album_view = new Widgets.Views.AlbumView (this);
             album_view.picture_selected.connect (
                 (picture) => {
                     picture_view.show_picture (picture);
