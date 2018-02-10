@@ -37,23 +37,37 @@ namespace ShowMyPictures.Objects {
             pictures = new GLib.List<string> ();
         }
 
+        public ExternalDevice (Volume volume) {
+            this.volume = volume;
+        }
+
         protected void extract_picture_files (string uri) {
+            string folder = uri;
+            if (!folder.has_suffix ("/")) {
+                folder += "/";
+            }
             new Thread <void*> (
                 "extract_picture_files",
                 () => {
-                    var file = File.new_for_uri (uri);
+                    File file = null;
+                    if (folder.has_prefix ("/")) {
+                        file = File.new_for_path (folder);
+                    } else {
+                        file = File.new_for_uri (folder);
+                    }
+
                     try {
                         var children = file.enumerate_children ("standard::*", GLib.FileQueryInfoFlags.NONE);
                         FileInfo file_info = null;
                         while ((file_info = children.next_file ()) != null) {
                             if (file_info.get_file_type () == FileType.DIRECTORY) {
-                                extract_picture_files (uri + file_info.get_name () + "/");
+                                extract_picture_files (folder + file_info.get_name () + "/");
                                 continue;
                             }
 
                             if (Utils.is_valid_extention (file_info.get_name ().down ())) {
-                                pictures.append (uri + file_info.get_name ());
-                                pictures_found (uri + file_info.get_name ());
+                                pictures.append (folder + file_info.get_name ());
+                                pictures_found (folder + file_info.get_name ());
                             }
                         }
                     } catch (Error err) {

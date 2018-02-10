@@ -29,7 +29,7 @@ namespace ShowMyPictures.Objects {
     public class MobilePhone : ExternalDevice {
 
         public MobilePhone (Volume volume) {
-            this.volume = volume;
+            base (volume);
             if (this.volume.get_mount () == null || volume.get_activation_root () == null) {
                 this.volume.mount.begin (
                     MountMountFlags.NONE,

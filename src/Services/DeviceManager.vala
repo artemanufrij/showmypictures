@@ -111,6 +111,7 @@ namespace ShowMyPictures.Services {
 
     private bool check_for_external_device (Drive drive) {
         string ? unix_device = drive.get_identifier ("unix-device");
+        stdout.printf ("%s\n", unix_device);
         return (drive.is_media_removable () || drive.can_stop ()) && (unix_device != null && (unix_device.has_prefix ("/dev/sd") || unix_device.has_prefix ("/dev/mmc")));
     }
 }

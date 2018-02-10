@@ -26,20 +26,23 @@
  */
 
 namespace ShowMyPictures.Objects {
-    public class GphotoDevice : ExternalDevice {
+    public class RemovableDevice : ExternalDevice {
 
-        public GphotoDevice (Volume volume) {
+        public RemovableDevice (Volume volume) {
             base (volume);
-            if (this.volume.get_mount () == null || volume.get_activation_root () == null) {
+
+            var mount = this.volume.get_mount ();
+
+            if (mount == null || this.volume.get_activation_root () == null) {
                 this.volume.mount.begin (
                     MountMountFlags.NONE,
                     null,
                     null,
                     (obj, res) => {
-                        extract_picture_files (volume.get_activation_root ().get_uri ());
+                        extract_picture_files (this.volume.get_mount ().get_root ().get_path ());
                     });
             } else {
-                extract_picture_files (volume.get_activation_root ().get_uri ());
+                extract_picture_files (mount.get_root ().get_path ());
             }
         }
     }

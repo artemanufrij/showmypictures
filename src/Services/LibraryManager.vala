@@ -153,8 +153,6 @@ namespace ShowMyPictures.Services {
                 }
             }
 
-            stdout.printf ("HASH %s\n", picture.hash);
-
             var target_path = Path.build_filename (settings.library_location, picture.year.to_string (), picture.month.to_string (), picture.day.to_string ());
             var target_folder = File.new_for_path (target_path);
             if (!target_folder.query_exists ()) {

@@ -7,6 +7,7 @@ vala_precompile (VALA_C ${CMAKE_PROJECT_NAME}
     Objects/MobilePhone.vala
     Objects/ExternalDevice.vala
     Objects/GphotoDevice.vala
+    Objects/RemovableDevice.vala
     Widgets/Album.vala
     Widgets/Picture.vala
     Widgets/NavigationBar.vala

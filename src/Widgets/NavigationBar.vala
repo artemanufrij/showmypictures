@@ -69,6 +69,9 @@ namespace ShowMyPictures.Widgets {
                     case Services.DeviceType.GPHOTO :
                         add_gphoto (volume);
                         break;
+                    default :
+                        add_external (volume);
+                        break;
                     }
                 });
             library_manager.external_device_removed.connect (
@@ -183,6 +186,10 @@ namespace ShowMyPictures.Widgets {
 
         private void add_gphoto (Volume volume) {
             device_entry.add (new Widgets.NavigationExternalDevice (new Objects.GphotoDevice (volume)));
+        }
+
+        private void add_external (Volume volume) {
+            device_entry.add (new Widgets.NavigationExternalDevice (new Objects.RemovableDevice (volume)));
         }
 
         private void remove_volume (Volume volume) {
