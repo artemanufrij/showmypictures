@@ -206,7 +206,7 @@ namespace ShowMyPictures.Widgets.Views {
             current_picture.rotated.connect (picture_reload);
             current_picture.external_modified.connect (picture_reload);
 
-            menu = Utils.create_picture_menu (current_picture);
+            menu = null;
 
             this.grab_focus ();
         }
@@ -323,6 +323,9 @@ namespace ShowMyPictures.Widgets.Views {
 
         private bool show_context_menu (Gtk.Widget sender, Gdk.EventButton evt) {
             if (evt.type == Gdk.EventType.BUTTON_PRESS && evt.button == 3) {
+                if (menu == null) {
+                    menu = Utils.create_picture_menu (current_picture);
+                }
                 Utils.show_picture_menu (menu, current_picture);
                 menu.popup (null, null, null, evt.button, evt.time);
                 return true;
