@@ -43,6 +43,7 @@ namespace ShowMyPictures.Utils {
                     ShowMyPicturesApp.instance.mainwindow.send_app_notification (_ ("Album cover changed"));
                 });
             menu.add (menu_new_cover);
+            menu.add (new Gtk.SeparatorMenuItem ());
         }
 
 
