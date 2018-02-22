@@ -25,7 +25,7 @@ sudo apt install elementary-sdk
 
 Install dependencies
 ```
-sudo apt install libsqlite3-dev libgexiv2-dev
+sudo apt install libsqlite3-dev libgexiv2-dev libraw-dev
 ```
 
 Clone repository and change directory
