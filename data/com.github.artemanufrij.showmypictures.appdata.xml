@@ -8,6 +8,14 @@
     <summary>Manage local image files</summary>
     <description>
         <p>A very fast image viewer designed extra for large local libraries.</p>
+        <p>Features:</p>
+        <ul>
+            <li>Manage your whole library on one place</li>
+            <li>Import pictures from external devices like digi cam or smart phone</li>
+            <li>Find dupplicates in your library</li>
+            <li>Optimize (lossless) jpg and png files</li>
+            <li>Add tags to albums or single pictures</li>
+        </ul>
     </description>
     <categories>
         <category>Graphics</category>
