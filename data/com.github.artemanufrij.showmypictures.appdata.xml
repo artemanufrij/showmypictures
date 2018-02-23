@@ -33,6 +33,14 @@
             <description>
                 <p>New:</p>
                 <ul>
+                    <li>Fast view mode. Open a separate Window for external files (without loading library content)</li>
+                </ul>
+            </description>
+        </release>
+        <release version="0.2.0" date="2018-02-12">
+            <description>
+                <p>New:</p>
+                <ul>
                     <li>Support for external devices</li>
                     <li>Additional settings: "check for missing files on start up" and "check for duplicats on start up"</li>
                 </ul>
