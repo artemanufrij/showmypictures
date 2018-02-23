@@ -151,7 +151,7 @@ namespace ShowMyPictures {
 
             this.configure_event.connect (
                 (event) => {
-                    if (settings.window_width == event.width || settings.window_height == event.height) {
+                    if (settings.window_width == event.width && settings.window_height == event.height) {
                         return false;
                     }
 

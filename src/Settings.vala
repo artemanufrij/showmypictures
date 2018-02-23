@@ -39,9 +39,15 @@ namespace ShowMyPictures {
         public int window_x { get; set; }
         public int window_y { get; set; }
         public bool window_maximized { get; set; }
+        public int fastview_window_width { get; set; }
+        public int fastview_window_height { get; set; }
+        public int fastview_window_x { get; set; }
+        public int fastview_window_y { get; set; }
+        public bool fastview_window_maximized { get; set; }
         public bool look_for_new_files { get; set; }
         public string library_location { get; set; }
         public bool use_dark_theme { get; set; }
+        public bool use_fastview { get; set; }
         public bool sync_files { get; set; }
         public bool show_picture_details { get; set; }
         public bool check_for_duplicates { get; set; }

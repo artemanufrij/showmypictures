@@ -65,6 +65,14 @@ namespace ShowMyPictures.Dialogs {
                 settings.use_dark_theme = use_dark_theme.active;
             });
 
+            var use_fastview_label = new Gtk.Label (_("Use Fast View"));
+            use_fastview_label.halign = Gtk.Align.START;
+            var use_fastview = new Gtk.Switch ();
+            use_fastview.active = settings.use_fastview;
+            use_fastview.notify["active"].connect (() => {
+                settings.use_fastview = use_fastview.active;
+            });
+
             var sync_files_label = new Gtk.Label (_("Sync files on start up"));
             sync_files_label.halign = Gtk.Align.START;
             var sync_files = new Gtk.Switch ();
@@ -91,13 +99,15 @@ namespace ShowMyPictures.Dialogs {
 
             grid.attach (use_dark_theme_label, 0, 0);
             grid.attach (use_dark_theme, 1, 0);
-            grid.attach (new Gtk.Separator (Gtk.Orientation.HORIZONTAL), 0, 1, 2, 1);
-            grid.attach (sync_files_label, 0, 2);
-            grid.attach (sync_files, 1, 2);
-            grid.attach (check_duplicates_label, 0, 3);
-            grid.attach (check_duplicates, 1, 3);
-            grid.attach (check_missing_label, 0, 4);
-            grid.attach (check_missing, 1, 4);
+            grid.attach (use_fastview_label, 0, 1);
+            grid.attach (use_fastview, 1, 1);
+            grid.attach (new Gtk.Separator (Gtk.Orientation.HORIZONTAL), 0, 2, 2, 1);
+            grid.attach (sync_files_label, 0, 3);
+            grid.attach (sync_files, 1, 3);
+            grid.attach (check_duplicates_label, 0, 4);
+            grid.attach (check_duplicates, 1, 4);
+            grid.attach (check_missing_label, 0, 5);
+            grid.attach (check_missing, 1, 5);
 
             content.pack_start (grid, false, false, 0);
 

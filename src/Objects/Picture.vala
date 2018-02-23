@@ -26,7 +26,7 @@
  */
 
 namespace ShowMyPictures.Objects {
-    public enum SourceType { LIBRARY, GPHOTO, MTP, REMOVABLE }
+    public enum SourceType { LIBRARY, GPHOTO, MTP, REMOVABLE, EXTERNAL }
 
     public class Picture : GLib.Object {
         public signal void preview_created ();

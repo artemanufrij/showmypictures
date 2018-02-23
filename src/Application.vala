@@ -136,22 +136,36 @@ namespace ShowMyPictures {
 
         public MainWindow mainwindow { get; private set; default = null; }
 
+        public FastViewWindow fastview {get; private set; default = null; }
+
         protected override void activate () {
             create_instance ();
             mainwindow.present ();
         }
 
         public override void open (File[] files, string hint) {
-            var first_call = mainwindow == null;
-            create_instance (true);
-            mainwindow.present ();
-            mainwindow.open_files (files, first_call);
+            if (settings.use_fastview) {
+                create_fastview ();
+                fastview.open_files (files);
+            } else {
+                var first_call = mainwindow == null;
+                create_instance (true);
+                mainwindow.present ();
+                mainwindow.open_files (files, first_call);
+            }
         }
 
         private void create_instance (bool open_files = false) {
             if (mainwindow == null) {
                 mainwindow = new MainWindow (open_files);
                 mainwindow.application = this;
+            }
+        }
+
+        private void create_fastview () {
+            if (fastview == null) {
+                fastview = new FastViewWindow ();
+                fastview.application = this;
             }
         }
     }
