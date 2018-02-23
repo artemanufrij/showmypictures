@@ -149,6 +149,7 @@ namespace ShowMyPictures.Widgets.Views {
             location.xalign = 0;
             location.wrap = true;
             location.wrap_mode = Pango.WrapMode.WORD_CHAR;
+            location.selectable = true;
 
             box.pack_start (date_size_resolution, false, false);
             box.pack_start (keywords_entry, false, false);
