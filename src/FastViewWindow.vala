@@ -105,6 +105,14 @@ namespace ShowMyPictures {
             settings.show_picture_details = !settings.show_picture_details;
         }
 
+        public void rotate_left_action () {
+            picture_view.rotate_left ();
+        }
+
+        public void rotate_right_action () {
+            picture_view.rotate_right ();
+        }
+
         public void open_file (File file) {
             var album = new Objects.Album ("Files");
             var current_picture = new Objects.Picture (album, true);
@@ -141,7 +149,6 @@ namespace ShowMyPictures {
         }
 
         public void open_files (File[] files) {
-
             if (files.length == 1 && files[0].query_exists ()) {
                 open_file (files[0]);
             } else {

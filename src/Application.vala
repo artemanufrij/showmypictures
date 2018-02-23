@@ -51,56 +51,70 @@ namespace ShowMyPictures {
             var action_reset = new SimpleAction ("reset-action", null);
             add_action (action_reset);
             add_accelerator ("Escape", "app.reset-action", null);
-            action_reset.activate.connect (() => {
-                if (mainwindow != null) {
-                    mainwindow.reset_action ();
-                }
-            });
+            action_reset.activate.connect (
+                () => {
+                    if (mainwindow != null && mainwindow.is_active) {
+                        mainwindow.reset_action ();
+                    }
+                });
 
             var toggle_details_reset = new SimpleAction ("toggle-details-action", null);
             add_action (toggle_details_reset);
             add_accelerator ("F4", "app.toggle-details-action", null);
-            toggle_details_reset.activate.connect (() => {
-                if (mainwindow != null) {
-                    mainwindow.toggle_details_action ();
-                }
-            });
+            toggle_details_reset.activate.connect (
+                () => {
+                    if (mainwindow != null && mainwindow.is_active) {
+                        mainwindow.toggle_details_action ();
+                    } else if (fastview != null && fastview.is_active) {
+                        fastview.toggle_details_action ();
+                    }
+                });
 
             var action_back = new SimpleAction ("back-action", null);
             add_action (action_back);
             add_accelerator ("<Alt>Left", "app.back-action", null);
-            action_back.activate.connect (() => {
-                if (mainwindow != null) {
-                    mainwindow.back_action ();
-                }
-            });
-
-            var action_rotate_right = new SimpleAction ("rotate-right-action", null);
-            add_action (action_rotate_right);
-            add_accelerator ("<Ctrl>Right", "app.rotate-right-action", null);
-            action_rotate_right.activate.connect (() => {
-                if (mainwindow != null) {
-                    mainwindow.rotate_right_action ();
-                }
-            });
-
-            var action_rotate_left = new SimpleAction ("rotate-left-action", null);
-            add_action (action_rotate_left);
-            add_accelerator ("<Ctrl>Left", "app.rotate-left-action", null);
-            action_rotate_left.activate.connect (() => {
-                if (mainwindow != null) {
-                    mainwindow.rotate_left_action ();
-                }
-            });
+            action_back.activate.connect (
+                () => {
+                    if (mainwindow != null && mainwindow.is_active) {
+                        mainwindow.back_action ();
+                    }
+                });
 
             var action_forward = new SimpleAction ("forward-action", null);
             add_action (action_forward);
             add_accelerator ("<Alt>Right", "app.forward-action", null);
-            action_forward.activate.connect (() => {
-                if (mainwindow != null) {
-                    mainwindow.forward_action ();
-                }
-            });
+            action_forward.activate.connect (
+                () => {
+                    if (mainwindow != null && mainwindow.is_active) {
+                        mainwindow.forward_action ();
+                    }
+                });
+
+            var action_rotate_right = new SimpleAction ("rotate-right-action", null);
+            add_action (action_rotate_right);
+            add_accelerator ("<Ctrl>Right", "app.rotate-right-action", null);
+            action_rotate_right.activate.connect (
+                () => {
+                    if (mainwindow != null && mainwindow.is_active) {
+                        mainwindow.rotate_right_action ();
+                    } else if (fastview != null && fastview.is_active) {
+                        fastview.rotate_right_action ();
+                    }
+                });
+
+            var action_rotate_left = new SimpleAction ("rotate-left-action", null);
+            add_action (action_rotate_left);
+            add_accelerator ("<Ctrl>Left", "app.rotate-left-action", null);
+            action_rotate_left.activate.connect (
+                () => {
+                    if (mainwindow != null && mainwindow.is_active) {
+                        mainwindow.rotate_left_action ();
+                    } else if (fastview != null && fastview.is_active) {
+                        fastview.rotate_left_action ();
+                    }
+                });
+
+
 
             create_cache_folders ();
         }
@@ -132,7 +146,8 @@ namespace ShowMyPictures {
             }
         }
 
-        private ShowMyPicturesApp () { }
+        private ShowMyPicturesApp () {
+        }
 
         public MainWindow mainwindow { get; private set; default = null; }
 

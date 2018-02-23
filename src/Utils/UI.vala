@@ -46,7 +46,6 @@ namespace ShowMyPictures.Utils {
             menu.add (new Gtk.SeparatorMenuItem ());
         }
 
-
         var menu_open_loacation = new Gtk.MenuItem.with_label (_ ("Open location"));
         menu_open_loacation.activate.connect (
             () => {
