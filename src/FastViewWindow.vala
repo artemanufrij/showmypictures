@@ -70,8 +70,8 @@ namespace ShowMyPictures {
             headerbar.show_close_button = true;
             this.set_titlebar (headerbar);
 
-            pane_show = new Gtk.Image.from_icon_name ("pane-show-symbolic", Gtk.IconSize.LARGE_TOOLBAR);
-            pane_hide = new Gtk.Image.from_icon_name ("pane-hide-symbolic", Gtk.IconSize.LARGE_TOOLBAR);
+            pane_show = new Gtk.Image.from_icon_name ("pane-show-symbolic", Gtk.IconSize.SMALL_TOOLBAR);
+            pane_hide = new Gtk.Image.from_icon_name ("pane-hide-symbolic", Gtk.IconSize.SMALL_TOOLBAR);
 
             show_details = new Gtk.Button ();
             show_details.clicked.connect (
