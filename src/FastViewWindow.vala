@@ -30,9 +30,16 @@ namespace ShowMyPictures {
         Settings settings;
 
         Widgets.Views.PictureView picture_view;
+        Gtk.Image pane_show;
+        Gtk.Image pane_hide;
+        Gtk.Button show_details;
 
         construct {
             settings = Settings.get_default ();
+            settings.notify["show-picture-details"].connect (
+                () => {
+                    set_detail_button ();
+                });
         }
 
         public FastViewWindow () {
@@ -59,14 +66,43 @@ namespace ShowMyPictures {
         }
 
         private void build_ui () {
+            var headerbar = new Gtk.HeaderBar ();
+            headerbar.show_close_button = true;
+            this.set_titlebar (headerbar);
+
+            pane_show = new Gtk.Image.from_icon_name ("pane-show-symbolic", Gtk.IconSize.LARGE_TOOLBAR);
+            pane_hide = new Gtk.Image.from_icon_name ("pane-hide-symbolic", Gtk.IconSize.LARGE_TOOLBAR);
+
+            show_details = new Gtk.Button ();
+            show_details.clicked.connect (
+                () => {
+                    toggle_details_action ();
+                });
+            set_detail_button ();
+            headerbar.pack_end (show_details);
+
             picture_view = new Widgets.Views.PictureView ();
             picture_view.picture_loaded.connect (
                 (picture) => {
-                    this.title = Path.get_basename (picture.path);
+                    headerbar.title = Path.get_basename (picture.path);
                 });
 
             this.add (picture_view);
             this.show_all ();
+        }
+
+        private void set_detail_button () {
+            if (settings.show_picture_details) {
+                show_details.set_image (pane_hide);
+                show_details.tooltip_text = _ ("Hide Picture Details [F4]");
+            } else {
+                show_details.set_image (pane_show);
+                show_details.tooltip_text = _ ("Show Picture Details [F4]");
+            }
+        }
+
+        public void toggle_details_action () {
+            settings.show_picture_details = !settings.show_picture_details;
         }
 
         public void open_file (File file) {

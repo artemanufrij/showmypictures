@@ -159,6 +159,11 @@ namespace ShowMyPictures {
             if (mainwindow == null) {
                 mainwindow = new MainWindow (open_files);
                 mainwindow.application = this;
+                mainwindow.delete_event.connect (
+                    () => {
+                        mainwindow = null;
+                        return false;
+                    });
             }
         }
 
@@ -166,6 +171,11 @@ namespace ShowMyPictures {
             if (fastview == null) {
                 fastview = new FastViewWindow ();
                 fastview.application = this;
+                fastview.delete_event.connect (
+                    () => {
+                        fastview = null;
+                        return false;
+                    });
             }
         }
     }

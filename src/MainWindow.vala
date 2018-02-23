@@ -501,6 +501,7 @@ namespace ShowMyPictures {
             var album = new Objects.Album ("Files");
             var current_picture = new Objects.Picture (album, true);
             current_picture.path = file.get_path ();
+            current_picture.source_type = Objects.SourceType.EXTERNAL;
             album.add_picture (current_picture);
             picture_view.show_picture (current_picture);
             show_picture ();
@@ -518,6 +519,7 @@ namespace ShowMyPictures {
                                 var picture = new Objects.Picture (album, true);
                                 picture.mime_type = mime_type;
                                 picture.path = GLib.Path.build_filename (directory.get_path (), file_info.get_name ());
+                                picture.source_type = Objects.SourceType.EXTERNAL;
                                 album.add_picture (picture);
                             }
                         }
@@ -540,6 +542,7 @@ namespace ShowMyPictures {
                 foreach (var file in files) {
                     var picture = new Objects.Picture (album, true);
                     picture.path = file.get_path ();
+                    picture.source_type = Objects.SourceType.EXTERNAL;
                     album.add_picture (picture);
                 }
                 var picture = album.get_first_picture ();

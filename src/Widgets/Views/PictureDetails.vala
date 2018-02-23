@@ -37,6 +37,7 @@ namespace ShowMyPictures.Widgets.Views {
         Gtk.Label date_size_resolution;
         Gtk.Label location;
         Gtk.Entry keywords_entry;
+        Gtk.ScrolledWindow comment_scroll;
         Gtk.TextView comment_entry;
         Gtk.Box navigation_controls;
         Gtk.Box controls;
@@ -136,7 +137,7 @@ namespace ShowMyPictures.Widgets.Views {
             keywords_entry = new Gtk.Entry ();
             keywords_entry.placeholder_text = _ ("Keywords comma separated");
 
-            var comment_scroll = new Gtk.ScrolledWindow (null, null);
+            comment_scroll = new Gtk.ScrolledWindow (null, null);
             comment_scroll.height_request = 64;
             comment_entry = new Gtk.TextView ();
             comment_entry.buffer.text = "";
@@ -175,8 +176,18 @@ namespace ShowMyPictures.Widgets.Views {
             }
             date_size_resolution.label = "%s\n%d × %d".printf (current_picture.date, current_picture.width, current_picture.height);
             location.label = current_picture.file.get_uri ();
-            keywords_entry.text = current_picture.keywords;
-            comment_entry.buffer.text = current_picture.comment;
+
+            if (picture.source_type == Objects.SourceType.LIBRARY) {
+                keywords_entry.text = current_picture.keywords;
+                comment_entry.buffer.text = current_picture.comment;
+
+                comment_scroll.show ();
+                keywords_entry.show ();
+            } else {
+                comment_scroll.hide ();
+                keywords_entry.hide ();
+            }
+
             show_camera_details ();
 
             if (picture.source_type == Objects.SourceType.MTP) {
