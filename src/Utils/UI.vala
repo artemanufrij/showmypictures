@@ -93,7 +93,7 @@ namespace ShowMyPictures.Utils {
                 }
 
                 foreach (var appinfo in AppInfo.get_all_for_type (picture.mime_type)) {
-                    if (appinfo.get_executable () == ShowMyPicturesApp.instance.application_id) {
+                    if (!Settings.get_default ().use_fastview && appinfo.get_executable () == ShowMyPicturesApp.instance.application_id) {
                         continue;
                     }
                     var open_item = new Gtk.MenuItem.with_label (appinfo.get_name ());
