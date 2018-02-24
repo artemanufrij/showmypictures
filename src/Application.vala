@@ -116,8 +116,6 @@ namespace ShowMyPictures {
                     }
                 });
 
-
-
             create_cache_folders ();
         }
 
