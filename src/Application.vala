@@ -55,6 +55,8 @@ namespace ShowMyPictures {
                 () => {
                     if (mainwindow != null && mainwindow.is_active) {
                         mainwindow.reset_action ();
+                    } else if (fastview != null && fastview.is_active) {
+                        fastview.close ();
                     }
                 });
 
