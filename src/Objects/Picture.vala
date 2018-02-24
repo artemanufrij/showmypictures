@@ -522,14 +522,9 @@ namespace ShowMyPictures.Objects {
                 }
                 monitor.changed.connect (
                     (file, other_file, event) => {
-                        if (event == FileMonitorEvent.CHANGED) {
+                        if (event == FileMonitorEvent.CHANGES_DONE_HINT) {
+                            calculate_hash ();
                             create_original (true);
-                        //    new Thread<void*> (
-                         //       "start_monitoring",
-                         //       () => {
-                                    calculate_hash ();
-                        //            return null;
-                        //        });
                             external_modified ();
                         }
                     });
