@@ -445,6 +445,9 @@ namespace ShowMyPictures.Objects {
         }
 
         private void calculate_hash () {
+            if (source_type == SourceType.EXTERNAL) {
+                return;
+            }
             File ? dest_file = null;
             var tmp_path = path;
 
