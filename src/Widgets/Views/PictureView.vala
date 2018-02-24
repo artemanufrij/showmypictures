@@ -188,9 +188,7 @@ namespace ShowMyPictures.Widgets.Views {
             save_changes ();
 
             if (current_picture != null) {
-                current_picture.updated.disconnect (picture_updated);
-                current_picture.rotated.disconnect (picture_reload);
-                current_picture.external_modified.disconnect (picture_reload);
+                disconnect_current_picture ();
             }
             picture_loading ();
 
@@ -205,10 +203,18 @@ namespace ShowMyPictures.Widgets.Views {
             current_picture.updated.connect (picture_updated);
             current_picture.rotated.connect (picture_reload);
             current_picture.external_modified.connect (picture_reload);
+            current_picture.start_monitoring ();
 
             menu = null;
 
             this.grab_focus ();
+        }
+
+        private void disconnect_current_picture () {
+            current_picture.stop_monitoring ();
+            current_picture.updated.disconnect (picture_updated);
+            current_picture.rotated.disconnect (picture_reload);
+            current_picture.external_modified.disconnect (picture_reload);
         }
 
         private void picture_updated () {
@@ -216,6 +222,7 @@ namespace ShowMyPictures.Widgets.Views {
         }
 
         private void picture_reload () {
+            disconnect_current_picture ();
             var p = current_picture;
             current_picture = null;
             show_picture (p);

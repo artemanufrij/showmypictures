@@ -101,7 +101,6 @@ namespace ShowMyPictures.Utils {
                             GLib.List<File> files = new GLib.List<File> ();
                             files.append (picture.file);
                             try {
-                                picture.start_monitoring ();
                                 appinfo.launch (files, null);
                             } catch (Error err) {
                                 warning (err.message);

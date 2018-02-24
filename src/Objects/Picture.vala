@@ -400,12 +400,12 @@ namespace ShowMyPictures.Objects {
             }
 
             try {
-                if (path.has_prefix ("mtp:") || path.has_prefix ("gphoto2:") || !exiv_data.open_path (path)) {
+                if (path.down ().has_suffix ("svg") || path.has_prefix ("mtp:") || path.has_prefix ("gphoto2:") || !exiv_data.open_path (path)) {
                     return false;
                 }
             }
             catch (Error err) {
-                    warning (err.message);
+                warning (err.message);
                 return false;
             }
 
@@ -488,7 +488,7 @@ namespace ShowMyPictures.Objects {
                 () => {
                     create_preview_from_path (tmp_path);
                     try {
-                        if (dest_file.query_exists ()) {
+                        if (dest_file != null && dest_file.query_exists ()) {
                             dest_file.delete ();
                         }
                     } catch (Error err) {
@@ -525,15 +525,24 @@ namespace ShowMyPictures.Objects {
                 monitor.changed.connect (
                     (file, other_file, event) => {
                         if (event == FileMonitorEvent.CHANGED) {
-                            new Thread<void*> (
-                                "start_monitoring",
-                                () => {
+                            create_original (true);
+                        //    new Thread<void*> (
+                         //       "start_monitoring",
+                         //       () => {
                                     calculate_hash ();
-                                    return null;
-                                });
+                        //            return null;
+                        //        });
                             external_modified ();
                         }
                     });
+            }
+        }
+
+        public void stop_monitoring () {
+            if (monitor != null) {
+                monitor.cancel ();
+                monitor.dispose ();
+                monitor = null;
             }
         }
 
