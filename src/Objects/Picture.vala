@@ -468,8 +468,6 @@ namespace ShowMyPictures.Objects {
                     return;
                 }
 
-
-
                 checksum = new Checksum (ChecksumType.MD5);
 
                 FileStream stream = FileStream.open (tmp_path, "r");
