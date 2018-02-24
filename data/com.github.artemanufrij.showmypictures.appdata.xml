@@ -37,6 +37,14 @@
         </screenshot>
     </screenshots>
     <releases>
+        <release version="0.2.2" date="2018-03-03">
+            <description>
+                <p>Improved:</p>
+                <ul>
+                    <li>Speed up start behaviour for "Fast View"</li>
+                </ul>
+            </description>
+        </release>
         <release version="0.2.1" date="2018-02-25">
             <description>
                 <p>New:</p>
