@@ -109,47 +109,6 @@ namespace ShowMyPictures.Services {
                 warning (errormsg);
             }
 
-            // TEMP ALTER
-            q = """ALTER TABLE pictures ADD
-                hour       INT         NULL;""";
-            if (db.exec (q, null, out errormsg) != Sqlite.OK) {
-                warning (errormsg);
-            }
-            q = """ALTER TABLE pictures ADD
-                minute       INT         NULL;""";
-            if (db.exec (q, null, out errormsg) != Sqlite.OK) {
-                warning (errormsg);
-            }
-            q = """ALTER TABLE pictures ADD
-                second       INT         NULL;""";
-            if (db.exec (q, null, out errormsg) != Sqlite.OK) {
-                warning (errormsg);
-            }
-
-            Sqlite.Statement stmt;
-            q = """
-                UPDATE pictures SET hour = 0 WHERE hour IS NULL;
-            """;
-            db.prepare_v2 (q, q.length, out stmt);
-            stmt.step ();
-            stmt.reset ();
-
-            q = """
-                UPDATE pictures SET minute = 0 WHERE minute IS NULL;
-            """;
-            db.prepare_v2 (q, q.length, out stmt);
-            stmt.step ();
-            stmt.reset ();
-
-            q = """
-                UPDATE pictures SET second = 0 WHERE second IS NULL;
-            """;
-            db.prepare_v2 (q, q.length, out stmt);
-            stmt.step ();
-            stmt.reset ();
-
-            // END TEM ALTER
-
             q = """PRAGMA foreign_keys=ON;""";
             if (db.exec (q, null, out errormsg) != Sqlite.OK) {
                 warning (errormsg);
