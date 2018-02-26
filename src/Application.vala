@@ -48,9 +48,7 @@ namespace ShowMyPictures {
             this.application_id = "com.github.artemanufrij.showmypictures";
             settings = ShowMyPictures.Settings.get_default ();
 
-            var action_reset = new SimpleAction ("reset-action", null);
-            add_action (action_reset);
-            add_accelerator ("Escape", "app.reset-action", null);
+            var action_reset = action_generator ("Escape", "reset-action");
             action_reset.activate.connect (
                 () => {
                     var win = get_active_window ();
@@ -61,9 +59,7 @@ namespace ShowMyPictures {
                     }
                 });
 
-            var toggle_details_reset = new SimpleAction ("toggle-details-action", null);
-            add_action (toggle_details_reset);
-            add_accelerator ("F4", "app.toggle-details-action", null);
+            var toggle_details_reset = action_generator ("F4", "toggle-details-action");
             toggle_details_reset.activate.connect (
                 () => {
                     var win = get_active_window ();
@@ -74,9 +70,7 @@ namespace ShowMyPictures {
                     }
                 });
 
-            var action_back = new SimpleAction ("back-action", null);
-            add_action (action_back);
-            add_accelerator ("<Alt>Left", "app.back-action", null);
+            var action_back = action_generator ("<Alt>Left", "back-action");
             action_back.activate.connect (
                 () => {
                     var win = get_active_window ();
@@ -85,9 +79,7 @@ namespace ShowMyPictures {
                     }
                 });
 
-            var action_forward = new SimpleAction ("forward-action", null);
-            add_action (action_forward);
-            add_accelerator ("<Alt>Right", "app.forward-action", null);
+            var action_forward = action_generator ("<Alt>Right", "forward-action");
             action_forward.activate.connect (
                 () => {
                     var win = get_active_window ();
@@ -96,9 +88,7 @@ namespace ShowMyPictures {
                     }
                 });
 
-            var action_rotate_right = new SimpleAction ("rotate-right-action", null);
-            add_action (action_rotate_right);
-            add_accelerator ("<Ctrl>Right", "app.rotate-right-action", null);
+            var action_rotate_right = action_generator ("<Ctrl>Right", "rotate-right-action");
             action_rotate_right.activate.connect (
                 () => {
                     var win = get_active_window ();
@@ -109,9 +99,7 @@ namespace ShowMyPictures {
                     }
                 });
 
-            var action_rotate_left = new SimpleAction ("rotate-left-action", null);
-            add_action (action_rotate_left);
-            add_accelerator ("<Ctrl>Left", "app.rotate-left-action", null);
+            var action_rotate_left = action_generator ("<Ctrl>Left", "rotate-left-action");
             action_rotate_left.activate.connect (
                 () => {
                     var win = get_active_window ();
@@ -123,6 +111,13 @@ namespace ShowMyPictures {
                 });
 
             create_cache_folders ();
+        }
+
+        private SimpleAction action_generator (string command, string action) {
+            var return_value = new SimpleAction (action, null);
+            add_action (return_value);
+            add_accelerator (command, "app.%s".printf (action), null);
+            return return_value;
         }
 
         public void create_cache_folders () {
