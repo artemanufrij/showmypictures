@@ -52,67 +52,95 @@ namespace ShowMyPictures.Dialogs {
             this.resizable = false;
             var content = get_content_area () as Gtk.Box;
 
-            var grid = new Gtk.Grid ();
-            grid.column_spacing = 12;
-            grid.row_spacing = 12;
-            grid.margin = 12;
+            var switcher = new Gtk.StackSwitcher ();
+            switcher.margin_left = switcher.margin_right = 12;
+            switcher.halign = Gtk.Align.CENTER;
+            var stack = new Gtk.Stack ();
+            switcher.set_stack (stack);
 
-            var use_dark_theme_label = new Gtk.Label (_("Use Dark Theme"));
-            use_dark_theme_label.halign = Gtk.Align.START;
+            var genera_grid = new Gtk.Grid ();
+            genera_grid.column_spacing = 12;
+            genera_grid.row_spacing = 12;
+            genera_grid.margin = 12;
+
+            var use_dark_theme_label = label_generator (_("Use Dark Theme"));
             var use_dark_theme = new Gtk.Switch ();
             use_dark_theme.active = settings.use_dark_theme;
             use_dark_theme.notify["active"].connect (() => {
                 settings.use_dark_theme = use_dark_theme.active;
             });
 
-            var use_fastview_label = new Gtk.Label (_("Use Fast View"));
-            use_fastview_label.halign = Gtk.Align.START;
-            var use_fastview = new Gtk.Switch ();
-            use_fastview.active = settings.use_fastview;
-            use_fastview.notify["active"].connect (() => {
-                settings.use_fastview = use_fastview.active;
-            });
-
-            var sync_files_label = new Gtk.Label (_("Sync files on start up"));
-            sync_files_label.halign = Gtk.Align.START;
+            var sync_files_label = label_generator (_("Sync files on start up"));
             var sync_files = new Gtk.Switch ();
             sync_files.active = settings.sync_files;
             sync_files.notify["active"].connect (() => {
                 settings.sync_files = sync_files.active;
             });
 
-            var check_duplicates_label = new Gtk.Label (_("Check for duplicates"));
-            check_duplicates_label.halign = Gtk.Align.START;
+            var check_duplicates_label = label_generator (_("Check for duplicates"));
             var check_duplicates = new Gtk.Switch ();
             check_duplicates.active = settings.check_for_duplicates;
             check_duplicates.notify["active"].connect (() => {
                 settings.check_for_duplicates = check_duplicates.active;
             });
 
-            var check_missing_label = new Gtk.Label (_("Check for missing files"));
-            check_missing_label.halign = Gtk.Align.START;
+            var check_missing_label = label_generator (_("Check for missing files"));
             var check_missing = new Gtk.Switch ();
             check_missing.active = settings.check_for_missing_files;
             check_missing.notify["active"].connect (() => {
                 settings.check_for_missing_files = check_missing.active;
             });
 
-            grid.attach (use_dark_theme_label, 0, 0);
-            grid.attach (use_dark_theme, 1, 0);
-            grid.attach (use_fastview_label, 0, 1);
-            grid.attach (use_fastview, 1, 1);
-            grid.attach (new Gtk.Separator (Gtk.Orientation.HORIZONTAL), 0, 2, 2, 1);
-            grid.attach (sync_files_label, 0, 3);
-            grid.attach (sync_files, 1, 3);
-            grid.attach (check_duplicates_label, 0, 4);
-            grid.attach (check_duplicates, 1, 4);
-            grid.attach (check_missing_label, 0, 5);
-            grid.attach (check_missing, 1, 5);
+            genera_grid.attach (use_dark_theme_label, 0, 0);
+            genera_grid.attach (use_dark_theme, 1, 0);
+            genera_grid.attach (new Gtk.Separator (Gtk.Orientation.HORIZONTAL), 0, 1, 2, 1);
+            genera_grid.attach (sync_files_label, 0, 2);
+            genera_grid.attach (sync_files, 1, 2);
+            genera_grid.attach (check_duplicates_label, 0, 3);
+            genera_grid.attach (check_duplicates, 1, 3);
+            genera_grid.attach (check_missing_label, 0, 4);
+            genera_grid.attach (check_missing, 1, 4);
 
-            content.pack_start (grid, false, false, 0);
+            var fastview_grid = new Gtk.Grid ();
+            fastview_grid.column_spacing = 12;
+            fastview_grid.row_spacing = 12;
+            fastview_grid.margin = 12;
+
+            var use_fastview_multiwindow_label = label_generator (_("Multiwindow"));
+            var use_fastview_multiwindow = new Gtk.Switch ();
+            use_fastview_multiwindow.active = settings.use_fastview_multiwindow;
+            use_fastview_multiwindow.notify["active"].connect (() => {
+                settings.use_fastview_multiwindow = use_fastview_multiwindow.active;
+            });
+
+            var use_fastview_label = label_generator (_("Use Fast View"));
+            var use_fastview = new Gtk.Switch ();
+            use_fastview.active = settings.use_fastview;
+            use_fastview.notify["active"].connect (() => {
+                settings.use_fastview = use_fastview.active;
+                use_fastview_multiwindow.sensitive = settings.use_fastview;
+            });
+
+            fastview_grid.attach (use_fastview_label, 0, 0);
+            fastview_grid.attach (use_fastview, 1, 0);
+            fastview_grid.attach (use_fastview_multiwindow_label, 0, 1);
+            fastview_grid.attach (use_fastview_multiwindow, 1, 1);
+
+            stack.add_titled (genera_grid, "general", _("General"));
+            stack.add_titled (fastview_grid, "fastview", _("Fast View"));
+
+            content.pack_start (switcher, false, false, 0);
+            content.pack_start (stack, false, false, 0);
 
             this.add_button ("_Close", Gtk.ResponseType.CLOSE);
             this.show_all ();
+        }
+
+        private Gtk.Label? label_generator (string content) {
+            return new Gtk.Label (content) {
+                halign = Gtk.Align.START,
+                hexpand = true
+            };
         }
     }
 }

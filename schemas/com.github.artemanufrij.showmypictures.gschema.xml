@@ -70,6 +70,11 @@
 			<summary>Use Fastview.</summary>
 			<description>Use Fastview.</description>
 		</key>
+		<key name="use-fastview-multiwindow" type="b">
+			<default>false</default>
+			<summary>Use Fastview Multiwindow.</summary>
+			<description>Use Fastview Multiwindow.</description>
+		</key>
 		<key name="sync-files" type="b">
 			<default>true</default>
 			<summary>Look for new image files on start up.</summary>

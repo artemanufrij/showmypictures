@@ -53,10 +53,11 @@ namespace ShowMyPictures {
             add_accelerator ("Escape", "app.reset-action", null);
             action_reset.activate.connect (
                 () => {
-                    if (mainwindow != null && mainwindow.is_active) {
-                        mainwindow.reset_action ();
-                    } else if (fastview != null && fastview.is_active) {
-                        fastview.close ();
+                    var win = get_active_window ();
+                    if (win == mainwindow) {
+                        (win as MainWindow).reset_action ();
+                    } else {
+                        (win as FastViewWindow).close ();
                     }
                 });
 
@@ -65,10 +66,11 @@ namespace ShowMyPictures {
             add_accelerator ("F4", "app.toggle-details-action", null);
             toggle_details_reset.activate.connect (
                 () => {
-                    if (mainwindow != null && mainwindow.is_active) {
-                        mainwindow.toggle_details_action ();
-                    } else if (fastview != null && fastview.is_active) {
-                        fastview.toggle_details_action ();
+                    var win = get_active_window ();
+                    if (win == mainwindow) {
+                        (win as MainWindow).toggle_details_action ();
+                    } else {
+                        (win as FastViewWindow).toggle_details_action ();
                     }
                 });
 
@@ -77,8 +79,9 @@ namespace ShowMyPictures {
             add_accelerator ("<Alt>Left", "app.back-action", null);
             action_back.activate.connect (
                 () => {
-                    if (mainwindow != null && mainwindow.is_active) {
-                        mainwindow.back_action ();
+                    var win = get_active_window ();
+                    if (win == mainwindow) {
+                        (win as MainWindow).back_action ();
                     }
                 });
 
@@ -87,8 +90,9 @@ namespace ShowMyPictures {
             add_accelerator ("<Alt>Right", "app.forward-action", null);
             action_forward.activate.connect (
                 () => {
-                    if (mainwindow != null && mainwindow.is_active) {
-                        mainwindow.forward_action ();
+                    var win = get_active_window ();
+                    if (win == mainwindow) {
+                        (win as MainWindow).forward_action ();
                     }
                 });
 
@@ -97,10 +101,11 @@ namespace ShowMyPictures {
             add_accelerator ("<Ctrl>Right", "app.rotate-right-action", null);
             action_rotate_right.activate.connect (
                 () => {
-                    if (mainwindow != null && mainwindow.is_active) {
-                        mainwindow.rotate_right_action ();
-                    } else if (fastview != null && fastview.is_active) {
-                        fastview.rotate_right_action ();
+                    var win = get_active_window ();
+                    if (win == mainwindow) {
+                        (win as MainWindow).rotate_right_action ();
+                    } else {
+                        (win as FastViewWindow).rotate_right_action ();
                     }
                 });
 
@@ -109,10 +114,11 @@ namespace ShowMyPictures {
             add_accelerator ("<Ctrl>Left", "app.rotate-left-action", null);
             action_rotate_left.activate.connect (
                 () => {
-                    if (mainwindow != null && mainwindow.is_active) {
-                        mainwindow.rotate_left_action ();
-                    } else if (fastview != null && fastview.is_active) {
-                        fastview.rotate_left_action ();
+                    var win = get_active_window ();
+                    if (win == mainwindow) {
+                        (win as MainWindow).rotate_left_action ();
+                    } else {
+                        (win as FastViewWindow).rotate_left_action ();
                     }
                 });
 
@@ -151,7 +157,7 @@ namespace ShowMyPictures {
 
         public MainWindow mainwindow { get; private set; default = null; }
 
-        public FastViewWindow fastview {get; private set; default = null; }
+        GLib.List<FastViewWindow> fastviews = null;
 
         protected override void activate () {
             create_instance ();
@@ -160,8 +166,12 @@ namespace ShowMyPictures {
 
         public override void open (File[] files, string hint) {
             if (settings.use_fastview) {
+                if (fastviews == null) {
+                    fastviews = new GLib.List<FastViewWindow> ();
+                }
+
                 create_fastview ();
-                fastview.open_files (files);
+                fastviews.last ().data.open_files (files);
             } else {
                 var first_call = mainwindow == null;
                 create_instance (true);
@@ -183,16 +193,37 @@ namespace ShowMyPictures {
         }
 
         private void create_fastview () {
-            if (fastview == null) {
-                fastview = new FastViewWindow ();
-                fastview.application = this;
-                fastview.delete_event.connect (
-                    () => {
-                        fastview = null;
-                        return false;
-                    });
+            if (fastviews.length () > 0 && !settings.use_fastview_multiwindow) {
+                return;
             }
+
+            var fastview = new FastViewWindow ();
+            fastview.application = this;
+            fastview.delete_event.connect (
+                () => {
+                    fastviews.remove (fastview);
+                    fastview = null;
+                    return false;
+                });
+
+            fastviews.append (fastview);
         }
+
+        /*private Gtk.Window ? get_active_window () {
+            if (mainwindow != null && mainwindow.is_active) {
+                return mainwindow;
+            }
+
+            if (fastviews != null) {
+                foreach (var fastview in fastviews) {
+                    if (fastview.is_active) {
+                        return fastview;
+                    }
+                }
+            }
+
+            return null;
+           }*/
     }
 }
 

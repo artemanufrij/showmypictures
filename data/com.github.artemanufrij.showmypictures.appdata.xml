@@ -39,6 +39,10 @@
     <releases>
         <release version="0.2.2" date="2018-03-03">
             <description>
+                <p>New:</p>
+                <ul>
+                    <li>Multiwindow mode for "Fast View"</li>
+                </ul>
                 <p>Improved:</p>
                 <ul>
                     <li>Speed up start behaviour for "Fast View"</li>
