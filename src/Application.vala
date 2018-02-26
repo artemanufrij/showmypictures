@@ -165,8 +165,9 @@ namespace ShowMyPictures {
                     fastviews = new GLib.List<FastViewWindow> ();
                 }
 
-                create_fastview ();
-                fastviews.last ().data.open_files (files);
+                var fastview = create_fastview ();
+                fastview.open_files (files);
+                fastview.present ();
             } else {
                 var first_call = mainwindow == null;
                 create_instance (true);
@@ -187,9 +188,9 @@ namespace ShowMyPictures {
             }
         }
 
-        private void create_fastview () {
+        private FastViewWindow create_fastview () {
             if (fastviews.length () > 0 && !settings.use_fastview_multiwindow) {
-                return;
+                return fastviews.last ().data;
             }
 
             var fastview = new FastViewWindow ();
@@ -202,6 +203,7 @@ namespace ShowMyPictures {
                 });
 
             fastviews.append (fastview);
+            return fastview;
         }
     }
 }
