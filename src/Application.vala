@@ -208,22 +208,6 @@ namespace ShowMyPictures {
 
             fastviews.append (fastview);
         }
-
-        /*private Gtk.Window ? get_active_window () {
-            if (mainwindow != null && mainwindow.is_active) {
-                return mainwindow;
-            }
-
-            if (fastviews != null) {
-                foreach (var fastview in fastviews) {
-                    if (fastview.is_active) {
-                        return fastview;
-                    }
-                }
-            }
-
-            return null;
-           }*/
     }
 }
 
