@@ -238,6 +238,7 @@ namespace ShowMyPictures {
             search_entry = new Gtk.SearchEntry ();
             search_entry.placeholder_text = _ ("Search Pictures");
             search_entry.margin_right = 5;
+            search_entry.valign = Gtk.Align.CENTER;
             search_entry.search_changed.connect (
                 () => {
                     switch (content.visible_child_name) {
