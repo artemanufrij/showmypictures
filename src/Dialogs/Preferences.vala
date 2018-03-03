@@ -35,28 +35,25 @@ namespace ShowMyPictures.Dialogs {
 
         public Preferences (Gtk.Window parent) {
             Object (
-                transient_for: parent
+                transient_for: parent,
+                deletable: false,
+                use_header_bar: 1
             );
             build_ui ();
-
-            this.response.connect ((source, response_id) => {
-                switch (response_id) {
-                    case Gtk.ResponseType.CLOSE:
-                        destroy ();
-                    break;
-                }
-            });
         }
 
         private void build_ui () {
             this.resizable = false;
-            var content = get_content_area () as Gtk.Box;
 
             var switcher = new Gtk.StackSwitcher ();
-            switcher.margin_left = switcher.margin_right = 12;
-            switcher.halign = Gtk.Align.CENTER;
+            switcher.margin_top = 12;
+
             var stack = new Gtk.Stack ();
-            switcher.set_stack (stack);
+            switcher.stack = stack;
+
+
+            var header = this.get_header_bar () as Gtk.HeaderBar;
+            header.set_custom_title (switcher);
 
             var genera_grid = new Gtk.Grid ();
             genera_grid.column_spacing = 12;
@@ -129,10 +126,15 @@ namespace ShowMyPictures.Dialogs {
             stack.add_titled (genera_grid, "general", _("General"));
             stack.add_titled (fastview_grid, "fastview", _("Fast View"));
 
-            content.pack_start (switcher, false, false, 0);
+            var content = this.get_content_area () as Gtk.Box;
             content.pack_start (stack, false, false, 0);
 
-            this.add_button ("_Close", Gtk.ResponseType.CLOSE);
+            var close_button = new Gtk.Button.with_label (_ ("Close"));
+            close_button.clicked.connect (() => { this.destroy (); });
+
+            Gtk.Box actions = this.get_action_area () as Gtk.Box;
+            actions.add (close_button);
+
             this.show_all ();
         }
 
