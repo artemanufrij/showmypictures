@@ -1,6 +1,6 @@
 <div>
-  <h1 align="center">Show My Pictures</h1>
-  <h3 align="center">An image viewer for managing local image files</h3>
+  <h1 align="center">Memories</h1>
+  <h3 align="center"><img src="data/icons/com.github.artemanufrij.showmypictures.svg"/><br>An image viewer for managing local image files</h3>
   <p align="center">Designed for <a href="https://elementary.io"> elementary OS</p>
 </div>
 
