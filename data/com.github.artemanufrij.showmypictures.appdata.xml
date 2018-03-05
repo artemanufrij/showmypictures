@@ -35,6 +35,14 @@
             <caption>Albums</caption>
             <image>https://raw.githubusercontent.com/artemanufrij/showmypictures/master/screenshots/Screenshot.png</image>
         </screenshot>
+        <screenshot>
+            <caption>Album</caption>
+            <image>https://raw.githubusercontent.com/artemanufrij/showmypictures/master/screenshots/Screenshot_Album.png</image>
+        </screenshot>
+        <screenshot>
+            <caption>Picture</caption>
+            <image>https://raw.githubusercontent.com/artemanufrij/showmypictures/master/screenshots/Screenshot_Picture.png</image>
+        </screenshot>
     </screenshots>
     <releases>
         <release version="0.2.3" date="2018-03-10">
