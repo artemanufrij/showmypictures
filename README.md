@@ -13,6 +13,8 @@
   </a>
   <p align="center">
     <img src="screenshots/Screenshot.png"/>
+    <img src="screenshots/Screenshot_Album.png"/>
+    <img src="screenshots/Screenshot_Picture.png"/>
   </p>
 </p>
 
