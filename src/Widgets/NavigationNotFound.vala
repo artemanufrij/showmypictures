@@ -41,7 +41,7 @@ namespace ShowMyPictures.Widgets {
             var remove_not_found_items = new Gtk.MenuItem.with_label (_ ("Remove Pictures"));
             remove_not_found_items.activate.connect (
                 () => {
-
+                    remove_all_not_found_items ();
                 });
             menu.add (remove_not_found_items);
             menu.show_all ();

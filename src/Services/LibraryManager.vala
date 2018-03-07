@@ -61,6 +61,7 @@ namespace ShowMyPictures.Services {
         int insert_queue = 0;
 
         uint duplicates_timer = 0;
+        uint finish_timer = 0;
         GLib.List<string> duplicates = null;
         GLib.List<Objects.Picture> not_found = null;
 
@@ -98,7 +99,13 @@ namespace ShowMyPictures.Services {
                         find_non_existent_items ();
                     }
                     if (settings.sync_files || force) {
-                        scan_local_library_for_new_files (settings.library_location);
+                            scan_local_library_for_new_files (settings.library_location);
+                        if (!settings.import_into_default_location
+                            && FileUtils.test (settings.import_location, FileTest.EXISTS)
+                            && settings.library_location != settings.import_location
+                            && settings.import_location.index_of (settings.library_location) == -1) {
+                            scan_local_library_for_new_files (settings.import_location);
+                        }
                     } else if (settings.check_for_duplicates) {
                         scan_for_duplicates_async.begin ();
                     } else {
@@ -118,8 +125,12 @@ namespace ShowMyPictures.Services {
                 insert_queue++;
                 insert_picture_file (path, mime_type);
                 insert_queue--;
-                if (insert_queue == 0 && settings.check_for_duplicates) {
-                    scan_for_duplicates_async.begin ();
+                if (insert_queue == 0) {
+                    if (settings.check_for_duplicates) {
+                        scan_for_duplicates_async.begin ();
+                    } else {
+                        call_finish_timer ();
+                    }
                 }
             }
         }
@@ -128,6 +139,8 @@ namespace ShowMyPictures.Services {
             lf_manager.scan (path);
             if (settings.check_for_duplicates) {
                 scan_for_duplicates_async.begin ();
+            } else {
+                call_finish_timer ();
             }
         }
 
@@ -153,7 +166,12 @@ namespace ShowMyPictures.Services {
                 }
             }
 
-            var target_path = Path.build_filename (settings.library_location, picture.year.to_string (), picture.month.to_string (), picture.day.to_string ());
+            var root_location = settings.library_location;
+            if (!settings.import_into_default_location && FileUtils.test (settings.import_location, FileTest.EXISTS)) {
+                root_location = settings.import_location;
+            }
+
+            var target_path = Path.build_filename (root_location, picture.year.to_string (), picture.month.to_string (), picture.day.to_string ());
             var target_folder = File.new_for_path (target_path);
             if (!target_folder.query_exists ()) {
                 try {
@@ -215,6 +233,26 @@ namespace ShowMyPictures.Services {
                     Source.remove (duplicates_timer);
                     duplicates_timer = 0;
                 }
+            }
+        }
+
+        private void call_finish_timer () {
+            lock (finish_timer) {
+                if (finish_timer > 0) {
+                    Source.remove (finish_timer);
+                    finish_timer = 0;
+                }
+
+                finish_timer = Timeout.add (
+                    1000,
+                    () => {
+                        if (finish_timer > 0) {
+                            Source.remove (finish_timer);
+                            finish_timer = 0;
+                        }
+                        sync_finished ();
+                        return false;
+                    });
             }
         }
 

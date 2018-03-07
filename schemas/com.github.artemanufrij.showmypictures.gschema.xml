@@ -60,6 +60,16 @@
 			<summary>Default library location.</summary>
 			<description>Default library location.</description>
 		</key>
+		<key name="import-into-default-location" type="b">
+			<default>true</default>
+			<summary>Import pictures into default location.</summary>
+			<description>Import pictures into default location.</description>
+		</key>
+		<key name="import-location" type="s">
+			<default>""</default>
+			<summary>Import location.</summary>
+			<description>Import location.</description>
+		</key>
 		<key name="use-dark-theme" type="b">
 			<default>false</default>
 			<summary>Use Dark Theme.</summary>

@@ -46,6 +46,8 @@ namespace ShowMyPictures {
         public bool fastview_window_maximized { get; set; }
         public bool look_for_new_files { get; set; }
         public string library_location { get; set; }
+        public string import_location { get; set; }
+        public bool import_into_default_location { get; set; }
         public bool use_dark_theme { get; set; }
         public bool use_fastview { get; set; }
         public bool use_fastview_multiwindow { get; set; }
