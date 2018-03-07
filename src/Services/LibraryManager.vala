@@ -103,7 +103,7 @@ namespace ShowMyPictures.Services {
                         if (!settings.import_into_default_location
                             && FileUtils.test (settings.import_location, FileTest.EXISTS)
                             && settings.library_location != settings.import_location
-                            && settings.import_location.index_of (settings.library_location) == -1) {
+                            && !settings.import_location.has_prefix (settings.library_location)) {
                             scan_local_library_for_new_files (settings.import_location);
                         }
                     } else if (settings.check_for_duplicates) {
