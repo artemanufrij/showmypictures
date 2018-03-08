@@ -176,7 +176,7 @@ namespace ShowMyPictures.Widgets.Views {
                 current_picture.exclude_creation_date ();
             }
             date_size_resolution.label = "%s\n%d × %d".printf (current_picture.date, current_picture.width, current_picture.height);
-            location.label = current_picture.file.get_uri ();
+            location.label = Uri.unescape_string (current_picture.file.get_uri ());
 
             if (picture.source_type == Objects.SourceType.LIBRARY) {
                 keywords_entry.text = current_picture.keywords;

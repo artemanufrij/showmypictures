@@ -195,7 +195,7 @@ namespace ShowMyPictures.Widgets.Views {
             current_picture = picture;
             current_picture.exclude_exiv ();
             current_pixbuf = current_picture.original;
-            drawing_area.tooltip_text = current_picture.path;
+            drawing_area.tooltip_text = Uri.unescape_string (current_picture.path);
 
             calc_optimal_zoom (true);
             picture_details.show_picture (current_picture);
