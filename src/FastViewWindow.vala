@@ -68,6 +68,7 @@ namespace ShowMyPictures {
         private void build_ui () {
             var headerbar = new Gtk.HeaderBar ();
             headerbar.show_close_button = true;
+            headerbar.get_style_context ().add_class ("default-decoration");
             this.set_titlebar (headerbar);
 
             pane_show = new Gtk.Image.from_icon_name ("pane-show-symbolic", Gtk.IconSize.SMALL_TOOLBAR);

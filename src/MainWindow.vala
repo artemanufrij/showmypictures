@@ -172,6 +172,7 @@ namespace ShowMyPictures {
         private void build_ui () {
             headerbar = new Gtk.HeaderBar ();
             headerbar.show_close_button = true;
+            headerbar.get_style_context ().add_class ("default-decoration");
             this.set_titlebar (headerbar);
 
             app_menu = new Gtk.MenuButton ();
