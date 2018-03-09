@@ -45,13 +45,17 @@
         </screenshot>
     </screenshots>
     <releases>
-        <release version="0.2.3" date="2018-03-10">
+        <release version="0.2.4" date="2018-03-10">
             <description>
                 <p>New:</p>
                 <ul>
                     <li>New Setting: Set custom location for imorted files</li>
-                    <li>Notification about count of imported files</li>
+                    <li>Notification about counter of imported files</li>
                 </ul>
+            </description>
+        </release>
+        <release version="0.2.3" date="2018-03-10">
+            <description>
                 <p>Misc:</p>
                 <ul>
                     <li>Prepare for JUNO</li>
