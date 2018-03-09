@@ -35,6 +35,7 @@ namespace ShowMyPictures.Widgets {
         public signal void label_selected (string label);
         public signal void duplicates_selected ();
         public signal void not_found_selected ();
+        public signal void import_finished (string device, uint count);
 
         Granite.Widgets.SourceList folders { get; set; }
         Granite.Widgets.SourceList.ExpandableItem events_entry;
@@ -181,15 +182,30 @@ namespace ShowMyPictures.Widgets {
         }
 
         private void add_mobile_phone (Volume volume) {
-            device_entry.add (new Widgets.NavigationExternalDevice (new Objects.MobilePhone (volume)));
+            var dev = new Widgets.NavigationExternalDevice (new Objects.MobilePhone (volume));
+            dev.import_finished.connect (
+                (imported) => {
+                    import_finished (volume.get_name (), imported);
+                });
+            device_entry.add (dev);
         }
 
         private void add_gphoto (Volume volume) {
-            device_entry.add (new Widgets.NavigationExternalDevice (new Objects.GphotoDevice (volume)));
+            var dev = new Widgets.NavigationExternalDevice (new Objects.GphotoDevice (volume));
+            dev.import_finished.connect (
+                (imported) => {
+                    import_finished (volume.get_name (), imported);
+                });
+            device_entry.add (dev);
         }
 
         private void add_external (Volume volume) {
-            device_entry.add (new Widgets.NavigationExternalDevice (new Objects.RemovableDevice (volume)));
+            var dev = new Widgets.NavigationExternalDevice (new Objects.RemovableDevice (volume));
+            dev.import_finished.connect (
+                (imported) => {
+                    import_finished (volume.get_name (), imported);
+                });
+            device_entry.add (dev);
         }
 
         private void remove_volume (Volume volume) {

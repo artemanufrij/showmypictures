@@ -367,6 +367,10 @@ namespace ShowMyPictures {
                 () => {
                     not_found_view.remove_all.begin ();
                 });
+            navigation.import_finished.connect (
+                (name, imported) => {
+                    send_app_notification (_ ("%u pictures from %s imported").printf (imported, name));
+                });
             grid.attach (navigation, 0, 0);
 
             app_notification = new Granite.Widgets.Toast ("");

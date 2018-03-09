@@ -157,12 +157,12 @@ namespace ShowMyPictures.Services {
             }
         }
 
-        public void import_from_external_device (Objects.Picture picture) {
+        public bool import_from_external_device (Objects.Picture picture) {
             var hash_pictures = db_manager.get_picture_collection_by_hash (picture.hash);
 
             foreach (var hash_picture in hash_pictures) {
                 if (hash_picture.file_exists ()) {
-                    return;
+                    return false;
                 }
             }
 
@@ -178,7 +178,7 @@ namespace ShowMyPictures.Services {
                     target_folder.make_directory_with_parents ();
                 } catch (Error err) {
                     warning (err.message);
-                    return;
+                    return false;
                 }
             }
             target_folder.dispose ();
@@ -192,7 +192,9 @@ namespace ShowMyPictures.Services {
                 }
             } catch (Error err) {
                 warning (err.message);
+                return false;
             }
+            return true;
         }
 
         private void find_non_existent_items () {

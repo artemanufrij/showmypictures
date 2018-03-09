@@ -30,7 +30,7 @@ namespace ShowMyPictures.Widgets {
         Services.LibraryManager library_manager;
 
         public signal void import_started ();
-        public signal void import_finished ();
+        public signal void import_finished (uint imported);
         public signal void import_counter (uint count);
 
         Gtk.Menu menu;
@@ -106,13 +106,16 @@ namespace ShowMyPictures.Widgets {
                     new Thread<void*> (
                         "import_pictures",
                         () => {
+                            uint imported = 0;
                             uint counter = 0;
                             foreach (var picture in album.pictures) {
-                                library_manager.import_from_external_device (picture);
+                                if (library_manager.import_from_external_device (picture)) {
+                                    imported++;
+                                }
                                 counter++;
                                 import_counter (counter);
                             }
-                            import_finished ();
+                            import_finished (imported);
                             return null;
                         });
                 });
