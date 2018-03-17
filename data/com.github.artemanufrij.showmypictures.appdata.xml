@@ -45,6 +45,14 @@
         </screenshot>
     </screenshots>
     <releases>
+        <release version="0.2.5" date="2018-03-10">
+            <description>
+                <p>New:</p>
+                <ul>
+                    <li>Zoom support for SVG files</li>
+                </ul>
+            </description>
+        </release>
         <release version="0.2.4" date="2018-03-10">
             <description>
                 <p>New:</p>
