@@ -37,14 +37,13 @@ namespace ShowMyPictures.Dialogs {
             Object (
                 transient_for: parent,
                 deletable: false,
-                use_header_bar: 1
+                use_header_bar: 1,
+                resizable: false
                 );
             build_ui ();
         }
 
         private void build_ui () {
-            this.resizable = false;
-
             var switcher = new Gtk.StackSwitcher ();
             switcher.margin_top = 12;
 
