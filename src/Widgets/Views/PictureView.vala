@@ -226,6 +226,7 @@ namespace ShowMyPictures.Widgets.Views {
                 zoom = 1;
                 zooming ();
             } else {
+                gif_view.load_uri ("");
                 calc_optimal_zoom (true);
                 stack.visible_child_name = "drawing";
             }
