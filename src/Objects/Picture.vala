@@ -265,7 +265,7 @@ namespace ShowMyPictures.Objects {
                 }
             }
             if ((preview == null || force)) {
-                if (is_raw) {
+                if (is_raw || mime_type == "image/gif") {
                     create_original ();
                     create_preview_from_pixbuf (original, true);
                 } else {
