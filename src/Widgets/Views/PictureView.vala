@@ -174,8 +174,14 @@ namespace ShowMyPictures.Widgets.Views {
             if (current_picture == null) {
                 return true;
             }
-            cr.scale (zoom, zoom);
-            Gdk.cairo_set_source_pixbuf (cr, current_pixbuf, 0, 0);
+
+            if (current_picture.mime_type != "image/svg+xml") {
+                cr.scale (zoom, zoom);
+                Gdk.cairo_set_source_pixbuf (cr, current_pixbuf, 0, 0);
+            } else {
+                cr.scale (1, 1);
+                Gdk.cairo_set_source_pixbuf (cr, new Gdk.Pixbuf.from_file_at_scale (current_picture.path, -1, (int)(zoom * current_pixbuf.width), true), 0, 0);
+            }
             cr.paint ();
             return true;
         }
@@ -265,12 +271,12 @@ namespace ShowMyPictures.Widgets.Views {
         }
 
         public void zoom_in () {
-            if (zoom == 1) {
+            if (zoom == 1 && current_picture.mime_type != "image/svg+xml") {
                 return;
             }
 
             zoom += 0.1;
-            if (zoom > 1) {
+            if (zoom > 1 && current_picture.mime_type != "image/svg+xml") {
                 zoom = 1;
             }
                     zooming ();
@@ -282,7 +288,7 @@ namespace ShowMyPictures.Widgets.Views {
             }
 
             zoom -= 0.1;
-            if (zoom < optimal_zoom) {
+            if (zoom < optimal_zoom && current_picture.mime_type != "image/svg+xml") {
                 zoom = optimal_zoom;
                 if (zoom > 1) {
                     zoom = 1;
