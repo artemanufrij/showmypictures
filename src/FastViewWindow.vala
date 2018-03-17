@@ -117,6 +117,14 @@ namespace ShowMyPictures {
         public void open_file (File file) {
             var album = new Objects.Album ("Files");
             var current_picture = new Objects.Picture (album, true);
+            string mime_type = "";
+            try {
+                var query_info = file.query_info (FileAttribute.STANDARD_CONTENT_TYPE, GLib.FileQueryInfoFlags.NONE);
+                mime_type = query_info.get_content_type ();
+            } catch (Error err) {
+                        warning (err.message);
+            }
+            current_picture.mime_type = mime_type;
             current_picture.source_type = Objects.SourceType.EXTERNAL;
             current_picture.path = file.get_path ();
             album.add_picture (current_picture);
@@ -130,7 +138,7 @@ namespace ShowMyPictures {
                         var children = directory.enumerate_children (FileAttribute.STANDARD_CONTENT_TYPE, GLib.FileQueryInfoFlags.NONE);
                         FileInfo file_info;
                         while ((file_info = children.next_file ()) != null) {
-                            string mime_type = file_info.get_content_type ();
+                            mime_type = file_info.get_content_type ();
                             if (Utils.is_valid_mime_type (mime_type) && file_info.get_name () != file.get_basename ()) {
                                 var picture = new Objects.Picture (album, true);
                                 picture.mime_type = mime_type;

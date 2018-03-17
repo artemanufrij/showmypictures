@@ -179,8 +179,15 @@ namespace ShowMyPictures.Widgets.Views {
                 cr.scale (zoom, zoom);
                 Gdk.cairo_set_source_pixbuf (cr, current_pixbuf, 0, 0);
             } else {
-                cr.scale (1, 1);
-                Gdk.cairo_set_source_pixbuf (cr, new Gdk.Pixbuf.from_file_at_scale (current_picture.path, -1, (int)(zoom * current_pixbuf.width), true), 0, 0);
+                try {
+                    var scalled = new Gdk.Pixbuf.from_file_at_scale (current_picture.path, -1, (int)(zoom * current_pixbuf.width), true);
+                    cr.scale (1, 1);
+                    Gdk.cairo_set_source_pixbuf (cr, scalled, 0, 0);
+                } catch (Error err) {
+                    warning (err.message);
+                    cr.scale (zoom, zoom);
+                    Gdk.cairo_set_source_pixbuf (cr, current_pixbuf, 0, 0);
+                }
             }
             cr.paint ();
             return true;
