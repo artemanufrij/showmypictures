@@ -45,6 +45,7 @@ PACKAGES
     gtk+-3.0
     sqlite3
     gexiv2
+    webkit2gtk-4.0
 OPTIONS
     --target-glib=2.32
     --thread

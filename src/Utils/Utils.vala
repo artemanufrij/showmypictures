@@ -54,7 +54,8 @@ namespace ShowMyPictures.Utils {
                || mime_type == "image/svg+xml"
                || mime_type == "image/x-canon-cr2"
                || mime_type == "image/x-nikon-nef"
-               || mime_type == "image/x-sony-arw";
+               || mime_type == "image/x-sony-arw"
+               || mime_type == "image/gif";
     }
 
     public static bool is_valid_extention (string extention) {
@@ -62,7 +63,8 @@ namespace ShowMyPictures.Utils {
                || extention.has_suffix ("jpeg")
                || extention.has_suffix ("jpg")
                || extention.has_suffix ("cr2")
-               || extention.has_suffix ("nef");
+               || extention.has_suffix ("nef")
+               || extention.has_prefix ("gif");
     }
 
     public static bool is_raw (string mime_type) {

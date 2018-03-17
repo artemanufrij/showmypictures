@@ -22,6 +22,7 @@ pkg_check_modules (DEPS REQUIRED
     sqlite3
     gexiv2
     libraw
+    webkit2gtk-4.0
 )
 
 # Comment this out to enable C compiler warnings

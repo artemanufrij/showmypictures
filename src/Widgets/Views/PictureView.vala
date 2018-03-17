@@ -39,6 +39,8 @@ namespace ShowMyPictures.Widgets.Views {
 
         Gtk.ScrolledWindow scroll;
         Gtk.DrawingArea drawing_area;
+        Gtk.Stack stack;
+        WebKit.WebView gif_view;
         Widgets.Views.PictureDetails picture_details;
         Gtk.Menu menu;
 
@@ -93,6 +95,56 @@ namespace ShowMyPictures.Widgets.Views {
                 });
         }
 
+        private void build_ui () {
+            var event_box = new Gtk.EventBox ();
+            event_box.button_press_event.connect (show_context_menu);
+
+            scroll = new Gtk.ScrolledWindow (null, null);
+            scroll.expand = true;
+            scroll.scroll_event.connect (
+                (key_event) => {
+                    if (Gdk.ModifierType.CONTROL_MASK in key_event.state) {
+                        if (key_event.delta_y < 0) {
+                            zoom_in ();
+                        } else {
+                            zoom_out ();
+                        }
+                        return true;
+                    }
+                    return false;
+                });
+
+            drawing_area = new Gtk.DrawingArea ();
+           // drawing_area.halign = Gtk.Align.CENTER;
+           // drawing_area.valign = Gtk.Align.CENTER;
+            drawing_area.draw.connect (on_draw);
+
+            gif_view = new WebKit.WebView.with_context (WebKit.WebContext.get_default ());
+
+            stack = new Gtk.Stack ();
+            stack.halign = Gtk.Align.CENTER;
+            stack.valign = Gtk.Align.CENTER;
+            stack.add_named (drawing_area, "drawing");
+            stack.add_named (gif_view, "gif_view");
+
+            scroll.add (stack);
+            event_box.add (scroll);
+
+            picture_details = new Widgets.Views.PictureDetails ();
+            picture_details.reveal_child = settings.show_picture_details;
+            picture_details.next.connect (
+                () => {
+                    show_next_picture ();
+                });
+            picture_details.prev.connect (
+                () => {
+                    show_prev_picture ();
+                });
+
+            this.attach (event_box, 0, 0);
+            this.attach (picture_details, 1, 0);
+        }
+
         public bool show_next_picture () {
             var pic = current_picture.album.get_next_picture (current_picture);
             if (pic != null) {
@@ -127,47 +179,6 @@ namespace ShowMyPictures.Widgets.Views {
             this.draw.disconnect (first_draw);
             calc_optimal_zoom ();
             return false;
-        }
-
-        private void build_ui () {
-            var event_box = new Gtk.EventBox ();
-            event_box.button_press_event.connect (show_context_menu);
-
-            scroll = new Gtk.ScrolledWindow (null, null);
-            scroll.expand = true;
-            scroll.scroll_event.connect (
-                (key_event) => {
-                    if (Gdk.ModifierType.CONTROL_MASK in key_event.state) {
-                        if (key_event.delta_y < 0) {
-                            zoom_in ();
-                        } else {
-                            zoom_out ();
-                        }
-                        return true;
-                    }
-                    return false;
-                });
-
-            drawing_area = new Gtk.DrawingArea ();
-            drawing_area.halign = Gtk.Align.CENTER;
-            drawing_area.valign = Gtk.Align.CENTER;
-            drawing_area.draw.connect (on_draw);
-            scroll.add (drawing_area);
-            event_box.add (scroll);
-
-            picture_details = new Widgets.Views.PictureDetails ();
-            picture_details.reveal_child = settings.show_picture_details;
-            picture_details.next.connect (
-                () => {
-                    show_next_picture ();
-                });
-            picture_details.prev.connect (
-                () => {
-                    show_prev_picture ();
-                });
-
-            this.attach (event_box, 0, 0);
-            this.attach (picture_details, 1, 0);
         }
 
         public bool on_draw (Cairo.Context cr) {
@@ -208,9 +219,16 @@ namespace ShowMyPictures.Widgets.Views {
             current_picture = picture;
             current_picture.exclude_exiv ();
             current_pixbuf = current_picture.original;
-            drawing_area.tooltip_text = Uri.unescape_string (current_picture.path);
-
-            calc_optimal_zoom (true);
+            stack.tooltip_text = Uri.unescape_string (current_picture.path);
+            if (picture.mime_type == "image/gif") {
+                gif_view.load_uri (picture.file.get_uri ());
+                stack.visible_child_name = "gif_view";
+                zoom = 1;
+                zooming ();
+            } else {
+                calc_optimal_zoom (true);
+                stack.visible_child_name = "drawing";
+            }
             picture_details.show_picture (current_picture);
             picture_loaded (current_picture);
             current_picture.updated.connect (picture_updated);
