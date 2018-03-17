@@ -45,11 +45,12 @@
         </screenshot>
     </screenshots>
     <releases>
-        <release version="0.2.5" date="2018-03-10">
+        <release version="0.2.5" date="2018-03-20">
             <description>
                 <p>New:</p>
                 <ul>
                     <li>Zoom support for SVG files</li>
+                    <li>Support for GIF files</li>
                 </ul>
             </description>
         </release>
