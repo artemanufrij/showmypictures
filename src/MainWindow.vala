@@ -415,7 +415,7 @@ namespace ShowMyPictures {
         }
 
         private void show_albums () {
-            headerbar.title = _ ("Show My Pictures");
+            headerbar.title = _ ("Memories");
             content.visible_child_name = "albums";
             navigation_button.hide ();
             search_entry.show ();
@@ -450,7 +450,7 @@ namespace ShowMyPictures {
         }
 
         private void show_welcome () {
-            headerbar.title = _ ("Show My Pictures");
+            headerbar.title = _ ("Memories");
             content.visible_child_name = "welcome";
             navigation_button.hide ();
             search_entry.hide ();
