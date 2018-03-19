@@ -95,7 +95,15 @@ namespace ShowMyPictures.Utils {
                     if (!Settings.get_default ().use_fastview && appinfo.get_executable () == ShowMyPicturesApp.instance.application_id) {
                         continue;
                     }
-                    var open_item = new Gtk.MenuItem.with_label (appinfo.get_name ());
+
+                    var menuitem_grid = new Gtk.Grid ();
+                    menuitem_grid.margin = 0;
+                    menuitem_grid.add (new Gtk.Image.from_gicon (appinfo.get_icon (), Gtk.IconSize.MENU));
+                    menuitem_grid.add (new Gtk.Label (appinfo.get_name ()));
+
+                    var open_item = new Gtk.MenuItem ();
+                    open_item.get_style_context ().add_class ("menuitem-with-icon");
+                    open_item.add (menuitem_grid);
                     open_item.activate.connect (
                         () => {
                             GLib.List<File> files = new GLib.List<File> ();

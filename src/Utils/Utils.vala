@@ -158,4 +158,17 @@ namespace ShowMyPictures.Utils {
 
         return old_value - new_value;
     }
+
+    public static void set_custom_css_style (Gdk.Screen screen) {
+        Granite.Widgets.Utils.set_theming_for_screen (
+            screen,
+                """
+                    .album {
+                        background: @base_color;
+                        border-radius: 3px;
+                    }
+                """,
+                Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
+            );
+    }
 }

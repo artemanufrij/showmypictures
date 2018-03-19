@@ -129,6 +129,7 @@ namespace ShowMyPictures {
             current_picture.path = file.get_path ();
             album.add_picture (current_picture);
             picture_view.show_picture (current_picture);
+
             new Thread<void*> (
                 "open_file",
                 () => {

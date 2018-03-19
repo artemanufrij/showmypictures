@@ -134,17 +134,6 @@ namespace ShowMyPictures {
             load_settings ();
             build_ui ();
 
-            Granite.Widgets.Utils.set_theming_for_screen (
-                this.get_screen (),
-                """
-                    .album {
-                        background: @base_color;
-                        border-radius: 3px;
-                    }
-                """,
-                Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
-                );
-
             if (!open_files) {
                 load_content_from_database.begin ();
             }
@@ -167,6 +156,8 @@ namespace ShowMyPictures {
                     save_settings ();
                     return false;
                 });
+
+            Utils.set_custom_css_style (this.get_screen ());
         }
 
         private void build_ui () {
@@ -506,6 +497,14 @@ namespace ShowMyPictures {
         public void open_file (File file) {
             var album = new Objects.Album ("Files");
             var current_picture = new Objects.Picture (album, true);
+            string mime_type = "";
+            try {
+                var query_info = file.query_info (FileAttribute.STANDARD_CONTENT_TYPE, GLib.FileQueryInfoFlags.NONE);
+                mime_type = query_info.get_content_type ();
+            } catch (Error err) {
+                warning (err.message);
+            }
+            current_picture.mime_type = mime_type;
             current_picture.source_type = Objects.SourceType.EXTERNAL;
             current_picture.path = file.get_path ();
             album.add_picture (current_picture);
@@ -515,12 +514,12 @@ namespace ShowMyPictures {
             new Thread<void*> (
                 "open_file",
                 () => {
-                    File directory = file.get_parent ();
+                    File directory = File.new_for_uri (current_picture.file.get_parent ().get_uri ());
                     try {
-                        var children = directory.enumerate_children (FileAttribute.STANDARD_CONTENT_TYPE, GLib.FileQueryInfoFlags.NONE);
+                        var children = directory.enumerate_children ("standard::*", GLib.FileQueryInfoFlags.NONE);
                         FileInfo file_info;
                         while ((file_info = children.next_file ()) != null) {
-                            string mime_type = file_info.get_content_type ();
+                            mime_type = file_info.get_content_type ();
                             if (Utils.is_valid_mime_type (mime_type) && file_info.get_name () != file.get_basename ()) {
                                 var picture = new Objects.Picture (album, true);
                                 picture.mime_type = mime_type;
