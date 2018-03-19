@@ -36,9 +36,6 @@ namespace ShowMyPictures.Widgets {
         Gtk.Label title;
         Gtk.Label saved_size;
         Gtk.Menu menu = null;
-        Gtk.Image add_selection_image;
-        Gtk.Image multi_selected_image;
-        Gtk.Button multi_select;
 
         Gtk.Spinner spinner;
 
@@ -121,18 +118,6 @@ namespace ShowMyPictures.Widgets {
         private void build_ui () {
             var event_box = new Gtk.EventBox ();
             event_box.button_press_event.connect (show_context_menu);
-            event_box.enter_notify_event.connect (
-                (event) => {
-                    multi_select.opacity = 1;
-                    return false;
-                });
-            event_box.leave_notify_event.connect (
-                (event) => {
-                    if (!this.is_selected ()) {
-                        multi_select.opacity = 0;
-                    }
-                    return false;
-                });
 
             var content = new Gtk.Grid ();
             content.halign = Gtk.Align.CENTER;
@@ -167,28 +152,6 @@ namespace ShowMyPictures.Widgets {
             saved_size.use_markup = true;
             saved_size.valign = Gtk.Align.END;
 
-            // MULTISELECTION BUTTON
-            add_selection_image = new Gtk.Image.from_icon_name ("selection-add", Gtk.IconSize.BUTTON);
-            multi_selected_image = new Gtk.Image.from_icon_name ("selection-checked", Gtk.IconSize.BUTTON);
-
-            multi_select = new Gtk.Button ();
-            multi_select.valign = Gtk.Align.START;
-            multi_select.halign = Gtk.Align.START;
-            multi_select.get_style_context ().remove_class ("button");
-            multi_select.set_image (add_selection_image);
-            multi_select.can_focus = false;
-            multi_select.opacity = 0;
-            multi_select.clicked.connect (
-                () => {
-                    toggle_multi_selection ();
-                });
-            multi_select.enter_notify_event.connect (
-                (event) => {
-                    multi_select.opacity = 1;
-                    return false;
-                });
-
-            content.attach (multi_select, 0, 0);
             content.attach (cover, 0, 0, 3, 1);
             content.attach (title, 0, 1, 3, 1);
             content.attach (spinner, 0, 2);
@@ -205,12 +168,10 @@ namespace ShowMyPictures.Widgets {
                 if (activate) {
                     this.activate ();
                 }
-                multi_select.opacity = 1;
-                multi_select.set_image (multi_selected_image);
+
             } else {
                 multi_selection = false;
                 (this.parent as Gtk.FlowBox).unselect_child (this);
-                multi_select.set_image (add_selection_image);
             }
         }
 
@@ -243,8 +204,6 @@ namespace ShowMyPictures.Widgets {
         }
 
         public void reset () {
-            multi_select.set_image (add_selection_image);
-            multi_select.opacity = 0;
             multi_selection = false;
         }
     }
