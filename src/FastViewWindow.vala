@@ -129,13 +129,12 @@ namespace ShowMyPictures {
             current_picture.path = file.get_path ();
             album.add_picture (current_picture);
             picture_view.show_picture (current_picture);
-
             new Thread<void*> (
                 "open_file",
                 () => {
-                    File directory = file.get_parent ();
+                    File directory = File.new_for_uri (current_picture.file.get_parent ().get_uri ());
                     try {
-                        var children = directory.enumerate_children (FileAttribute.STANDARD_CONTENT_TYPE, GLib.FileQueryInfoFlags.NONE);
+                        var children = directory.enumerate_children ("standard::*", GLib.FileQueryInfoFlags.NONE);
                         FileInfo file_info;
                         while ((file_info = children.next_file ()) != null) {
                             mime_type = file_info.get_content_type ();
