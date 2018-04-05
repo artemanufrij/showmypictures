@@ -102,10 +102,10 @@ namespace ShowMyPictures.Widgets {
                         if (folder.parent is Widgets.NavigationDate) {
                             date_selected ((folder.parent as Widgets.NavigationDate).val, folder.val);
                         } else {
-                            date_selected (folder.val,                                    0);
+                            date_selected (folder.val, 0);
                         }
                     } else if (item is Widgets.NavigationLabel) {
-                            date_selected (0,                                             0, false);
+                            date_selected (0, 0, false);
                         label_selected ((item as Widgets.NavigationLabel).name);
                     } else if (item == duplicates_item) {
                         duplicates_selected ();
@@ -114,6 +114,7 @@ namespace ShowMyPictures.Widgets {
                     } else if (item is Widgets.NavigationExternalDevice) {
                         var device = (item as Widgets.NavigationExternalDevice);
                         if (device != null && device.album != null) {
+                            label_selected ("");
                             album_selected (device.album);
                         }
                     }
