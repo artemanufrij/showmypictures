@@ -52,6 +52,7 @@ namespace ShowMyPictures.Widgets.Views {
 
         uint timer_sort = 0;
         string filter_label = "";
+        bool esc_sort = true;
 
         construct {
             library_manager = ShowMyPictures.Services.LibraryManager.instance;
@@ -79,10 +80,12 @@ namespace ShowMyPictures.Widgets.Views {
             this.add (scroll);
         }
 
-        public void show_album (Objects.Album album) {
+        public void show_album (Objects.Album album, bool esc_sort = true) {
             if (current_album == album) {
                 return;
             }
+
+            this.esc_sort = esc_sort;
 
             if (current_album != null) {
                 current_album.picture_added.disconnect (add_picture);
@@ -180,24 +183,24 @@ namespace ShowMyPictures.Widgets.Views {
             var item2 = (Widgets.Picture)child2;
 
             if (item1.picture.year != item2.picture.year) {
-                return item1.picture.year - item2.picture.year;
+                return (item1.picture.year - item2.picture.year) * (esc_sort ? 1 : -1);
             }
             if (item1.picture.month != item2.picture.month) {
-                return item1.picture.month - item2.picture.month;
+                return (item1.picture.month - item2.picture.month) * (esc_sort ? 1 : -1);;
             }
             if (item1.picture.day != item2.picture.day) {
-                return item1.picture.day - item2.picture.day;
+                return (item1.picture.day - item2.picture.day) * (esc_sort ? 1 : -1);;
             }
             if (item1.picture.hour != item2.picture.hour) {
-                return item1.picture.hour - item2.picture.hour;
+                return (item1.picture.hour - item2.picture.hour) * (esc_sort ? 1 : -1);;
             }
             if (item1.picture.minute != item2.picture.minute) {
-                return item1.picture.minute - item2.picture.minute;
+                return (item1.picture.minute - item2.picture.minute) * (esc_sort ? 1 : -1);;
             }
             if (item1.picture.second != item2.picture.second) {
-                return item1.picture.second - item2.picture.second;
+                return (item1.picture.second - item2.picture.second) * (esc_sort ? 1 : -1);;
             }
-            return item1.picture.path.collate (item2.picture.path);
+            return item1.picture.path.collate (item2.picture.path) * (esc_sort ? 1 : -1);;
         }
 
         private bool pictures_filter_func (Gtk.FlowBoxChild child) {

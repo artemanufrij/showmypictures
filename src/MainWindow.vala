@@ -328,7 +328,7 @@ namespace ShowMyPictures {
             navigation = new Widgets.NavigationBar ();
             navigation.album_selected.connect (
                 (album) => {
-                    album_view.show_album (album);
+                    album_view.show_album (album, false);
                     show_album ();
                 });
             navigation.date_selected.connect (
