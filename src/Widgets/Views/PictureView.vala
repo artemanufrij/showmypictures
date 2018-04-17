@@ -167,11 +167,7 @@ namespace ShowMyPictures.Widgets.Views {
             if (picture_details.has_text_focus || current_picture.source_type == Objects.SourceType.MTP || current_picture.source_type == Objects.SourceType.GPHOTO) {
                 return false;
             }
-            var for_delete = current_picture;
-            if (!show_next_picture ()) {
-                show_prev_picture ();
-            }
-            library_manager.db_manager.remove_picture (for_delete);
+            library_manager.db_manager.remove_picture (current_picture);
             return true;
         }
 
@@ -234,6 +230,7 @@ namespace ShowMyPictures.Widgets.Views {
             picture_loaded (current_picture);
             current_picture.updated.connect (picture_updated);
             current_picture.rotated.connect (picture_reload);
+            current_picture.removed.connect (picture_removed);
             current_picture.external_modified.connect (picture_reload);
             current_picture.start_monitoring ();
 
@@ -246,6 +243,7 @@ namespace ShowMyPictures.Widgets.Views {
             current_picture.stop_monitoring ();
             current_picture.updated.disconnect (picture_updated);
             current_picture.rotated.disconnect (picture_reload);
+            current_picture.removed.disconnect (picture_removed);
             current_picture.external_modified.disconnect (picture_reload);
         }
 
@@ -258,6 +256,15 @@ namespace ShowMyPictures.Widgets.Views {
             var p = current_picture;
             current_picture = null;
             show_picture (p);
+        }
+
+        private void picture_removed () {
+            if (!show_next_picture ()) {
+                show_prev_picture ();
+            }
+        }
+
+        public void rename_picture () {
         }
 
         public void reset () {

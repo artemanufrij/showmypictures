@@ -59,14 +59,25 @@ namespace ShowMyPictures {
                     }
                 });
 
-            var toggle_details_reset = action_generator ("F4", "toggle-details-action");
-            toggle_details_reset.activate.connect (
+            var toggle_details = action_generator ("F4", "toggle-details-action");
+            toggle_details.activate.connect (
                 () => {
                     var win = get_active_window ();
                     if (win == mainwindow) {
                         (win as MainWindow).toggle_details_action ();
                     } else {
                         (win as FastViewWindow).toggle_details_action ();
+                    }
+                });
+
+            var action_rename = action_generator ("F2", "rename-action");
+            action_rename.activate.connect (
+                () => {
+                    var win = get_active_window ();
+                    if (win != mainwindow) {
+                        (win as MainWindow).rename_action ();
+                    } else {
+                        (win as FastViewWindow).rename_action ();
                     }
                 });
 

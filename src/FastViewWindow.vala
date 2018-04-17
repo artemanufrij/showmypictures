@@ -114,6 +114,10 @@ namespace ShowMyPictures {
             picture_view.rotate_right ();
         }
 
+        public void rename_action () {
+            picture_view.rename_picture ();
+        }
+
         public void open_file (File file) {
             var album = new Objects.Album ("Files");
             var current_picture = new Objects.Picture (album, true);

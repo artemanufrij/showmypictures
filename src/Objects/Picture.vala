@@ -158,7 +158,7 @@ namespace ShowMyPictures.Objects {
         public bool extern_file { get; set; default = false; }
 
         construct {
-            removed.connect (
+            removed.connect_after (
                 () => {
                     if (album != null) {
                         album.picture_removed (this);

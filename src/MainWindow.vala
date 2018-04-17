@@ -614,6 +614,12 @@ namespace ShowMyPictures {
             }
         }
 
+        public void rename_action () {
+            if (content.visible_child_name == "picture") {
+                picture_view.rename_picture ();
+            }
+        }
+
         private async void load_content_from_database () {
             if (library_manager.albums.length () > 0 && content.visible_child_name != "picture") {
                 show_albums ();
