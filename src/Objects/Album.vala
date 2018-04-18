@@ -27,7 +27,7 @@
 
 namespace ShowMyPictures.Objects {
     public class Album : GLib.Object {
-        ShowMyPictures.Services.DataBaseManager db_manager;
+        Services.DataBaseManager db_manager;
 
         public signal void picture_added (Picture picture, uint new_count);
         public signal void picture_removed (Picture picture);
@@ -90,7 +90,7 @@ namespace ShowMyPictures.Objects {
         public bool pictures_preview_creating { get; private set; default = false; }
 
         construct {
-            db_manager = ShowMyPictures.Services.DataBaseManager.instance;
+            db_manager = Services.DataBaseManager.instance;
             picture_removed.connect (
                 (track) => {
                     this._pictures.remove (track);

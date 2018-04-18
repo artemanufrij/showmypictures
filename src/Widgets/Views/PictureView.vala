@@ -34,6 +34,7 @@ namespace ShowMyPictures.Widgets.Views {
 
         public signal void picture_loading ();
         public signal void picture_loaded (Objects.Picture picture);
+        public signal void request_rename ();
 
         Gdk.Pixbuf current_pixbuf = null;
 
@@ -115,8 +116,6 @@ namespace ShowMyPictures.Widgets.Views {
                 });
 
             drawing_area = new Gtk.DrawingArea ();
-           // drawing_area.halign = Gtk.Align.CENTER;
-           // drawing_area.valign = Gtk.Align.CENTER;
             drawing_area.draw.connect (on_draw);
 
             gif_view = new WebKit.WebView.with_context (WebKit.WebContext.get_default ());
@@ -139,6 +138,10 @@ namespace ShowMyPictures.Widgets.Views {
             picture_details.prev.connect (
                 () => {
                     show_prev_picture ();
+                });
+            picture_details.request_rename.connect (
+                () => {
+                    request_rename ();
                 });
 
             this.attach (event_box, 0, 0);
@@ -228,15 +231,20 @@ namespace ShowMyPictures.Widgets.Views {
             }
             picture_details.show_picture (current_picture);
             picture_loaded (current_picture);
+
+            connect_current_picture ();
+
+            menu = null;
+
+            this.grab_focus ();
+        }
+
+        private void connect_current_picture () {
             current_picture.updated.connect (picture_updated);
             current_picture.rotated.connect (picture_reload);
             current_picture.removed.connect (picture_removed);
             current_picture.external_modified.connect (picture_reload);
             current_picture.start_monitoring ();
-
-            menu = null;
-
-            this.grab_focus ();
         }
 
         private void disconnect_current_picture () {
@@ -249,6 +257,7 @@ namespace ShowMyPictures.Widgets.Views {
 
         private void picture_updated () {
             ShowMyPicturesApp.instance.mainwindow.send_app_notification (_ ("Picture properties updated"));
+            picture_loaded (current_picture);
         }
 
         private void picture_reload () {
@@ -262,9 +271,6 @@ namespace ShowMyPictures.Widgets.Views {
             if (!show_next_picture ()) {
                 show_prev_picture ();
             }
-        }
-
-        public void rename_picture () {
         }
 
         public void reset () {

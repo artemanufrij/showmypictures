@@ -369,7 +369,7 @@ namespace ShowMyPictures.Services {
             Sqlite.Statement stmt;
 
             string sql = """
-                UPDATE pictures SET album_id=$ALBUM_ID, keywords=$KEYWORDS, comment=$COMMENT, stars=$STARS, colors=$COLORS, hash=$HASH WHERE id=$ID;
+                UPDATE pictures SET album_id=$ALBUM_ID, keywords=$KEYWORDS, comment=$COMMENT, stars=$STARS, colors=$COLORS, hash=$HASH, path=$PATH WHERE id=$ID;
             """;
 
             db.prepare_v2 (sql, sql.length, out stmt);
@@ -380,6 +380,7 @@ namespace ShowMyPictures.Services {
             set_parameter_int (stmt, sql, "$STARS", picture.stars);
             set_parameter_str (stmt, sql, "$COLORS", picture.colors.strip ());
             set_parameter_str (stmt, sql, "$HASH", picture.hash);
+            set_parameter_str (stmt, sql, "$PATH", picture.path);
 
             if (stmt.step () != Sqlite.DONE) {
                 warning ("Error: %d: %s", db.errcode (), db.errmsg ());

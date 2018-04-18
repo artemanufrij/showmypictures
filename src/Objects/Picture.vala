@@ -195,6 +195,15 @@ namespace ShowMyPictures.Objects {
             create_preview.begin (true);
         }
 
+        public void rename (string new_file_name) {
+            if (FileUtils.rename (path, new_file_name) == 0) {
+                path = new_file_name;
+                if (ID > 0) {
+                    Services.DataBaseManager.instance.update_picture (this);
+                }
+            }
+        }
+
         public void create_original (bool force = false) {
             if (_original != null && !force) {
                 return;
@@ -307,7 +316,7 @@ namespace ShowMyPictures.Objects {
             try {
                 create_preview_from_pixbuf (new Gdk.Pixbuf.from_file_at_scale (source_path, -1, 256, true));
             } catch (Error err) {
-                warning (err.message);
+                    warning (err.message);
             }
         }
 
@@ -405,7 +414,7 @@ namespace ShowMyPictures.Objects {
                 }
             }
             catch (Error err) {
-                warning (err.message);
+                    warning (err.message);
                 return false;
             }
 

@@ -30,9 +30,13 @@ namespace ShowMyPictures {
         Settings settings;
 
         Widgets.Views.PictureView picture_view;
+
+        Gtk.HeaderBar headerbar;
         Gtk.Image pane_show;
         Gtk.Image pane_hide;
         Gtk.Button show_details;
+
+        Popovers.Rename rename;
 
         construct {
             settings = Settings.get_default ();
@@ -66,7 +70,7 @@ namespace ShowMyPictures {
         }
 
         private void build_ui () {
-            var headerbar = new Gtk.HeaderBar ();
+            headerbar = new Gtk.HeaderBar ();
             headerbar.show_close_button = true;
             headerbar.get_style_context ().add_class ("default-decoration");
             this.set_titlebar (headerbar);
@@ -87,6 +91,7 @@ namespace ShowMyPictures {
                 (picture) => {
                     headerbar.title = Path.get_basename (picture.path);
                 });
+            picture_view.request_rename.connect (rename_action);
 
             this.add (picture_view);
             this.show_all ();
@@ -115,7 +120,16 @@ namespace ShowMyPictures {
         }
 
         public void rename_action () {
-            picture_view.rename_picture ();
+            if (rename == null) {
+                rename = new Popovers.Rename ();
+                rename.position = Gtk.PositionType.BOTTOM;
+                rename.set_relative_to (headerbar);
+            }
+
+            if (picture_view.current_picture.source_type == Objects.SourceType.LIBRARY
+                || picture_view.current_picture.source_type == Objects.SourceType.EXTERNAL) {
+                rename.rename_picture (picture_view.current_picture);
+            }
         }
 
         public void open_file (File file) {

@@ -29,6 +29,10 @@ namespace ShowMyPictures.Popovers {
     public class Rename : Gtk.Popover {
         Objects.Picture current_picture = null;
 
+        string fname = "";
+        string fext = "";
+        string new_file_name = "";
+
         Gtk.Entry file_name;
 
         public Rename () {
@@ -38,6 +42,24 @@ namespace ShowMyPictures.Popovers {
         private void build_ui () {
             file_name = new Gtk.Entry ();
             file_name.margin = 6;
+            file_name.changed.connect (
+                () => {
+                    check_file_name ();
+                });
+
+            file_name.key_press_event.connect (
+                (key) => {
+                    switch (key.keyval) {
+                    case Gdk.Key.Return :
+                        if (check_file_name ()) {
+                            current_picture.rename (new_file_name);
+                            this.hide ();
+                        }
+                        break;
+                    }
+                    return false;
+                });
+
             this.add (file_name);
         }
 
@@ -45,9 +67,36 @@ namespace ShowMyPictures.Popovers {
             current_picture = picture;
 
             if (current_picture != null) {
-                file_name.text = Path.get_basename (current_picture.path);
+                fname = Path.get_basename (current_picture.path);
+                fext = "";
+
+                var last_index = fname.last_index_of (".");
+
+                if (last_index > -1) {
+                    fext = fname.substring (last_index + 1);
+                    fname = fname.substring (0, last_index);
+                }
+
+                file_name.text = fname;
+
                 this.show_all ();
             }
+        }
+
+        private bool check_file_name () {
+            var new_fname = file_name.text.strip ();
+            new_file_name = Path.get_dirname (current_picture.path) + "/" + new_fname + "." + fext;
+
+            if (new_fname != "" && FileUtils.test (new_file_name, FileTest.EXISTS)) {
+                file_name.secondary_icon_name = "process-error-symbolic";
+                file_name.secondary_icon_tooltip_text = _ ("File name exists");
+                return false;
+            }
+
+            file_name.secondary_icon_name = "process-completed-symbolic";
+            file_name.secondary_icon_tooltip_text = _ ("Press [Enter] for rename file");
+
+            return true;
         }
     }
 }

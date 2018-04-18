@@ -298,6 +298,7 @@ namespace ShowMyPictures {
                     headerbar.title = Path.get_basename (picture.path);
                     spinner.active = false;
                 });
+            picture_view.request_rename.connect (rename_action);
 
             duplicates_view = new Widgets.Views.DuplicatesView ();
             duplicates_view.counter_changed.connect (
@@ -618,14 +619,16 @@ namespace ShowMyPictures {
 
         public void rename_action () {
             if (content.visible_child_name == "picture") {
-                //picture_view.rename_picture ();
                 if (rename == null) {
                     rename = new Popovers.Rename ();
                     rename.position = Gtk.PositionType.BOTTOM;
                     rename.set_relative_to (headerbar);
                 }
 
-                rename.rename_picture (picture_view.current_picture);
+                if (picture_view.current_picture.source_type == Objects.SourceType.LIBRARY
+                    || picture_view.current_picture.source_type == Objects.SourceType.EXTERNAL) {
+                    rename.rename_picture (picture_view.current_picture);
+                }
             }
         }
 

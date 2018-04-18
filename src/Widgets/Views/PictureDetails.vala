@@ -32,6 +32,7 @@ namespace ShowMyPictures.Widgets.Views {
 
         public signal void next ();
         public signal void prev ();
+        public signal void request_rename ();
 
         Gtk.Label title;
         Gtk.Label date_size_resolution;
@@ -47,6 +48,7 @@ namespace ShowMyPictures.Widgets.Views {
         Gtk.Button rotate_left;
         Gtk.Button rotate_right;
         Gtk.Button into_trash;
+        Gtk.Button rename;
 
         Gtk.Label lab_details;
 
@@ -95,6 +97,14 @@ namespace ShowMyPictures.Widgets.Views {
                     db_manager.remove_picture (current_picture);
                 });
 
+            rename = new Gtk.Button.from_icon_name ("document-edit-symbolic", Gtk.IconSize.SMALL_TOOLBAR);
+            rename.tooltip_text = _ ("Rename current Picture");
+            rename.valign = Gtk.Align.CENTER;
+            rename.clicked.connect (
+                () => {
+                    request_rename ();
+                });
+
             navigation_controls = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 6);
 
             go_next = new Gtk.Button.from_icon_name ("go-next-symbolic", Gtk.IconSize.LARGE_TOOLBAR);
@@ -115,6 +125,7 @@ namespace ShowMyPictures.Widgets.Views {
             navigation_controls.pack_start (go_next, false, false);
 
             controls.pack_start (into_trash, false, false);
+            controls.pack_start (rename, false, false);
             controls.set_center_widget (navigation_controls);
             controls.pack_end (rotate_right, false, false);
             controls.pack_end (rotate_left, false, false);
@@ -170,6 +181,10 @@ namespace ShowMyPictures.Widgets.Views {
                 return;
             }
 
+            if (current_picture != null) {
+                current_picture.updated.disconnect (picture_updated);
+            }
+
             current_picture = picture;
 
             if (current_picture.date == null) {
@@ -196,6 +211,8 @@ namespace ShowMyPictures.Widgets.Views {
             } else {
                 show_all_controls ();
             }
+
+            current_picture.updated.connect (picture_updated);
         }
 
         private void show_camera_details () {
@@ -222,6 +239,10 @@ namespace ShowMyPictures.Widgets.Views {
             } else {
                 lab_details.hide ();
             }
+        }
+
+        private void picture_updated () {
+            location.label = Uri.unescape_string (current_picture.file.get_uri ());
         }
 
         public void save_changes () {

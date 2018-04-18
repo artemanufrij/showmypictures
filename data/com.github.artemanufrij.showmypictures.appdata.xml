@@ -46,6 +46,14 @@
         </screenshot>
     </screenshots>
     <releases>
+        <release version="0.2.7" date="2018-04-25">
+            <description>
+                <p>New:</p>
+                <ul>
+                    <li>Rename Picture by click Edit button or [F2] key</li>
+                </ul>
+            </description>
+        </release>
         <release version="0.2.6" date="2018-03-30">
             <description>
                 <p>New:</p>
