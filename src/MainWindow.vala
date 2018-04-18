@@ -54,6 +54,8 @@ namespace ShowMyPictures {
         Widgets.Views.NotFoundView not_found_view;
         Widgets.NavigationBar navigation;
 
+        Popovers.Rename rename;
+
         Granite.Widgets.Toast app_notification;
 
         public bool ctrl_pressed { get; private set; default = false; }
@@ -616,7 +618,14 @@ namespace ShowMyPictures {
 
         public void rename_action () {
             if (content.visible_child_name == "picture") {
-                picture_view.rename_picture ();
+                //picture_view.rename_picture ();
+                if (rename == null) {
+                    rename = new Popovers.Rename ();
+                    rename.position = Gtk.PositionType.BOTTOM;
+                    rename.set_relative_to (headerbar);
+                }
+
+                rename.rename_picture (picture_view.current_picture);
             }
         }
 

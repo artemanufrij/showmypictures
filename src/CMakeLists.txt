@@ -34,6 +34,7 @@ vala_precompile (VALA_C ${CMAKE_PROJECT_NAME}
     Utils/UI.vala
     Dialogs/Preferences.vala
     Dialogs/AlbumEditor.vala
+    Popovers/Rename.vala
     Settings.vala
     FastViewWindow.vala
     MainWindow.vala

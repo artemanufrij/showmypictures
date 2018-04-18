@@ -74,7 +74,7 @@ namespace ShowMyPictures {
             action_rename.activate.connect (
                 () => {
                     var win = get_active_window ();
-                    if (win != mainwindow) {
+                    if (win == mainwindow) {
                         (win as MainWindow).rename_action ();
                     } else {
                         (win as FastViewWindow).rename_action ();
