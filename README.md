@@ -27,7 +27,7 @@ sudo apt install elementary-sdk
 
 Install dependencies
 ```
-sudo apt install libsqlite3-dev libgexiv2-dev libraw-dev
+sudo apt install libsqlite3-dev libgexiv2-dev libraw-dev webkit2gtk-4.0
 ```
 
 Clone repository and change directory
