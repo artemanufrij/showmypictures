@@ -62,6 +62,10 @@ namespace ShowMyPictures.Widgets {
                             return false;
                         });
                 });
+            this.picture.updated.connect (
+                () => {
+                    this.tooltip_text = Uri.unescape_string (picture.file.get_uri ());
+                });
         }
 
         private bool first_draw () {
