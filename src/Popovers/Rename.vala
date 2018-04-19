@@ -42,6 +42,7 @@ namespace ShowMyPictures.Popovers {
         private void build_ui () {
             file_name = new Gtk.Entry ();
             file_name.margin = 6;
+            file_name.width_request = 260;
             file_name.changed.connect (
                 () => {
                     check_file_name ();
