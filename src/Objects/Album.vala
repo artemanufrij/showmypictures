@@ -303,7 +303,7 @@ namespace ShowMyPictures.Objects {
         public void create_default_title () {
             if (year > 0 && month > 0 && day > 0) {
                 var date_time = new DateTime.local (year, month, day, 0, 0, 0);
-                title = date_time.format ("%e. %b, %Y");
+                title = date_time.format ("%e. %b, %Y").strip ();
             } else {
                 title = _ ("No Date");
             }

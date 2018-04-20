@@ -102,6 +102,7 @@ namespace ShowMyPictures.Widgets {
                         });
                 });
             this.album.edit_request.connect (edit_album);
+            this.album.updated.connect (set_tooltip);
         }
 
         private bool first_draw () {
@@ -158,6 +159,8 @@ namespace ShowMyPictures.Widgets {
             content.attach (counter, 1, 2);
             content.attach (saved_size, 2, 2);
 
+            set_tooltip ();
+
             this.add (event_box);
             this.show_all ();
         }
@@ -200,6 +203,22 @@ namespace ShowMyPictures.Widgets {
             var editor = new Dialogs.AlbumEditor (ShowMyPicturesApp.instance.mainwindow, this.album);
             if (editor.run () == Gtk.ResponseType.ACCEPT) {
                 editor.destroy ();
+            }
+        }
+
+        private void set_tooltip () {
+            var k = _("Keywords:\n<b>%s</b>").printf (album.keywords);
+
+            var c = _("Comments:\n<b>%s</b>").printf (album.comment);
+
+            if (album.keywords != "" && album.comment != "") {
+                this.tooltip_markup = k + "\n\n" + c;
+            } else if (album.keywords != "") {
+                this.tooltip_markup = k;
+            } else if (album.comment != "") {
+                this.tooltip_markup = c;
+            } else {
+                this.tooltip_markup = null;
             }
         }
 
