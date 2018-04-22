@@ -60,6 +60,7 @@
                 <ul>
                     <li>Scroll through the pictures opened from a SMB:// source</li>
                 </ul>
+                <p>Small UI improvements</p>
             </description>
         </release>
         <release version="0.2.5" date="2018-03-20">

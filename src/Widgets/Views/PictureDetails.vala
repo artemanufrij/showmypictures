@@ -190,7 +190,12 @@ namespace ShowMyPictures.Widgets.Views {
             if (current_picture.date == null) {
                 current_picture.exclude_creation_date ();
             }
-            date_size_resolution.label = "%s\n%d × %d".printf (current_picture.date, current_picture.width, current_picture.height);
+            if (current_picture.width > 0 && current_picture.height > 0) {
+                date_size_resolution.label = "%s\n%d × %d".printf (current_picture.date, current_picture.width, current_picture.height);
+                date_size_resolution.show ();
+            } else {
+                date_size_resolution.hide ();
+            }
             location.label = Uri.unescape_string (current_picture.file.get_uri ());
 
             if (picture.source_type == Objects.SourceType.LIBRARY) {
