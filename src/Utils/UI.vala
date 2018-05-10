@@ -53,10 +53,42 @@ namespace ShowMyPictures.Utils {
                 try {
                     Process.spawn_command_line_async ("xdg-open '%s'".printf (folder));
                 } catch (Error err) {
-                                warning (err.message);
+                    warning (err.message);
                 }
             });
         menu.add (menu_open_loacation);
+
+        var menu_save_as = new Gtk.MenuItem.with_label (_ ("Save as…"));
+        menu_save_as.activate.connect (
+            () => {
+                var file_dialog = new Gtk.FileChooserDialog (
+                    _ ("Save as…"), ShowMyPicturesApp.instance.get_active_window (),
+                    Gtk.FileChooserAction.SAVE,
+                    _ ("Cancel"), Gtk.ResponseType.CANCEL,
+                    _ ("Save"), Gtk.ResponseType.ACCEPT);
+
+                file_dialog.set_current_name (picture.file.get_basename ());
+
+                var filter = new Gtk.FileFilter ();
+                filter.set_filter_name ("Image");
+                filter.add_mime_type (picture.mime_type);
+
+                file_dialog.add_filter (filter);
+
+                if (file_dialog.run () == Gtk.ResponseType.ACCEPT) {
+                    var filename = file_dialog.get_filename ();
+                    var file = File.new_for_path (filename);
+
+                    try {
+                        picture.file.copy (file, FileCopyFlags.OVERWRITE);
+                    } catch (Error err) {
+                        warning (err.message);
+                    }
+                }
+                file_dialog.destroy ();
+            });
+
+        menu.add (menu_save_as);
 
         if (picture.source_type != Objects.SourceType.MTP && picture.source_type != Objects.SourceType.GPHOTO) {
             var menu_move_into_trash = new Gtk.MenuItem.with_label (_ ("Move into Trash"));
