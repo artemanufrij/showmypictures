@@ -46,6 +46,14 @@
         </screenshot>
     </screenshots>
     <releases>
+        <release version="0.2.8" date="2018-05-12">
+            <description>
+                <p>New:</p>
+                <ul>
+                    <li>Context menu 'Save as…' for pictures. [Ctrl+s]</li>
+                </ul>
+            </description>
+        </release>
         <release version="0.2.7" date="2018-04-25">
             <description>
                 <p>New:</p>

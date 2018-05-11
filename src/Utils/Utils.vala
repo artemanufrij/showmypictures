@@ -162,13 +162,41 @@ namespace ShowMyPictures.Utils {
     public static void set_custom_css_style (Gdk.Screen screen) {
         Granite.Widgets.Utils.set_theming_for_screen (
             screen,
-                """
-                    .album {
-                        background: @base_color;
-                        border-radius: 3px;
-                    }
-                """,
-                Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
+            """
+                .album {
+                    background: @base_color;
+                    border-radius: 3px;
+                }
+            """,
+            Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
             );
+    }
+
+    public static void save_picture_as (Objects.Picture picture) {
+        var file_dialog = new Gtk.FileChooserDialog (
+            _ ("Save as…"), ShowMyPicturesApp.instance.get_active_window (),
+            Gtk.FileChooserAction.SAVE,
+            _ ("Cancel"), Gtk.ResponseType.CANCEL,
+            _ ("Save"), Gtk.ResponseType.ACCEPT);
+
+        file_dialog.set_current_name (picture.file.get_basename ());
+
+        var filter = new Gtk.FileFilter ();
+        filter.set_filter_name ("Image");
+        filter.add_mime_type (picture.mime_type);
+
+        file_dialog.add_filter (filter);
+
+        if (file_dialog.run () == Gtk.ResponseType.ACCEPT) {
+            var filename = file_dialog.get_filename ();
+            var file = File.new_for_path (filename);
+
+            try {
+                picture.file.copy (file, FileCopyFlags.OVERWRITE);
+            } catch (Error err) {
+                warning (err.message);
+            }
+        }
+        file_dialog.destroy ();
     }
 }

@@ -90,6 +90,13 @@ namespace ShowMyPictures.Widgets.Views {
                             return true;
                         }
                         break;
+                    case Gdk.Key.s :
+                        if (Gdk.ModifierType.CONTROL_MASK in key.state) {
+                            if (current_picture != null) {
+                                Utils.save_picture_as (current_picture);
+                            }
+                        }
+                        break;
                     }
 
                     return false;
