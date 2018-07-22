@@ -46,6 +46,11 @@
         </screenshot>
     </screenshots>
     <releases>
+        <release version="0.3.0" date="2018-07-24">
+            <description>
+                Prepare for JUNO
+            </description>
+        </release>
         <release version="0.2.8" date="2018-05-12">
             <description>
                 <p>New:</p>
