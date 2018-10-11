@@ -7,7 +7,7 @@
     <name>Memories</name>
     <summary>Manage local image files</summary>
     <description>
-        <p>A very fast image viewer designed extra for large local libraries.</p>
+        <p>A very fast image viewer designed extra for large local libraries which also support import of photos from a mobile device</p>
         <p>Features:</p>
         <ul>
             <li>Manage your whole library on one place</li>
