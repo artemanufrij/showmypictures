@@ -20,8 +20,8 @@ pkg_check_modules (DEPS REQUIRED
     gtk+-3.0>=3.11.6
     granite
     sqlite3
-    gexiv2
     libraw
+    gexiv2
     webkit2gtk-4.0
 )
 
