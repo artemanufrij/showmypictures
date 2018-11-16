@@ -66,6 +66,7 @@ namespace ShowMyPictures.Services {
                                 scan_local_files.begin (target);
                             }
                         } else if (file_info.get_file_type () == FileType.DIRECTORY) {
+                            Thread.usleep (1000000);
                             scan_local_files.begin (GLib.Path.build_filename (path, file_info.get_name ()));
                         } else {
                             string mime_type = file_info.get_content_type ();
