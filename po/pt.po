@@ -48,7 +48,7 @@ msgstr "Abrir localização"
 
 #: ../src/Utils/UI.vala:61 ../src/Utils/UI.vala:65
 msgid "Save as…"
-msgstr "Gravar como…"
+msgstr "Guardar como…"
 
 #: ../src/Utils/UI.vala:67
 msgid "Cancel"
@@ -56,7 +56,7 @@ msgstr "Cancelar"
 
 #: ../src/Utils/UI.vala:68 ../src/Dialogs/AlbumEditor.vala:112
 msgid "Save"
-msgstr "Gravar"
+msgstr "Guardar"
 
 #: ../src/Utils/UI.vala:94
 msgid "Move into Trash"
